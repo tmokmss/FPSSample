@@ -3,7 +3,7 @@ using UnityEngine.Playables;
 
 public class SimpleTranstion<U> where U : struct, IPlayable
 {
-    public SimpleTranstion(U target, params int[] ports) 
+    public SimpleTranstion(U target, params int[] ports)
     {
         m_target = target;
         m_ports = ports;
@@ -30,6 +30,7 @@ public class SimpleTranstion<U> where U : struct, IPlayable
 
             totalWeight += m_target.GetInputWeight(port);
         }
+
         if (totalWeight == 0)
             return;
 

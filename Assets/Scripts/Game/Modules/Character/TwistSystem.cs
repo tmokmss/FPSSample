@@ -13,9 +13,13 @@ public class HandleTwistSpawns : InitializeComponentGroupSystem<Twist, HandleTwi
 {
     ComponentGroup Group;
 
-    public struct Initialized : IComponentData {}
-    
-    public HandleTwistSpawns(GameWorld world) : base(world) { }
+    public struct Initialized : IComponentData
+    {
+    }
+
+    public HandleTwistSpawns(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
@@ -35,15 +39,17 @@ public class HandleTwistSpawns : InitializeComponentGroupSystem<Twist, HandleTwi
 public class HandleTwistDespawns : DeinitializeComponentGroupSystem<Twist>
 {
     ComponentGroup Group;
-    
-    public HandleTwistDespawns(GameWorld world) : base(world) { }
+
+    public HandleTwistDespawns(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
         base.OnCreateManager();
         Group = GetComponentGroup(typeof(Twist), ComponentType.Subtractive<DespawningEntity>());
     }
-    
+
     protected override void Deinitialize(ref ComponentGroup group)
     {
         // Get all components of type, not just spawned/de-spawned ones
@@ -87,7 +93,7 @@ public class TwistSystem
     {
         m_HandleTwistDespawns.Update();
     }
-              
+
     public static void SetupTwistComponents(ref ComponentArray<Twist> twistComponents)
     {
         s_SetupIndex = 0;
@@ -110,14 +116,15 @@ public class TwistSystem
             return;
 
         GameDebug.Assert(s_SourceJoints.length < k_MaxSetups, "You are trying to add more twist joint chains then there is allocated space for.");
-        GameDebug.Assert(s_TwistJoints.length + twistChain.twistJoints.Count <= k_MaxTwistJoints, "You are trying to add more twist joint then there is allocated space for.");
+        GameDebug.Assert(s_TwistJoints.length + twistChain.twistJoints.Count <= k_MaxTwistJoints,
+            "You are trying to add more twist joint then there is allocated space for.");
 
         s_SourceJoints.Add(twistChain.driver);
         s_SourceData[s_SetupIndex] = new SourceData
         {
             bindpose = twistChain.bindpose
         };
-        
+
         for (var j = 0; j < twistChain.twistJoints.Count; j++)
         {
             if (twistChain.twistJoints[j].joint != null)
@@ -139,20 +146,19 @@ public class TwistSystem
     {
         Profiler.BeginSample("TwistSystem.Schedule");
 
-            var readJob = new ReadJob(s_SourceData);
-            var readHandle = readJob.Schedule(s_SourceJoints);
+        var readJob = new ReadJob(s_SourceData);
+        var readHandle = readJob.Schedule(s_SourceJoints);
 
-            var writeJob = new WriteJob(s_SourceData, s_TargetData);
-            m_WriteHandle = writeJob.Schedule(s_TwistJoints, readHandle);
+        var writeJob = new WriteJob(s_SourceData, s_TargetData);
+        m_WriteHandle = writeJob.Schedule(s_TwistJoints, readHandle);
 
-            Profiler.EndSample();
+        Profiler.EndSample();
 
         return m_WriteHandle;
     }
 
     public JobHandle Schedule(JobHandle dependency)
     {
-
         Profiler.BeginSample("TwistSystem.Schedule");
 
         var readJob = new ReadJob(s_SourceData);
@@ -206,10 +212,8 @@ public class TwistSystem
     [BurstCompile(CompileSynchronously = true)]
     struct WriteJob : IJobParallelForTransform
     {
-        [ReadOnly]
-        NativeArray<SourceData> m_SourceData;
-        [ReadOnly]
-        NativeArray<TargetData> m_TargetData;
+        [ReadOnly] NativeArray<SourceData> m_SourceData;
+        [ReadOnly] NativeArray<TargetData> m_TargetData;
 
         public WriteJob(NativeArray<SourceData> sourceData, NativeArray<TargetData> targetData)
         {
@@ -239,6 +243,6 @@ public class TwistSystem
     JobHandle m_WriteHandle;
 
     protected GameWorld m_World;
-    readonly HandleTwistSpawns m_HandleTwistSpawns;   
+    readonly HandleTwistSpawns m_HandleTwistSpawns;
     readonly HandleTwistDespawns m_HandleTwistDespawns;
 }

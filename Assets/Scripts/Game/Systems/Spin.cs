@@ -13,9 +13,11 @@ public class Spin : MonoBehaviour
 [DisableAutoCreation]
 public class SpinSystem : BaseComponentSystem
 {
-    ComponentGroup Group; 
-    
-    public SpinSystem(GameWorld gameWorld) : base(gameWorld) {}
+    ComponentGroup Group;
+
+    public SpinSystem(GameWorld gameWorld) : base(gameWorld)
+    {
+    }
 
     protected override void OnCreateManager()
     {
@@ -27,7 +29,7 @@ public class SpinSystem : BaseComponentSystem
     {
         var spinnerArray = Group.GetComponentArray<Spin>();
         float dt = m_world.frameDuration;
-        for(int i = 0, c = spinnerArray.Length; i<c; i++)
+        for (int i = 0, c = spinnerArray.Length; i < c; i++)
         {
             var g = spinnerArray[i];
             g.gameObject.transform.Rotate(g.rotationAxis, g.speed * dt);

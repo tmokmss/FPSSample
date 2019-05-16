@@ -9,8 +9,15 @@ public class TickStateSparseBuffer<T>
         m_Ticks = new int[size];
     }
 
-    public int Count { get { return m_Count; } }
-    public int Capacity { get { return m_Ticks.Length; } }
+    public int Count
+    {
+        get { return m_Count; }
+    }
+
+    public int Capacity
+    {
+        get { return m_Ticks.Length; }
+    }
 
     public T this[int index]
     {
@@ -73,7 +80,7 @@ public class TickStateSparseBuffer<T>
         int lowTick = GetTickByIndex(lowIndex);
         int highTick = GetTickByIndex(highIndex);
 
-        float total = (float)(highTick - lowTick);
+        float total = (float) (highTick - lowTick);
         float relativeTime = tick - lowTick + fraction;
 
         outputFraction = relativeTime / total;
@@ -132,11 +139,12 @@ public class TickStateSparseBuffer<T>
         return m_Ticks[index];
     }
 
-    public void Add(int tick, T element)    
+    public void Add(int tick, T element)
     {
         var last = LastTick();
         if (last != -1 && last >= tick)
-            throw new System.InvalidOperationException(string.Format("Ticks must be increasing when adding (last = {0}, trying to add {1})", last, tick));
+            throw new System.InvalidOperationException(string.Format("Ticks must be increasing when adding (last = {0}, trying to add {1})", last,
+                tick));
 
         var index = (m_First + m_Count) % m_Ticks.Length;
 

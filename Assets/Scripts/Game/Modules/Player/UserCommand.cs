@@ -26,19 +26,19 @@ public struct UserCommand : IReplicatedComponent
 
         public bool IsSet(Button button)
         {
-            return (flags & (uint)button) > 0;
+            return (flags & (uint) button) > 0;
         }
 
         public void Or(Button button, bool val)
         {
-            if(val)
+            if (val)
                 flags = flags | (uint) button;
         }
 
-        
+
         public void Set(Button button, bool val)
         {
-            if(val)
+            if (val)
                 flags = flags | (uint) button;
             else
             {
@@ -46,9 +46,9 @@ public struct UserCommand : IReplicatedComponent
             }
         }
     }
-    
-    public int checkTick;        // For debug purposes
-    public int renderTick;      
+
+    public int checkTick; // For debug purposes
+    public int renderTick;
     public float moveYaw;
     public float moveMagnitude;
     public float lookYaw;
@@ -56,9 +56,9 @@ public struct UserCommand : IReplicatedComponent
     public ButtonBitField buttons;
     public CharacterEmote emote;
 
-    public static readonly UserCommand defaultCommand = new UserCommand(0); 
+    public static readonly UserCommand defaultCommand = new UserCommand(0);
 
-    private UserCommand(int i)    
+    private UserCommand(int i)
     {
         checkTick = 0;
         renderTick = 0;
@@ -69,8 +69,8 @@ public struct UserCommand : IReplicatedComponent
         buttons.flags = 0;
         emote = CharacterEmote.None;
     }
-    
-    public void ClearCommand()  
+
+    public void ClearCommand()
     {
         buttons.flags = 0;
         emote = CharacterEmote.None;
@@ -80,6 +80,7 @@ public struct UserCommand : IReplicatedComponent
     {
         get { return Quaternion.Euler(new Vector3(-lookPitch, lookYaw, 0)) * Vector3.down; }
     }
+
     public Quaternion lookRotation
     {
         get { return Quaternion.Euler(new Vector3(90 - lookPitch, lookYaw, 0)); }
@@ -91,10 +92,10 @@ public struct UserCommand : IReplicatedComponent
         networkWriter.WriteInt32("renderTick", renderTick);
         networkWriter.WriteFloatQ("moveYaw", moveYaw, 0);
         networkWriter.WriteFloatQ("moveMagnitude", moveMagnitude, 2);
-        networkWriter.WriteFloat("lookYaw", lookYaw); 
+        networkWriter.WriteFloat("lookYaw", lookYaw);
         networkWriter.WriteFloat("lookPitch", lookPitch);
         networkWriter.WriteUInt32("buttons", buttons.flags);
-        networkWriter.WriteByte("emote", (byte)emote);
+        networkWriter.WriteByte("emote", (byte) emote);
     }
 
     public void Deserialize(ref SerializeContext context, ref NetworkReader networkReader)
@@ -106,7 +107,7 @@ public struct UserCommand : IReplicatedComponent
         lookYaw = networkReader.ReadFloat();
         lookPitch = networkReader.ReadFloat();
         buttons.flags = networkReader.ReadUInt32();
-        emote = (CharacterEmote)networkReader.ReadByte();
+        emote = (CharacterEmote) networkReader.ReadByte();
     }
 
     public override string ToString()

@@ -12,16 +12,20 @@ public class HandleTranslateScaleSpawns : InitializeComponentGroupSystem<Transla
 {
     ComponentGroup Group;
 
-    public struct Initialized : IComponentData {}
-    
-    public HandleTranslateScaleSpawns(GameWorld world) : base(world) { }
+    public struct Initialized : IComponentData
+    {
+    }
+
+    public HandleTranslateScaleSpawns(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
         base.OnCreateManager();
         Group = GetComponentGroup(typeof(TranslateScale), ComponentType.Subtractive<DespawningEntity>());
     }
-    
+
     protected override void Initialize(ref ComponentGroup group)
     {
         // Get all components of type, not just spawned/de-spawned ones
@@ -35,15 +39,17 @@ public class HandleTranslateScaleDespawns : DeinitializeComponentGroupSystem<Tra
 {
     ComponentGroup Group;
 
-    public HandleTranslateScaleDespawns(GameWorld world) : base(world) { }
+    public HandleTranslateScaleDespawns(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
         base.OnCreateManager();
         Group = GetComponentGroup(typeof(TranslateScale), ComponentType.Subtractive<DespawningEntity>());
     }
-    
-    
+
+
     protected override void Deinitialize(ref ComponentGroup group)
     {
         // Get all components of type, not just spawned/de-spawned ones
@@ -109,8 +115,10 @@ public class TranslateScaleSystem
         if (!translateScaleChain.HasValidData())
             return;
 
-        GameDebug.Assert(s_SourceJoints.length < k_MaxDrivers, "You are trying to add more translate scale chains then there is allocated space for.");
-        GameDebug.Assert(s_DrivenJoints.length + translateScaleChain.drivenJoints.Count <= k_MaxDrivenJoints, "You are trying to add more driven joint then there is allocated space for.");
+        GameDebug.Assert(s_SourceJoints.length < k_MaxDrivers,
+            "You are trying to add more translate scale chains then there is allocated space for.");
+        GameDebug.Assert(s_DrivenJoints.length + translateScaleChain.drivenJoints.Count <= k_MaxDrivenJoints,
+            "You are trying to add more driven joint then there is allocated space for.");
 
         s_SourceJoints.Add(translateScaleChain.driver);
         s_SourceData[s_DriverIndex] = new SourceData
@@ -129,7 +137,6 @@ public class TranslateScaleSystem
                     bindpose = translateScaleChain.drivenJoints[j].bindpose,
                     stretchFactor = translateScaleChain.drivenJoints[j].strectchFactor,
                     scaleFactor = translateScaleChain.drivenJoints[j].scaleFactor
-                    
                 };
                 s_DrivenIndex++;
             }
@@ -142,20 +149,19 @@ public class TranslateScaleSystem
     {
         Profiler.BeginSample("TranslateScaleSystem.Schedule");
 
-            var readJob = new ReadJob(s_SourceData);
-            var readHandle = readJob.Schedule(s_SourceJoints);
+        var readJob = new ReadJob(s_SourceData);
+        var readHandle = readJob.Schedule(s_SourceJoints);
 
-            var writeJob = new WriteJob(s_SourceData, s_TargetData);
-            m_WriteHandle = writeJob.Schedule(s_DrivenJoints, readHandle);
+        var writeJob = new WriteJob(s_SourceData, s_TargetData);
+        m_WriteHandle = writeJob.Schedule(s_DrivenJoints, readHandle);
 
-            Profiler.EndSample();
+        Profiler.EndSample();
 
         return m_WriteHandle;
     }
 
     public JobHandle Schedule(JobHandle dependency)
     {
-
         Profiler.BeginSample("TranslateScaleSystem.Schedule");
 
         var readJob = new ReadJob(s_SourceData);
@@ -189,7 +195,7 @@ public class TranslateScaleSystem
         public float stretchFactor;
     }
 
-    
+
     // TODO: Check the performance delta by using burst
     [Unity.Burst.BurstCompile(CompileSynchronously = true)]
     struct ReadJob : IJobParallelForTransform
@@ -213,10 +219,8 @@ public class TranslateScaleSystem
     [Unity.Burst.BurstCompile(CompileSynchronously = true)]
     struct WriteJob : IJobParallelForTransform
     {
-        [ReadOnly]
-        NativeArray<SourceData> m_SourceData;
-        [ReadOnly]
-        NativeArray<TargetData> m_TargetData;
+        [ReadOnly] NativeArray<SourceData> m_SourceData;
+        [ReadOnly] NativeArray<TargetData> m_TargetData;
 
         public WriteJob(NativeArray<SourceData> sourceData, NativeArray<TargetData> targetData)
         {
@@ -228,8 +232,10 @@ public class TranslateScaleSystem
         {
             // todo: Get rid of any unneeded allocations
             // todo: new style math and burst?                                                
-            transform.localPosition = m_TargetData[i].bindpose + new float3(0f, m_SourceData[m_TargetData[i].sourceIndex].stretchOffset * m_TargetData[i].stretchFactor, 0f);
-            var volumeScale = -m_TargetData[i].scaleFactor * m_SourceData[m_TargetData[i].sourceIndex].stretchFactor  + 1 + m_TargetData[i].scaleFactor;
+            transform.localPosition = m_TargetData[i].bindpose +
+                                      new float3(0f, m_SourceData[m_TargetData[i].sourceIndex].stretchOffset * m_TargetData[i].stretchFactor, 0f);
+            var volumeScale = -m_TargetData[i].scaleFactor * m_SourceData[m_TargetData[i].sourceIndex].stretchFactor + 1 +
+                              m_TargetData[i].scaleFactor;
             transform.localScale = new Vector3(volumeScale, 1f, volumeScale);
         }
     }

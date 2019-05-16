@@ -10,7 +10,6 @@ using UnityEditor;
 
 public class LaunchWindow : EditorWindow
 {
-
     [Serializable]
     class Entry
     {
@@ -48,7 +47,7 @@ public class LaunchWindow : EditorWindow
     {
         var defaultGUIColor = GUI.color;
         var defaultGUIBackgrounColor = GUI.backgroundColor;
-            
+
         EditorGUI.BeginChangeCheck();
 
         EditorGUILayout.BeginVertical();
@@ -68,6 +67,7 @@ public class LaunchWindow : EditorWindow
                     StartEntry(data.entries[i]);
                 }
             }
+
             GUI.backgroundColor = defaultGUIBackgrounColor;
 
             GUI.backgroundColor = Color.red;
@@ -75,6 +75,7 @@ public class LaunchWindow : EditorWindow
             {
                 StopAll();
             }
+
             GUI.backgroundColor = defaultGUIBackgrounColor;
 
             if (GUILayout.Button("+", GUILayout.Width(30)))
@@ -109,16 +110,16 @@ public class LaunchWindow : EditorWindow
                 {
                     StartEntry(entry);
                 }
+
                 GUI.backgroundColor = defaultGUIBackgrounColor;
 
                 entry.count = EditorGUILayout.IntField(entry.count, GUILayout.Width(30), GUILayout.ExpandWidth(false));
 
                 GUI.backgroundColor = entry.runInEditor ? Color.yellow : GUI.backgroundColor;
-                
-               
-               
+
+
                 GUI.backgroundColor = defaultGUIBackgrounColor;
-                
+
                 var runInEditor = GUILayout.Toggle(entry.runInEditor, "Editor", new GUIStyle("Button"), GUILayout.Width(50));
                 if (runInEditor != entry.runInEditor)
                 {
@@ -126,7 +127,6 @@ public class LaunchWindow : EditorWindow
                         data.entries[j].runInEditor = false;
                     entry.runInEditor = runInEditor;
                 }
-
             }
             GUILayout.EndHorizontal();
 
@@ -152,9 +152,8 @@ public class LaunchWindow : EditorWindow
 
     void StartEntry(Entry entry)
     {
-        
         // Convert line breaks to space and remove commented out lines
-        var lines = entry.arguments.Split(new String[] { "\r\n","\n"  }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        var lines = entry.arguments.Split(new String[] {"\r\n", "\n"}, StringSplitOptions.RemoveEmptyEntries).ToList();
         lines.RemoveAll(str => str.Contains("//"));
         var args = "";
         lines.ForEach(str => args += str + " ");
@@ -165,7 +164,7 @@ public class LaunchWindow : EditorWindow
             EditorLevelManager.StartGameInEditor(args);
             standaloneCount--;
         }
-            
+
         for (var i = 0; i < standaloneCount; i++)
         {
             //if (allowDevBuild && entry.useDevBuild)
@@ -204,7 +203,7 @@ public class LaunchWindow : EditorWindow
         else
             return "AutoBuild.exe";
     }
-    
+
     static void StopAll()
     {
         EditorApplication.isPlaying = false;

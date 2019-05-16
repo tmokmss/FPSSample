@@ -34,7 +34,7 @@ public class ScreenFaderMixerBehaviour : PlayableBehaviour
             m_FirstFrameHappened = true;
         }
 
-        int inputCount = playable.GetInputCount ();
+        int inputCount = playable.GetInputCount();
 
         float blendedExposure = 0.0f;
         float totalWeight = 0f;
@@ -44,9 +44,9 @@ public class ScreenFaderMixerBehaviour : PlayableBehaviour
         for (int i = 0; i < inputCount; i++)
         {
             float inputWeight = playable.GetInputWeight(i);
-            ScriptPlayable<ScreenFaderBehaviour> inputPlayable = (ScriptPlayable<ScreenFaderBehaviour>)playable.GetInput(i);
-            ScreenFaderBehaviour input = inputPlayable.GetBehaviour ();
-            
+            ScriptPlayable<ScreenFaderBehaviour> inputPlayable = (ScriptPlayable<ScreenFaderBehaviour>) playable.GetInput(i);
+            ScreenFaderBehaviour input = inputPlayable.GetBehaviour();
+
             blendedExposure += input.exposure * inputWeight;
             totalWeight += inputWeight;
 
@@ -55,14 +55,14 @@ public class ScreenFaderMixerBehaviour : PlayableBehaviour
                 greatestWeight = inputWeight;
             }
 
-            if (!Mathf.Approximately (inputWeight, 0f))
+            if (!Mathf.Approximately(inputWeight, 0f))
                 currentInputs++;
         }
 
         m_Exposure.keyValue.Override(blendedExposure + 0.5f * (1.0f - totalWeight));
     }
 
-    public override void OnPlayableDestroy (Playable playable)
+    public override void OnPlayableDestroy(Playable playable)
     {
         m_FirstFrameHappened = false;
 

@@ -9,7 +9,6 @@ namespace NetworkCompressionTests
         [Test]
         public void Dummy()
         {
-            
         }
     }
 }

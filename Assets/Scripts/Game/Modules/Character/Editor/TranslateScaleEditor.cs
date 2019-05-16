@@ -19,8 +19,8 @@ public class TranslateScaleEditor : Editor
         {
             translateScaleScript.GotoBindpose();
         }
+
         GUILayout.EndHorizontal();
         // EditorGUILayout.HelpBox("This is a help box", MessageType.Info);
     }
 }
-

@@ -6,11 +6,14 @@ using System.Text.RegularExpressions;
 
 public class ChatPanel : MonoBehaviour
 {
-    public bool isOpen { get { return m_IsOpen; } }
+    public bool isOpen
+    {
+        get { return m_IsOpen; }
+    }
 
     public const int maxLines = 20;
 
-    static string[] messagePrefixes = new string[] { "/all ", "/team " };
+    static string[] messagePrefixes = new string[] {"/all ", "/team "};
 
     string defaultPrefix = "/team ";
 
@@ -51,6 +54,7 @@ public class ChatPanel : MonoBehaviour
             else
                 AddLine(l);
         }
+
         m_ChatLinesToSend.Clear();
 
         // Handle incoming messages
@@ -68,6 +72,7 @@ public class ChatPanel : MonoBehaviour
             field.MoveTextEnd(true);
             m_MoveToEnd = false;
         }
+
         if (!m_IsOpen && Game.Input.GetKeyDown(activationKey))
         {
             field.textComponent.enabled = true;
@@ -120,9 +125,9 @@ public class ChatPanel : MonoBehaviour
                 if (Time.time - line.changeTime > 4.0f)
                     line.Hide();
             }
+
             field.textComponent.enabled = false;
         }
-
     }
 
     public void ClearMessages()
@@ -133,6 +138,7 @@ public class ChatPanel : MonoBehaviour
     }
 
     Regex m_EmptyMessageRegex = new Regex(@"^/(\w+)\s+$"); // match 'empty' messages like e.g. "/all "
+
     void OnEndEdit(string value)
     {
         if (!Input.GetKey(KeyCode.Return) && !Input.GetKey(KeyCode.KeypadEnter))
@@ -163,14 +169,15 @@ public class ChatPanel : MonoBehaviour
             chatLine = content.transform.GetChild(1).GetComponent<ChatLine>();
             chatLine.transform.SetSiblingIndex(content.transform.childCount);
         }
+
         chatLine.SetText(line);
 
         Canvas.ForceUpdateCanvases(); // TODO (petera) why is this needed?
 
-        var contentRect = ((RectTransform)content.transform).rect;
-        var panelRect = ((RectTransform)transform).rect;
+        var contentRect = ((RectTransform) content.transform).rect;
+        var panelRect = ((RectTransform) transform).rect;
 
-        var viewTransform = (RectTransform)scrollRect.transform;
+        var viewTransform = (RectTransform) scrollRect.transform;
         var size = viewTransform.sizeDelta;
         size.y = contentRect.height < panelRect.height ? contentRect.height : panelRect.height;
         viewTransform.sizeDelta = size;

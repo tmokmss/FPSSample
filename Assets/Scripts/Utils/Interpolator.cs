@@ -23,7 +23,10 @@ public class Interpolator
         SmoothStep
     }
 
-    public float targetValue { get { return m_TargetValue; } }
+    public float targetValue
+    {
+        get { return m_TargetValue; }
+    }
 
     public Interpolator(float startValue, CurveType type)
     {
@@ -92,5 +95,4 @@ public class Interpolator
     float m_StartValue;
     float m_TargetTime;
     float m_TargetValue;
-
 }

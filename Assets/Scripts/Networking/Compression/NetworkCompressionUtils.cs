@@ -7,7 +7,8 @@ namespace NetworkCompression
         public static int CalculateBucket(uint value)
         {
             int bucketIndex = 0;
-            while (bucketIndex + 1 < NetworkCompressionConstants.k_NumBuckets && value >= NetworkCompressionConstants.k_BucketOffsets[bucketIndex + 1]) // TODO: use CountLeadingZeros to do this in constant time
+            while (bucketIndex + 1 < NetworkCompressionConstants.k_NumBuckets && value >= NetworkCompressionConstants.k_BucketOffsets[bucketIndex + 1]
+            ) // TODO: use CountLeadingZeros to do this in constant time
                 bucketIndex++;
 
             return bucketIndex;
@@ -21,6 +22,7 @@ namespace NetworkCompression
                 value >>= 1;
                 n++;
             }
+
             return 32 - n;
         }
 
@@ -28,18 +30,19 @@ namespace NetworkCompression
         {
             int numOutputBits = 1;
             int numPrefixBits = 0;
-            while (value >= (1L << numOutputBits))  // RUTODO: Unroll this and merge with bit output. How do we actually verify inlining in C#?
+            while (value >= (1L << numOutputBits)) // RUTODO: Unroll this and merge with bit output. How do we actually verify inlining in C#?
             {
                 value -= (1L << numOutputBits);
                 numOutputBits += 2;
                 numPrefixBits++;
             }
+
             return numPrefixBits + 1 + numOutputBits;
         }
 
 
-
-        public static void GenerateLengthLimitedHuffmanCodeLengths(byte[] symbolLengths, int symbolLengthsOffset, int[] symbolFrequencies, int alphabetSize, int maxCodeLength)
+        public static void GenerateLengthLimitedHuffmanCodeLengths(byte[] symbolLengths, int symbolLengthsOffset, int[] symbolFrequencies,
+            int alphabetSize, int maxCodeLength)
         {
             GameDebug.Assert(alphabetSize <= 255);
             GameDebug.Assert(maxCodeLength <= 8);
@@ -56,7 +59,7 @@ namespace NetworkCompression
                 {
                     lastNonZeroIndex = symbol;
                     sortEntries[numSortEntries].frequency = frequency;
-                    sortEntries[numSortEntries].symbol = (byte)symbol;
+                    sortEntries[numSortEntries].symbol = (byte) symbol;
                     numSortEntries++;
                 }
             }
@@ -88,7 +91,8 @@ namespace NetworkCompression
                 numPrevNodes = 0;
                 while (num_a >= 2 || num_b > 0)
                 {
-                    if (num_b > 0 && (num_a < 2 || sortEntries[numSortEntries - num_b].frequency <= nodes[aPointer + 0].frequency + nodes[aPointer + 1].frequency))
+                    if (num_b > 0 && (num_a < 2 || sortEntries[numSortEntries - num_b].frequency <=
+                                      nodes[aPointer + 0].frequency + nodes[aPointer + 1].frequency))
                     {
                         var e = sortEntries[numSortEntries - num_b];
                         var node = nodes[nodesPointer++];
@@ -106,6 +110,7 @@ namespace NetworkCompression
                         num_a -= 2;
                         aPointer += 2;
                     }
+
                     numPrevNodes++;
                 }
             }
@@ -117,7 +122,8 @@ namespace NetworkCompression
             }
         }
 
-        public static void GenerateHuffmanCodes(byte[] symboLCodes, int symbolCodesOffset, byte[] symbolLengths, int symbolLengthsOffset, int alphabetSize, int maxCodeLength)
+        public static void GenerateHuffmanCodes(byte[] symboLCodes, int symbolCodesOffset, byte[] symbolLengths, int symbolLengthsOffset,
+            int alphabetSize, int maxCodeLength)
         {
             GameDebug.Assert(alphabetSize <= 256);
             GameDebug.Assert(maxCodeLength <= 8);
@@ -130,7 +136,7 @@ namespace NetworkCompression
             {
                 int length = symbolLengths[symbol + symbolLengthsOffset];
                 GameDebug.Assert(length <= maxCodeLength);
-                symbolList[length, lengthCounts[length]++] = (byte)symbol;
+                symbolList[length, lengthCounts[length]++] = (byte) symbol;
             }
 
             uint nextCodeWord = 0;
@@ -141,14 +147,16 @@ namespace NetworkCompression
                 {
                     int symbol = symbolList[length, i];
                     GameDebug.Assert(symbolLengths[symbol + symbolLengthsOffset] == length);
-                    symboLCodes[symbol + symbolCodesOffset] = (byte)ReverseBits(nextCodeWord++, length);
+                    symboLCodes[symbol + symbolCodesOffset] = (byte) ReverseBits(nextCodeWord++, length);
                 }
+
                 nextCodeWord <<= 1;
             }
         }
 
         // decode table entries: (symbol << 8) | length
-        public static void GenerateHuffmanDecodeTable(ushort[] decodeTable, int decodeTableOffset, byte[] symbolLengths, byte[] symbolCodes, int alphabetSize, int maxCodeLength)
+        public static void GenerateHuffmanDecodeTable(ushort[] decodeTable, int decodeTableOffset, byte[] symbolLengths, byte[] symbolCodes,
+            int alphabetSize, int maxCodeLength)
         {
             GameDebug.Assert(alphabetSize <= 256);
             GameDebug.Assert(maxCodeLength <= 8);
@@ -164,7 +172,7 @@ namespace NetworkCompression
                     uint step = 1u << length;
                     do
                     {
-                        decodeTable[decodeTableOffset + code] = (ushort)(symbol << 8 | length);
+                        decodeTable[decodeTableOffset + code] = (ushort) (symbol << 8 | length);
                         code += step;
                     } while (code < maxCode);
                 }

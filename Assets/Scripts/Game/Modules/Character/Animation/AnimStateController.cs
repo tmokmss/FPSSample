@@ -6,7 +6,7 @@ using UnityEngine.Profiling;
 
 [RequireComponent(typeof(Animator))]
 [DisallowMultipleComponent]
-public class AnimStateController : MonoBehaviour 
+public class AnimStateController : MonoBehaviour
 {
     public bool fireAnimationEvents;
 
@@ -22,23 +22,23 @@ public class AnimStateController : MonoBehaviour
         m_Animator = entityManager.GetComponentObject<Animator>(owner);
 
         m_Animator.fireEvents = fireAnimationEvents;
-        
-        GameDebug.Assert(animStateDefinition != null,"No animStateDefinition defined for AnimStateController:" + this.name);
+
+        GameDebug.Assert(animStateDefinition != null, "No animStateDefinition defined for AnimStateController:" + this.name);
 
         Profiler.BeginSample("Create graph");
         m_PlayableGraph = PlayableGraph.Create(name);
         Profiler.EndSample();
-    
-#if UNITY_EDITOR        
+
+#if UNITY_EDITOR
         GraphVisualizerClient.Show(m_PlayableGraph);
 #endif
-        
+
         Profiler.BeginSample("Instantiate playables");
         m_animGraph = animStateDefinition.Instatiate(entityManager, owner, m_PlayableGraph, character);
         Profiler.EndSample();
-        
+
         m_animGraphLogic = m_animGraph as IGraphLogic;
-        
+
         m_PlayableGraph.Play();
 
         var outputPlayable = Playable.Null;
@@ -48,7 +48,7 @@ public class AnimStateController : MonoBehaviour
         // Set graph output
         var animationOutput = AnimationPlayableOutput.Create(m_PlayableGraph, "Animator", m_Animator);
         animationOutput.SetSourcePlayable(outputPlayable);
-        animationOutput.SetSourceOutputPort (outputPort);
+        animationOutput.SetSourceOutputPort(outputPort);
     }
 
     public void Deinitialize()
@@ -63,26 +63,26 @@ public class AnimStateController : MonoBehaviour
     public void UpdatePresentationState(GameTime time, float deltaTime)
     {
         Profiler.BeginSample("AnimStateController.Update");
-        
+
         if (m_animGraphLogic == null)
             return;
 
         m_animGraphLogic.UpdateGraphLogic(time, deltaTime);
-        
+
         Profiler.EndSample();
     }
-    
-    public void ApplyPresentationState(GameTime time, float deltaTime)   //
+
+    public void ApplyPresentationState(GameTime time, float deltaTime) //
     {
         Profiler.BeginSample("AnimStateController.Apply");
 
         if (m_animGraph == null)
             return;
-        
+
         m_animGraph.ApplyPresentationState(time, deltaTime);
-        
+
         Profiler.EndSample();
-    } 
+    }
 
     IAnimGraphInstance m_animGraph;
     IGraphLogic m_animGraphLogic;
@@ -94,13 +94,14 @@ public class AnimStateController : MonoBehaviour
 public class HandleAnimStateCtrlSpawn : InitializeComponentSystem<AnimStateController>
 {
     public HandleAnimStateCtrlSpawn(GameWorld world)
-        : base(world) { }
-    
+        : base(world)
+    {
+    }
+
     protected override void Initialize(Entity entity, AnimStateController component)
     {
-
         var charPresentation = EntityManager.GetComponentObject<CharacterPresentationSetup>(entity);
-        
+
         component.Initialize(EntityManager, entity, charPresentation.character);
     }
 }
@@ -109,8 +110,10 @@ public class HandleAnimStateCtrlSpawn : InitializeComponentSystem<AnimStateContr
 public class HandleAnimStateCtrlDespawn : DeinitializeComponentSystem<AnimStateController>
 {
     public HandleAnimStateCtrlDespawn(GameWorld world)
-        : base(world) { }
-    
+        : base(world)
+    {
+    }
+
     protected override void Deinitialize(Entity entity, AnimStateController component)
     {
         component.Deinitialize();

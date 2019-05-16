@@ -25,11 +25,11 @@ public class SparseSequenceBuffer
             return result;
         }
 
-        for(int i = 0; i < m_Count; ++i)
+        for (int i = 0; i < m_Count; ++i)
         {
-            if(m_Sequences[i] == sequence)
+            if (m_Sequences[i] == sequence)
                 return m_Elements[i];
-            else if(m_Sequences[i] > sequence)
+            else if (m_Sequences[i] > sequence)
             {
                 var tmp = m_Elements[m_Count];
                 for (int j = m_Count; j > i; --j)
@@ -37,6 +37,7 @@ public class SparseSequenceBuffer
                     m_Sequences[j] = m_Sequences[j - 1];
                     m_Elements[j] = m_Elements[j - 1];
                 }
+
                 m_Elements[i] = tmp;
                 ++m_Count;
                 return tmp;
@@ -59,11 +60,13 @@ public class SparseSequenceBuffer
                     m_Sequences[j] = m_Sequences[j + 1];
                     m_Elements[j] = m_Elements[j + 1];
                 }
+
                 m_Elements[m_Count - 1] = tmpElement;
                 --m_Count;
                 return true;
             }
         }
+
         return false;
     }
 
@@ -77,6 +80,7 @@ public class SparseSequenceBuffer
             else
                 break;
         }
+
         return index != -1 ? m_Elements[index] : null;
     }
 
@@ -90,6 +94,7 @@ public class SparseSequenceBuffer
             else
                 break;
         }
+
         return index != -1 ? m_Elements[index] : null;
     }
 
@@ -102,6 +107,7 @@ public class SparseSequenceBuffer
             else if (m_Sequences[i] > sequence)
                 return null;
         }
+
         return null;
     }
 

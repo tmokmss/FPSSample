@@ -41,7 +41,7 @@ public class ActionAnimationHandler
             actionAnim.animation.SetDuration(def.animation.length);
             actionAnim.port = mixer.AddInput(actionAnim.animation, 0);
             actionAnim.restartTimeOffset = def.restartTimeOffset;
-            mixer.SetLayerAdditive((uint)actionAnim.port, true);
+            mixer.SetLayerAdditive((uint) actionAnim.port, true);
             m_actionAnimations.Add(def.action, actionAnim);
         }
     }
@@ -79,7 +79,6 @@ public class ActionAnimationHandler
             float time = m_actionRestarted ? actionTime + m_actionAnimations[m_currentAction].restartTimeOffset : actionTime;
             m_actionAnimations[m_currentAction].animation.SetTime(time);
         }
-            
 
 
         // Stop animation when it is done

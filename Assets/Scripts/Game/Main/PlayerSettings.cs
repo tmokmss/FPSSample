@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerSettings 
+public class PlayerSettings
 {
     public string playerName;
     public int characterType;
@@ -11,7 +11,7 @@ public class PlayerSettings
     public void Serialize(ref NetworkWriter writer)
     {
         writer.WriteString("playerName", playerName);
-        writer.WriteInt16("characterType", (short)characterType);
+        writer.WriteInt16("characterType", (short) characterType);
         writer.WriteInt16("teamId", teamId);
     }
 

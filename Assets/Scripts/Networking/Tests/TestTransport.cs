@@ -53,7 +53,7 @@ namespace NetcodeTests
         {
             var name = ip + ":" + port;
 
-            var ep = s_EndPoints.Find((x)=>x.m_Name == name);
+            var ep = s_EndPoints.Find((x) => x.m_Name == name);
 
             if (ep != null)
             {
@@ -73,7 +73,8 @@ namespace NetcodeTests
         }
 
         public void Shutdown()
-        {}
+        {
+        }
 
         public void SendData(int connectionId, byte[] data, int sendSize)
         {
@@ -113,4 +114,3 @@ namespace NetcodeTests
         private string m_Name;
     }
 }
-

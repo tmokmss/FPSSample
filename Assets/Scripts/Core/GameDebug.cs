@@ -20,6 +20,7 @@ public static class GameDebug
     static System.IO.StreamWriter logFile = null;
 
     static bool forwardToDebug = true;
+
     public static void Init(string logfilePath, string logBaseName)
     {
         forwardToDebug = Application.isEditor;
@@ -41,6 +42,7 @@ public static class GameDebug
                 name = "<none>";
             }
         }
+
         GameDebug.Log("GameDebug initialized. Logging to " + logfilePath + "/" + name);
     }
 

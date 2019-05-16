@@ -4,12 +4,11 @@ using Unity.Entities;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 
 
-
-
-public class ReplicatedEntityCollection : IEntityReferenceSerializer 
+public class ReplicatedEntityCollection : IEntityReferenceSerializer
 {
     public struct ReplicatedData
     {
@@ -19,9 +18,9 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
         public IPredictedSerializer[] predictedArray;
         public IInterpolatedSerializer[] interpolatedArray;
         public int lastServerUpdate;
-        
-#if UNITY_EDITOR     
-        
+
+#if UNITY_EDITOR
+
         public bool VerifyPrediction(int sampleIndex, int tick)
         {
             foreach (var predictedDataHandler in predictedArray)
@@ -29,6 +28,7 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
                 if (!predictedDataHandler.VerifyPrediction(sampleIndex, tick))
                     return false;
             }
+
             return true;
         }
 
@@ -39,47 +39,50 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
                 if (predictedDataHandler.HasServerState(tick))
                     return true;
             }
+
             return false;
         }
-#endif 
+#endif
     }
 
     [ConfigVar(Name = "replicatedentity.showcollectioninfo", DefaultValue = "0", Description = "Show replicated system info")]
     static ConfigVar m_showInfo;
 
     public static bool SampleHistory;
-    
+
     public static int HistorySize = 128;
     public static int PredictionSize = 32;
 
     DataComponentSerializers serializers = new DataComponentSerializers();
-    
+
     public ReplicatedEntityCollection(GameWorld world)
     {
         m_world = world;
 
-        
-#if UNITY_EDITOR           
+
+#if UNITY_EDITOR
         historyCommands = new UserCommand[HistorySize];
         hitstoryTicks = new int[HistorySize];
         hitstoryLastServerTick = new int[HistorySize];
-#endif        
+#endif
     }
-    
+
     List<IReplicatedSerializer> netSerializables = new List<IReplicatedSerializer>(32);
-    List<IPredictedSerializer> netPredicted = new List<IPredictedSerializer>(32); 
+    List<IPredictedSerializer> netPredicted = new List<IPredictedSerializer>(32);
     List<IInterpolatedSerializer> netInterpolated = new List<IInterpolatedSerializer>(32);
+
     public void Register(EntityManager entityManager, int entityId, Entity entity)
     {
         if (m_showInfo.IntValue > 0)
         {
             if (entityManager.HasComponent<Transform>(entity))
-                GameDebug.Log("RepEntity REGISTER NetID:" + entityId + " Entity:" + entity + " GameObject:" + entityManager.GetComponentObject<Transform>(entity).name);
+                GameDebug.Log("RepEntity REGISTER NetID:" + entityId + " Entity:" + entity + " GameObject:" +
+                              entityManager.GetComponentObject<Transform>(entity).name);
             else
                 GameDebug.Log("RepEntity REGISTER NetID:" + entityId + " Entity:" + entity);
         }
-            
-        
+
+
         // Grow to make sure there is room for entity            
         if (entityId >= m_replicatedData.Count)
         {
@@ -91,7 +94,7 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
             }
         }
 
-        GameDebug.Assert(m_replicatedData[entityId].entity == Entity.Null,"ReplicatedData has entity set:{0}", m_replicatedData[entityId].entity);
+        GameDebug.Assert(m_replicatedData[entityId].entity == Entity.Null, "ReplicatedData has entity set:{0}", m_replicatedData[entityId].entity);
 
         netSerializables.Clear();
         netPredicted.Clear();
@@ -100,20 +103,20 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
         var go = entityManager.HasComponent<Transform>(entity)
             ? entityManager.GetComponentObject<Transform>(entity).gameObject
             : null;
-        
+
 
         FindSerializers(entityManager, entity);
-        
+
         if (entityManager.HasComponent<EntityGroupChildren>(entity))
         {
             var buffer = entityManager.GetBuffer<EntityGroupChildren>(entity);
             for (int i = 0; i < buffer.Length; i++)
             {
                 var childEntity = buffer[i].entity;
-                if(m_showInfo.IntValue > 0)
+                if (m_showInfo.IntValue > 0)
                     GameDebug.Log(" ReplicatedEntityChildren: " + i + " = " + childEntity);
                 FindSerializers(entityManager, childEntity);
-            }            
+            }
         }
 
         var data = new ReplicatedData
@@ -138,28 +141,27 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
 
         // Sort to ensure order when serializing components
         var typeArray = componentTypes.ToArray();
-        Array.Sort(typeArray, delegate(ComponentType type1, ComponentType type2) {
-            return type1.GetManagedType().Name.CompareTo(type2.GetManagedType().Name);
-        });
+        Array.Sort(typeArray,
+            delegate(ComponentType type1, ComponentType type2) { return type1.GetManagedType().Name.CompareTo(type2.GetManagedType().Name); });
 
         var serializedComponentType = typeof(IReplicatedComponent);
         var predictedComponentType = typeof(IPredictedDataBase);
         var interpolatedComponentType = typeof(IInterpolatedDataBase);
-        
+
         foreach (var componentType in typeArray)
         {
             var managedType = componentType.GetManagedType();
 
             if (!typeof(IComponentData).IsAssignableFrom(managedType))
                 continue;
-            
+
             if (serializedComponentType.IsAssignableFrom(managedType))
             {
                 if (m_showInfo.IntValue > 0)
                     GameDebug.Log("   new SerializedComponentDataHandler for:" + managedType.Name);
-                
+
                 var serializer = serializers.CreateNetSerializer(managedType, entityManager, entity, this);
-                if(serializer != null)    
+                if (serializer != null)
                     netSerializables.Add(serializer);
             }
             else if (predictedComponentType.IsAssignableFrom(managedType))
@@ -172,9 +174,9 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
                         var type = it.GenericTypeArguments[0];
                         if (m_showInfo.IntValue > 0)
                             GameDebug.Log("   new IPredictedDataHandler for:" + it.Name + " arg type:" + type);
-                        
+
                         var serializer = serializers.CreatePredictedSerializer(managedType, entityManager, entity, this);
-                        if(serializer != null)    
+                        if (serializer != null)
                             netPredicted.Add(serializer);
 
                         break;
@@ -191,9 +193,9 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
                         var type = it.GenericTypeArguments[0];
                         if (m_showInfo.IntValue > 0)
                             GameDebug.Log("   new IInterpolatedDataHandler for:" + it.Name + " arg type:" + type);
-                        
+
                         var serializer = serializers.CreateInterpolatedSerializer(managedType, entityManager, entity, this);
-                        if(serializer != null)    
+                        if (serializer != null)
                             netInterpolated.Add(serializer);
 
                         break;
@@ -201,18 +203,18 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
                 }
             }
         }
-        
     }
-    
+
     public Entity Unregister(EntityManager entityManager, int entityId)
     {
         var entity = m_replicatedData[entityId].entity;
-        GameDebug.Assert(entity != Entity.Null,"Unregister. ReplicatedData has has entity set");
+        GameDebug.Assert(entity != Entity.Null, "Unregister. ReplicatedData has has entity set");
 
         if (m_showInfo.IntValue > 0)
         {
             if (entityManager.HasComponent<Transform>(entity))
-                GameDebug.Log("RepEntity UNREGISTER NetID:" + entityId + " Entity:" + entity + " GameObject:" + entityManager.GetComponentObject<Transform>(entity).name);
+                GameDebug.Log("RepEntity UNREGISTER NetID:" + entityId + " Entity:" + entity + " GameObject:" +
+                              entityManager.GetComponentObject<Transform>(entity).name);
             else
                 GameDebug.Log("RepEntity UNREGISTER NetID:" + entityId + " Entity:" + entity);
         }
@@ -224,18 +226,19 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
     public void ProcessEntityUpdate(int serverTick, int id, ref NetworkReader reader)
     {
         var data = m_replicatedData[id];
-        
-        GameDebug.Assert(data.lastServerUpdate < serverTick, "Failed to apply snapshot. Wrong tick order. entityId:{0} snapshot tick:{1} last server tick:{2}", id, serverTick, data.lastServerUpdate);
+
+        GameDebug.Assert(data.lastServerUpdate < serverTick,
+            "Failed to apply snapshot. Wrong tick order. entityId:{0} snapshot tick:{1} last server tick:{2}", id, serverTick, data.lastServerUpdate);
         data.lastServerUpdate = serverTick;
 
         GameDebug.Assert(data.serializableArray != null, "Failed to apply snapshot. Serializablearray is null");
 
         foreach (var entry in data.serializableArray)
             entry.Deserialize(ref reader, serverTick);
-        
+
         foreach (var entry in data.predictedArray)
             entry.Deserialize(ref reader, serverTick);
-        
+
         foreach (var entry in data.interpolatedArray)
             entry.Deserialize(ref reader, serverTick);
 
@@ -247,15 +250,15 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
         var data = m_replicatedData[entityId];
 
         GameDebug.Assert(data.serializableArray != null, "Failed to generate snapshot. Serializablearray is null");
-        
+
         foreach (var entry in data.serializableArray)
             entry.Serialize(ref writer);
-        
+
         writer.SetFieldSection(NetworkWriter.FieldSectionType.OnlyPredicting);
         foreach (var entry in data.predictedArray)
             entry.Serialize(ref writer);
         writer.ClearFieldSection();
-        
+
         writer.SetFieldSection(NetworkWriter.FieldSectionType.OnlyNotPredicting);
         foreach (var entry in data.interpolatedArray)
             entry.Serialize(ref writer);
@@ -281,14 +284,14 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
             }
         }
     }
-    
+
     public void Interpolate(GameTime time)
     {
         for (int i = 0; i < m_replicatedData.Count; i++)
         {
             if (m_replicatedData[i].entity == Entity.Null)
                 continue;
-            
+
             if (m_replicatedData[i].interpolatedArray == null)
                 continue;
 
@@ -301,13 +304,12 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
             }
         }
     }
-     
-    
-    
+
+
     public string GenerateName(int entityId)
     {
         var data = m_replicatedData[entityId];
-        
+
         bool first = true;
         string name = "";
         foreach (var entry in data.serializableArray)
@@ -320,9 +322,10 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
                 name += entry.GetType().ToString();
             first = false;
         }
+
         return name;
     }
-    
+
     public void SerializeReference(ref NetworkWriter writer, string name, Entity entity)
     {
         if (entity == Entity.Null || !m_world.GetEntityManager().Exists(entity))
@@ -350,15 +353,14 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
             return;
         }
 
-        entity = m_replicatedData[replicatedId].entity;    
+        entity = m_replicatedData[replicatedId].entity;
     }
 
-    
+
     List<ReplicatedData> m_replicatedData = new List<ReplicatedData>(512);
     private readonly GameWorld m_world;
-    
- 
-    
+
+
 #if UNITY_EDITOR
 
     public int GetSampleCount()
@@ -394,6 +396,7 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
                 continue;
             entityCount++;
         }
+
         return entityCount;
     }
 
@@ -407,17 +410,18 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
 
             if (entityCount == entityIndex)
                 return i;
-            
+
             entityCount++;
         }
+
         return -1;
-    }    
+    }
 
     public ReplicatedData GetReplicatedDataForNetId(int netId)
     {
         return m_replicatedData[netId];
     }
-    
+
     public void StorePredictedState(int predictedTick, int finalTick)
     {
         if (!SampleHistory)
@@ -425,7 +429,7 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
 
         var predictionIndex = finalTick - predictedTick;
         var sampleIndex = GetSampleIndex();
-        
+
         for (int i = 0; i < m_replicatedData.Count; i++)
         {
             if (m_replicatedData[i].entity == Entity.Null)
@@ -444,7 +448,7 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
         }
     }
 
-    
+
     public void FinalizedStateHistory(int tick, int lastServerTick, ref UserCommand command)
     {
         if (!SampleHistory)
@@ -477,8 +481,8 @@ public class ReplicatedEntityCollection : IEntityReferenceSerializer
 
         return -1;
     }
-    
-    
+
+
     UserCommand[] historyCommands;
     int[] hitstoryTicks;
     int[] hitstoryLastServerTick;

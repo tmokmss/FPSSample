@@ -7,21 +7,24 @@ using SQP;
 
 public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
 {
-    public int WorldTick { get { return m_GameWorld.worldTime.tick; } }
+    public int WorldTick
+    {
+        get { return m_GameWorld.worldTime.tick; }
+    }
+
     public int TickRate
     {
-        get
-        {
-            return m_GameWorld.worldTime.tickRate;
-        }
-        set
-        {
-            m_GameWorld.worldTime.tickRate = value;
-        }
+        get { return m_GameWorld.worldTime.tickRate; }
+        set { m_GameWorld.worldTime.tickRate = value; }
     }
-    public float TickInterval { get { return m_GameWorld.worldTime.tickInterval; } }
 
-    public ServerGameWorld(GameWorld world, NetworkServer networkServer, Dictionary<int, ServerGameLoop.ClientInfo> clients, ChatSystemServer m_ChatSystem, BundledResourceManager resourceSystem)
+    public float TickInterval
+    {
+        get { return m_GameWorld.worldTime.tickInterval; }
+    }
+
+    public ServerGameWorld(GameWorld world, NetworkServer networkServer, Dictionary<int, ServerGameLoop.ClientInfo> clients,
+        ChatSystemServer m_ChatSystem, BundledResourceManager resourceSystem)
     {
         m_NetworkServer = networkServer;
         m_Clients = clients;
@@ -95,6 +98,7 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
     }
 
     char[] _msgBuf = new char[256];
+
     public void HandlePlayerSetupEvent(PlayerState player, PlayerSettings settings)
     {
         if (player.playerName != settings.playerName)
@@ -129,7 +133,7 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
                 refSerializer = null,
                 tick = tick
             };
-                
+
             if (tick == m_GameWorld.worldTime.tick)
                 client.latestCommand.Deserialize(ref serializeContext, ref data);
 
@@ -142,7 +146,7 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
                 userCommand.command = client.latestCommand;
 
                 m_GameWorld.GetEntityManager().SetComponentData<UserCommandComponentData>(
-                    client.player.controlledEntity,userCommand);
+                    client.player.controlledEntity, userCommand);
             }
         }
     }
@@ -158,6 +162,7 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
         {
             return false;
         }
+
         return true;
     }
 
@@ -182,7 +187,7 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
         // Handle spawn requests. All creation of game entities should happen in this phase        
         m_CharacterModule.HandleSpawnRequests();
         m_SpectatorCamModule.HandleSpawnRequests();
-        m_ProjectileModule.HandleRequests();         
+        m_ProjectileModule.HandleRequests();
         m_HandleGrenadeRequests.Update();
 
         // Handle newly spawned entities          
@@ -229,7 +234,8 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
 
 
         // Handle despawns
-        m_CharacterModule.HandleDepawns(); // TODO (mogensh) this destroys presentations and needs to be done first so its picked up. We need better way of handling destruction ordering
+        m_CharacterModule
+            .HandleDepawns(); // TODO (mogensh) this destroys presentations and needs to be done first so its picked up. We need better way of handling destruction ordering
         m_HitCollisionModule.HandleDespawn();
         m_ReplicatedEntityModule.HandleDespawning();
         m_GameWorld.ProcessDespawns();
@@ -299,9 +305,7 @@ public class ServerGameWorld : ISnapshotGenerator, IClientCommandProcessor
     readonly MoverUpdate m_platformSystem;
     readonly UpdateDestructableProps m_DestructablePropSystem;
     readonly MovableSystemServer m_MoveableSystem;
-
 }
-
 
 
 public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
@@ -320,7 +324,8 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         var listenAddresses = NetworkUtils.GetLocalInterfaceAddresses();
         if (listenAddresses.Count > 0)
             Console.SetPrompt(listenAddresses[0] + ":" + NetworkConfig.serverPort.Value + "> ");
-        GameDebug.Log("Listening on " + string.Join(", ", NetworkUtils.GetLocalInterfaceAddresses()) + " on port " + NetworkConfig.serverPort.IntValue);
+        GameDebug.Log(
+            "Listening on " + string.Join(", ", NetworkUtils.GetLocalInterfaceAddresses()) + " on port " + NetworkConfig.serverPort.IntValue);
         m_NetworkServer = new NetworkServer(m_NetworkTransport);
 
         if (Game.game.clientFrontend != null)
@@ -340,12 +345,14 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         if (serverServerName.Value == "")
             serverServerName.Value = MakeServername();
 
-        m_ServerQueryProtocolServer = new SQP.SQPServer(NetworkConfig.serverSQPPort.IntValue > 0? NetworkConfig.serverSQPPort.IntValue : NetworkConfig.serverPort.IntValue + NetworkConfig.sqpPortOffset);
+        m_ServerQueryProtocolServer = new SQP.SQPServer(NetworkConfig.serverSQPPort.IntValue > 0
+            ? NetworkConfig.serverSQPPort.IntValue
+            : NetworkConfig.serverPort.IntValue + NetworkConfig.sqpPortOffset);
 
 
-#if UNITY_EDITOR        
+#if UNITY_EDITOR
         Game.game.levelManager.UnloadLevel();
-#endif        
+#endif
         m_GameWorld = new GameWorld("ServerWorld");
 
         m_NetworkStatistics = new NetworkStatisticsServer(m_NetworkServer);
@@ -359,8 +366,10 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         Console.AddCommand("respawn", CmdRespawn, "Respawn character (usage : respawn playername|playerId)", this.GetHashCode());
         Console.AddCommand("servername", CmdSetServerName, "Set name of the server", this.GetHashCode());
         Console.AddCommand("beginnetworkprofile", CmdBeginNetworkProfile, "begins a network profile", this.GetHashCode());
-        Console.AddCommand("endnetworkprofile", CmdEndNetworkProfile, "Ends a network profile and analyzes. [optional] filepath for model data", this.GetHashCode());
-        Console.AddCommand("loadcompressionmodel", CmdLoadNetworkCompressionModel, "Loads a network compression model from a filepath", this.GetHashCode());
+        Console.AddCommand("endnetworkprofile", CmdEndNetworkProfile, "Ends a network profile and analyzes. [optional] filepath for model data",
+            this.GetHashCode());
+        Console.AddCommand("loadcompressionmodel", CmdLoadNetworkCompressionModel, "Loads a network compression model from a filepath",
+            this.GetHashCode());
         Console.AddCommand("list", CmdList, "List clients", this.GetHashCode());
 
         CmdLoad(args);
@@ -458,7 +467,7 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         {
             var reader = new NetworkReader(data, info.type.schema);
 
-            switch ((GameNetworkEvents.EventType)type)
+            switch ((GameNetworkEvents.EventType) type)
             {
                 case GameNetworkEvents.EventType.PlayerReady:
                     m_NetworkServer.MapReady(clientId); // TODO (petera) hacky
@@ -510,11 +519,11 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         // Update SQP data with current values
         var sid = m_ServerQueryProtocolServer.ServerInfoData;
         sid.BuildId = Game.game.buildId;
-        sid.Port = (ushort)NetworkConfig.serverPort.IntValue;
-        sid.CurrentPlayers = (ushort)m_Clients.Count;
+        sid.Port = (ushort) NetworkConfig.serverPort.IntValue;
+        sid.CurrentPlayers = (ushort) m_Clients.Count;
         sid.GameType = GameModeSystemServer.modeName.Value;
         sid.Map = Game.game.levelManager.currentLevel.name;
-        sid.MaxPlayers = (ushort)serverMaxClients.IntValue;
+        sid.MaxPlayers = (ushort) serverMaxClients.IntValue;
         sid.ServerName = serverServerName.Value;
 
         m_ServerQueryProtocolServer.Update();
@@ -529,7 +538,6 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
     /// </summary>
     void UpdateIdleState()
     {
-
     }
 
     /// <summary>
@@ -550,12 +558,9 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
 
         m_GameWorld.RegisterSceneEntities();
 
-        m_resourceSystem = new BundledResourceManager(m_GameWorld,"BundledResources/Server");
+        m_resourceSystem = new BundledResourceManager(m_GameWorld, "BundledResources/Server");
 
-        m_NetworkServer.InitializeMap((ref NetworkWriter data) =>
-        {
-            data.WriteString("name", Game.game.levelManager.currentLevel.name);
-        });
+        m_NetworkServer.InitializeMap((ref NetworkWriter data) => { data.WriteString("name", Game.game.levelManager.currentLevel.name); });
 
         m_serverGameWorld = new ServerGameWorld(m_GameWorld, m_NetworkServer, m_Clients, m_ChatSystem, m_resourceSystem);
         foreach (var pair in m_Clients)
@@ -565,6 +570,7 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
     }
 
     Dictionary<int, int> m_TickStats = new Dictionary<int, int>();
+
     void UpdateActiveState()
     {
         GameDebug.Assert(m_serverGameWorld != null);
@@ -594,7 +600,7 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         //
         if (Game.IsHeadless())
         {
-            float remainTime = (float)(m_nextTickTime - Game.frameTime);
+            float remainTime = (float) (m_nextTickTime - Game.frameTime);
 
             int rate = m_serverGameWorld.TickRate;
             if (remainTime > 0.75f * m_serverGameWorld.TickInterval)
@@ -793,15 +799,16 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
             var client = c.Value;
             Console.Write(string.Format("   {0:00} {1,-15}", client.id, client.playerSettings.playerName));
         }
+
         Console.Write("-------------------");
         Console.Write(string.Format("Total: {0}/{0} players connected", m_Clients.Count, serverMaxClients.IntValue));
     }
 
     string MakeServername()
     {
-
-        var f = new string[] { "Ultimate", "Furry", "Quick", "Laggy", "Hot", "Curious", "Flappy", "Sneaky", "Nested", "Deep", "Blue", "Hipster", "Artificial" };
-        var l = new string[] { "Speedrun", "Fragfest", "Win", "Exception", "Prefab", "Scene", "Garbage", "System", "Souls", "Whitespace", "Dolphin" };
+        var f = new string[]
+            {"Ultimate", "Furry", "Quick", "Laggy", "Hot", "Curious", "Flappy", "Sneaky", "Nested", "Deep", "Blue", "Hipster", "Artificial"};
+        var l = new string[] {"Speedrun", "Fragfest", "Win", "Exception", "Prefab", "Scene", "Garbage", "System", "Souls", "Whitespace", "Dolphin"};
         return f[Random.Range(0, f.Length)] + " " + l[Random.Range(0, l.Length)];
     }
 
@@ -834,6 +841,7 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
         Loading,
         Active,
     }
+
     StateMachine<ServerState> m_StateMachine;
 
     public class ClientInfo
@@ -876,13 +884,15 @@ public class ServerGameLoop : Game.IGameLoop, INetworkCallbacks
     [ConfigVar(Name = "server.recycleinterval", DefaultValue = "0", Description = "Exit when N seconds old AND when 0 players. 0 means never.")]
     static ConfigVar serverRecycleInterval;
 
-    [ConfigVar(Name = "debug.servertickstats", DefaultValue = "0", Description = "Show stats about how many ticks we run per Unity update (headless only)")]
+    [ConfigVar(Name = "debug.servertickstats", DefaultValue = "0",
+        Description = "Show stats about how many ticks we run per Unity update (headless only)")]
     static ConfigVar debugServerTickStats;
 
     [ConfigVar(Name = "server.maxclients", DefaultValue = "8", Description = "Maximum allowed clients")]
     public static ConfigVar serverMaxClients;
 
-    [ConfigVar(Name = "server.disconnecttimeout", DefaultValue = "30000", Description = "Timeout in ms. Server will kick clients after this interval if nothing has been heard.")]
+    [ConfigVar(Name = "server.disconnecttimeout", DefaultValue = "30000",
+        Description = "Timeout in ms. Server will kick clients after this interval if nothing has been heard.")]
     public static ConfigVar serverDisconnectTimeout;
 
     [ConfigVar(Name = "server.servername", DefaultValue = "", Description = "Servername")]

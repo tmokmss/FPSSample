@@ -5,11 +5,9 @@ using System.Collections.Generic;
 
 namespace NetcodeTests
 {
-
     [TestFixture]
     public class GameTests : NetTestBase
     {
-
         public class MyEntity : TestEntity
         {
             public Vector3 position = new Vector3();
@@ -23,7 +21,7 @@ namespace NetcodeTests
             public override void UpdateServer(TestWorld world)
             {
                 var t = world.tick * Mathf.PI / 100.0f;
-                if((world.tick + this.id) % 100 < 50)
+                if ((world.tick + this.id) % 100 < 50)
                 {
                     position.x = Mathf.Cos(t);
                     position.y = Mathf.Sin(t);
@@ -33,15 +31,15 @@ namespace NetcodeTests
 
                 flag = world.random.Next(0, 100) < 95;
 
-                if((world.tick+this.id) % 200 == 0)
+                if ((world.tick + this.id) % 200 == 0)
                     message = "abcdefghijklmn".Substring(world.random.Next(0, 2), world.random.Next(3, 5));
 
                 var t2 = world.tick % 200;
-                position.z = t2 < 100 ? t2 : 100 -t2;
+                position.z = t2 < 100 ? t2 : 100 - t2;
 
                 // delay changing value one frame so test verification can tell apart
                 // if clients are getting updates or not
-                if(spawnTick > world.tick)
+                if (spawnTick > world.tick)
                 {
                     predictedData = Mathf.Sin(t * 1.0f);
                     nonpredictedData = Mathf.Sin(t * 1.1f);
@@ -75,24 +73,24 @@ namespace NetcodeTests
                 var c = clientEntity as MyEntity;
                 Assert.IsTrue(c != null);
                 //Assert.IsTrue(position == c.position);
-                    Assert.IsTrue(Math.Abs(position.x - c.position.x) < Math.Pow(10, -3));
-                    Assert.IsTrue(Math.Abs(position.y - c.position.y) < Math.Pow(10, -3));
-                    Assert.IsTrue(Math.Abs(position.z - c.position.z) < Math.Pow(10, -3));
+                Assert.IsTrue(Math.Abs(position.x - c.position.x) < Math.Pow(10, -3));
+                Assert.IsTrue(Math.Abs(position.y - c.position.y) < Math.Pow(10, -3));
+                Assert.IsTrue(Math.Abs(position.z - c.position.z) < Math.Pow(10, -3));
                 Assert.IsTrue(justData == c.justData);
                 Assert.IsTrue(health == c.health);
                 Assert.IsTrue(flag == c.flag);
                 Assert.IsTrue(message.CompareTo(c.message) == 0);
 
                 Assert.IsTrue(c.predictingClientId == -1); // Clients never know anything about if they predict or not
-                if(isPredicting)
+                if (isPredicting)
                 {
                     Assert.IsTrue(predictingClientId != -1);
                     Assert.IsTrue(predictedData == c.predictedData);
-                    Assert.IsTrue(100.0f == c.nonpredictedData);  // we should not be getting anything beyond the value at spawn
+                    Assert.IsTrue(100.0f == c.nonpredictedData); // we should not be getting anything beyond the value at spawn
                 }
                 else
                 {
-                    Assert.IsTrue(100.0f == c.predictedData);  // we should not be getting anything beyond the value at spawn
+                    Assert.IsTrue(100.0f == c.predictedData); // we should not be getting anything beyond the value at spawn
                     Assert.IsTrue(nonpredictedData == c.nonpredictedData);
                 }
             }
@@ -127,14 +125,15 @@ namespace NetcodeTests
             for (int i = 0; i < 100; ++i)
                 server.SpawnEntity<MyEntity>(-1);
 
-            for(int i = 0; i < 1000; ++i)
+            for (int i = 0; i < 1000; ++i)
             {
                 server.Update();
                 client.Update();
 
-                if(i > 2)
+                if (i > 2)
                     server.world.AssertReplicatedToClient(client.world, server.clients[0]);
             }
+
             var c = server.networkServer.GetConnections()[server.clients[0]];
             GameDebug.Log("Sent bytes:  " + c.counters.bytesOut);
             GameDebug.Log("Sent packages: " + c.counters.packagesOut);
@@ -190,7 +189,8 @@ namespace NetcodeTests
             TestTransport.Reset();
 
             // Once upon a time there was a server...
-            TestGameServer server = new TestGameServer(); server.Update(); // One tick to get away from 0
+            TestGameServer server = new TestGameServer();
+            server.Update(); // One tick to get away from 0
 
             // And it had a nice, old entity. Born all the way back in tick 1
             var oldOne = server.SpawnEntity<MyEntity>(-1);
@@ -235,7 +235,7 @@ namespace NetcodeTests
             NetworkClient.clientBlockOut.Value = "0";
 
             // Look at them sync again. Perhaps this is the beginning of a beautiful friendship
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 server.Update();
                 client.Update();
@@ -251,7 +251,8 @@ namespace NetcodeTests
         {
             TestTransport.Reset();
 
-            TestGameServer server = new TestGameServer(); server.Update();
+            TestGameServer server = new TestGameServer();
+            server.Update();
             TestGameClient client = new TestGameClient(2);
 
             NetworkServer.serverDebug.Value = "2";
@@ -280,7 +281,7 @@ namespace NetcodeTests
             NetworkConfig.netChokeSendInterval.Value = "0";
 
             // Run enough updates so that server consider id for despawned entity reusable
-            for(int i = 0; i < NetworkConfig.snapshotDeltaCacheSize; i++)
+            for (int i = 0; i < NetworkConfig.snapshotDeltaCacheSize; i++)
             {
                 server.Update();
                 client.Update();
@@ -303,7 +304,8 @@ namespace NetcodeTests
         {
             TestTransport.Reset();
 
-            TestGameServer server = new TestGameServer(); server.Update();
+            TestGameServer server = new TestGameServer();
+            server.Update();
             TestGameClient client = new TestGameClient(2);
 
             NetworkServer.serverDebug.Value = "2";
@@ -329,7 +331,7 @@ namespace NetcodeTests
             NetworkConfig.netChokeSendInterval.Value = "0";
 
             // Run enough updates so that server consider id for despawned entity reusable
-            for(int i = 0; i < NetworkConfig.snapshotDeltaCacheSize; i++)
+            for (int i = 0; i < NetworkConfig.snapshotDeltaCacheSize; i++)
             {
                 server.Update();
                 client.Update();
@@ -374,7 +376,7 @@ namespace NetcodeTests
 
             client.Update();
 
-            for(var i = 0; i < 200; i++)
+            for (var i = 0; i < 200; i++)
             {
                 server.Update();
             }
@@ -503,13 +505,13 @@ namespace NetcodeTests
             TestGameServer server = new TestGameServer();
             TestGameClient client = new TestGameClient(2);
 
-            for(int mapIndex = 0; mapIndex < 10; ++mapIndex)
+            for (int mapIndex = 0; mapIndex < 10; ++mapIndex)
             {
                 server.SetMap("Map " + mapIndex);
                 for (int j = 0; j < 20; j++)
                     server.SpawnEntity<MyEntity>(-1);
 
-                for(int j = 0; j < 20; ++j)
+                for (int j = 0; j < 20; ++j)
                 {
                     server.Update();
                     client.Update();
@@ -566,6 +568,5 @@ namespace NetcodeTests
                     server.world.AssertReplicatedToClient(client.world, server.clients[0]);
             }
         }
-
     }
 }

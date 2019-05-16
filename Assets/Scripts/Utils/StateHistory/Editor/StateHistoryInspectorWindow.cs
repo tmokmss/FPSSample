@@ -5,38 +5,36 @@ using UnityEngine;
 
 public class StateHistoryInspectorWindow : EditorWindow
 {
-    int m_selectedColumnIndex; 
+    int m_selectedColumnIndex;
     int m_selectedRowIndex;
-    
+
     int columnWidth = 120;
 
     Vector2 m_inspectorScrolllPosition;
-    
+
     public void SetResult(int column, int row)
     {
         m_selectedColumnIndex = column;
         m_selectedRowIndex = row;
         Repaint();
     }
-    
+
     void OnGUI()
     {
-        
-
         if (ReplicatedEntityCollection.SampleHistory)
         {
             GUILayout.Label("Sampling ...");
             return;
         }
-            
+
         var clientGameLoop = Game.GetGameLoop<ClientGameLoop>();
         if (clientGameLoop == null)
             return;
         var clientGameWorld = clientGameLoop.GetClientGameWorld();
-        if(clientGameWorld == null)
+        if (clientGameWorld == null)
             return;
         ReplicatedEntityModuleClient repEntityModule = clientGameWorld.ReplicatedEntityModule;
-        if(repEntityModule == null)
+        if (repEntityModule == null)
             return;
 
         var netId = repEntityModule.GetNetIdFromEntityIndex(m_selectedColumnIndex);
@@ -44,7 +42,7 @@ public class StateHistoryInspectorWindow : EditorWindow
             return;
 
         var repData = repEntityModule.GetReplicatedDataForNetId(netId);
-        
+
         // TODO (mogensh) also show non predicted data
         if (!repEntityModule.IsPredicted(m_selectedColumnIndex))
         {
@@ -63,7 +61,7 @@ public class StateHistoryInspectorWindow : EditorWindow
         GUILayout.Label("Entity:" + entityName + goName);
         GUILayout.Label("Predict:" + predictStartTick + " to: " + selectedTick + "(" + predictCount + ")");
         columnWidth = EditorGUILayout.IntField("Column width", columnWidth);
-        
+
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
@@ -73,14 +71,12 @@ public class StateHistoryInspectorWindow : EditorWindow
             GUILayout.Label("Predict count HIGHT!");
             return;
         }
-        
-        
-        
-        
+
+
         GUILayout.BeginHorizontal();
-        
+
         // Property names
-        var scrollPos = GUILayout.BeginScrollView(new Vector2(0,m_inspectorScrolllPosition.y));
+        var scrollPos = GUILayout.BeginScrollView(new Vector2(0, m_inspectorScrolllPosition.y));
         m_inspectorScrolllPosition.y = scrollPos.y;
         {
             GUILayout.BeginVertical(GUILayout.Width(200));
@@ -91,15 +87,15 @@ public class StateHistoryInspectorWindow : EditorWindow
                 var sampleIndex = repEntityModule.FindSampleIndexForTick(selectedTick);
                 var predictedState = repData.predictedArray[i].GetPredictedState(sampleIndex, 0);
                 DrawObjectFieldNames(repData.predictedArray[i].GetEntity(), predictedState);
-                
             }
+
             GUILayout.EndVertical();
         }
         GUILayout.EndScrollView();
-        
+
         m_inspectorScrolllPosition = GUILayout.BeginScrollView(m_inspectorScrolllPosition);
         GUILayout.BeginHorizontal();
-        
+
         for (int i = predictCount - 1; i >= 0; i--)
         {
             int predictTick = selectedTick - i;
@@ -116,7 +112,8 @@ public class StateHistoryInspectorWindow : EditorWindow
                 DrawObjectFieldValues(predictedState);
                 GUI.color = bg;
             }
-            GUILayout.EndVertical();  
+
+            GUILayout.EndVertical();
         }
 
         {
@@ -126,8 +123,8 @@ public class StateHistoryInspectorWindow : EditorWindow
             for (int i = 0; i < predictedHandlerCount; i++)
             {
                 var serverState = repData.predictedArray[i].GetServerState(selectedTick);
-                
-                if(serverState == null)
+
+                if (serverState == null)
                     continue;
 
                 var sampleIndex = repEntityModule.FindSampleIndexForTick(selectedTick);
@@ -138,9 +135,10 @@ public class StateHistoryInspectorWindow : EditorWindow
                 DrawObjectFieldValues(serverState);
                 GUI.color = bg;
             }
+
             GUILayout.EndVertical();
         }
-        
+
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
         GUILayout.EndScrollView();
@@ -151,24 +149,24 @@ public class StateHistoryInspectorWindow : EditorWindow
     {
         var type = o.GetType();
         var fields = type.GetFields();
-                
+
         GUILayout.Label("E(" + entity.Index + ":" + entity.Version + ") " + type.Name, EditorStyles.boldLabel);
         foreach (var field in fields)
         {
             GUILayout.Label(field.Name, EditorStyles.miniLabel);
         }
     }
-    
+
     void DrawObjectFieldValues(object o)
     {
         var type = o.GetType();
         var fields = type.GetFields();
-                
+
         GUILayout.Label("--------", EditorStyles.boldLabel);
         foreach (var field in fields)
         {
             var val = field.GetValue(o);
-            
+
             GUILayout.Label(val.ToString(), EditorStyles.miniLabel);
         }
     }

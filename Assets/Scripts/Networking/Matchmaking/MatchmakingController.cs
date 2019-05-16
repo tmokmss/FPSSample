@@ -7,8 +7,11 @@ namespace UnityEngine.Ucg.Matchmaking
     class MatchmakingController
     {
         public delegate void RequestMatchSuccess();
+
         public delegate void RequestMatchError(string error);
+
         public delegate void GetAssignmentSuccess(Assignment assignment);
+
         public delegate void GetAssignmentError(string error);
 
         RequestMatchSuccess m_RequestMatchSuccess;
@@ -51,7 +54,7 @@ namespace UnityEngine.Ucg.Matchmaking
             {
                 return;
             }
-            
+
             if (m_RequestMatchOperation.webRequest.isNetworkError || m_RequestMatchOperation.webRequest.isHttpError)
             {
                 Debug.LogError("There was an error calling matchmaking RequestMatch. Error: " + m_RequestMatchOperation.webRequest.error);
@@ -110,7 +113,6 @@ namespace UnityEngine.Ucg.Matchmaking
             }
 
             m_GetAssignmentSuccess.Invoke(result);
-
         }
     }
 }

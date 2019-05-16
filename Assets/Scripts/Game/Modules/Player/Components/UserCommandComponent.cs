@@ -2,12 +2,12 @@
 using Unity.Entities;
 
 [Serializable]
-public struct UserCommandComponentData: IComponentData, IReplicatedComponent    
-{   
+public struct UserCommandComponentData : IComponentData, IReplicatedComponent
+{
     [NonSerialized] public UserCommand command;
-    
+
     [NonSerialized] public int resetCommandTick;
-    [NonSerialized] public float resetCommandLookYaw;          
+    [NonSerialized] public float resetCommandLookYaw;
     [NonSerialized] public float resetCommandLookPitch; // = 90;
     [NonSerialized] public int lastResetCommandTick;
 
@@ -17,12 +17,12 @@ public struct UserCommandComponentData: IComponentData, IReplicatedComponent
         resetCommandLookYaw = lookYaw;
         resetCommandLookPitch = lookPitch;
     }
-    
+
     public static IReplicatedComponentSerializerFactory CreateSerializerFactory()
     {
         return new ReplicatedComponentSerializerFactory<UserCommandComponentData>();
     }
-    
+
     public void Serialize(ref SerializeContext context, ref NetworkWriter writer)
     {
         writer.WriteInt32("resetCamTick", resetCommandTick);
@@ -39,4 +39,5 @@ public struct UserCommandComponentData: IComponentData, IReplicatedComponent
 }
 
 public class UserCommandComponent : ComponentDataProxy<UserCommandComponentData>
-{}
+{
+}

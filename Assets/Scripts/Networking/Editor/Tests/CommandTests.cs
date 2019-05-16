@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 
 
-namespace NetcodeTests 
+namespace NetcodeTests
 {
     [TestFixture]
     public class CommandTests : NetTestBase, IClientCommandProcessor, INetworkClientCallbacks
@@ -64,7 +64,7 @@ namespace NetcodeTests
             var serverTick = 0;
             var clientTick = 10;
 
-            while(serverTick < RUNS)
+            while (serverTick < RUNS)
             {
                 server.Update(this);
                 server.HandleClientCommands(serverTick, this);
@@ -80,12 +80,13 @@ namespace NetcodeTests
                         var sent = new MyCommand();
                         sent.intValue = random.Next(-1000, 1000);
                         sent.boolValue = random.Next(0, 1) == 1;
-                        sent.floatValue = (float)random.NextDouble();
+                        sent.floatValue = (float) random.NextDouble();
 
                         sentCommands.Add(clientTick, sent);
                         sent.Serialize(ref writer);
                     });
                 }
+
                 ++clientTick;
                 client.SendData();
             }
@@ -145,12 +146,13 @@ namespace NetcodeTests
                         var sent = new MyCommand();
                         sent.intValue = random.Next(-1000, 1000);
                         sent.boolValue = random.Next(0, 1) == 1;
-                        sent.floatValue = (float)random.NextDouble();
+                        sent.floatValue = (float) random.NextDouble();
 
                         sentCommands.Add(clientTick, sent);
                         sent.Serialize(ref writer);
                     });
                 }
+
                 ++clientTick;
                 client.SendData();
             }

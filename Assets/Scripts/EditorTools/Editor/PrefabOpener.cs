@@ -29,13 +29,14 @@ public static class AssetTools
     static void OnFindEmptyFolders()
     {
         var empties = new List<UnityEngine.Object>();
-        foreach(var d in System.IO.Directory.GetDirectories("Assets", "*", System.IO.SearchOption.AllDirectories))
+        foreach (var d in System.IO.Directory.GetDirectories("Assets", "*", System.IO.SearchOption.AllDirectories))
         {
-            if(System.IO.Directory.GetFiles(d).Length == 0)
+            if (System.IO.Directory.GetFiles(d).Length == 0)
             {
                 empties.Add(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(d));
             }
         }
+
         Selection.objects = empties.ToArray();
     }
 }

@@ -6,12 +6,12 @@ using UnityEditor;
 
 [RequireComponent(typeof(LocalPlayer))]
 [RequireComponent(typeof(PlayerCameraSettings))]
-public class LocalPlayerCharacterControl : MonoBehaviour     
+public class LocalPlayerCharacterControl : MonoBehaviour
 {
     [ConfigVar(Name = "char.showhistory", DefaultValue = "0", Description = "Show last char loco states")]
     public static ConfigVar ShowHistory;
-    
-    public Entity lastRegisteredControlledEntity;      
+
+    public Entity lastRegisteredControlledEntity;
 
     public CharacterHealthUI healthUI;
     public IngameHUD hud;
@@ -28,15 +28,15 @@ public class LocalPlayerCharacterControl : MonoBehaviour
         public List<CharacterPresentationSetup> presentations = new List<CharacterPresentationSetup>();
     }
 
-    public FirstPersonData firstPerson = new FirstPersonData(); 
+    public FirstPersonData firstPerson = new FirstPersonData();
 }
 
 
 [DisableAutoCreation]
-public class UpdateCharacter1PSpawn : BaseComponentSystem  
-{   
+public class UpdateCharacter1PSpawn : BaseComponentSystem
+{
     ComponentGroup Group;
-    
+
     public UpdateCharacter1PSpawn(GameWorld world, BundledResourceManager resourceManager) : base(world)
     {
         m_ResourceManager = resourceManager;
@@ -51,6 +51,7 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
 
     private List<LocalPlayerCharacterControl> charControlBuffer = new List<LocalPlayerCharacterControl>(2);
     private List<Entity> entityBuffer = new List<Entity>(2);
+
     protected override void OnUpdate()
     {
         charControlBuffer.Clear();
@@ -61,8 +62,9 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
         {
             var localPlayer = localPlayerArray[i];
             var characterControl = charControlArray[i];
-            
-            var controlledChar3PEntity = EntityManager.Exists(localPlayer.controlledEntity) && EntityManager.HasComponent<Character>(localPlayer.controlledEntity)
+
+            var controlledChar3PEntity = EntityManager.Exists(localPlayer.controlledEntity) &&
+                                         EntityManager.HasComponent<Character>(localPlayer.controlledEntity)
                 ? localPlayer.controlledEntity
                 : Entity.Null;
 
@@ -75,7 +77,6 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
 
         if (charControlBuffer.Count > 0)
         {
-
             for (var i = 0; i < charControlBuffer.Count; i++)
             {
                 var charCtrl = charControlBuffer[i];
@@ -86,6 +87,7 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
                 {
                     m_world.RequestDespawn(charPresentation.gameObject, PostUpdateCommands);
                 }
+
                 charCtrl.firstPerson.presentations.Clear();
                 charCtrl.firstPerson.char1P = Entity.Null;
                 charCtrl.firstPerson.char3P = charClientEntity;
@@ -97,7 +99,7 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
                     GameDebug.Log("Spawning 1P char and items");
 
                     var character = EntityManager.GetComponentObject<Character>(charClientEntity);
-        
+
                     // Create 1P character
                     var char1PGUID = character.heroTypeData.character.prefab1P;
                     var prefab1P = m_ResourceManager.GetSingleAssetResource(char1PGUID) as GameObject;
@@ -109,7 +111,7 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
                     char1PPresentation.character = charClientEntity;
                     char1PPresentation.updateTransform = false;
                     charCtrl.firstPerson.presentations.Add(char1PPresentation);
-                    
+
                     // Create 1P items
                     foreach (var itemEntry in character.heroTypeData.items)
                     {
@@ -119,7 +121,7 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
                             var itemPrefab1P = m_ResourceManager.GetSingleAssetResource(item1PGUID) as GameObject;
                             var itemGOE = m_world.Spawn<GameObjectEntity>(itemPrefab1P);
                             var itemEntity = itemGOE.Entity;
-                            
+
                             var itemPresentation = EntityManager.GetComponentObject<CharacterPresentationSetup>(itemEntity);
                             itemPresentation.character = charClientEntity;
                             itemPresentation.attachToPresentation = char1PEntity;
@@ -135,42 +137,41 @@ public class UpdateCharacter1PSpawn : BaseComponentSystem
 }
 
 
-
-
 [DisableAutoCreation]
-public class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,LocalPlayerCharacterControl,PlayerCameraSettings>
+public class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer, LocalPlayerCharacterControl, PlayerCameraSettings>
 {
     private const float k_default3PDisst = 2.5f;
-    private float camDist3P = k_default3PDisst; 
-    
-    public UpdateCharacterCamera(GameWorld world) : base(world) {}
+    private float camDist3P = k_default3PDisst;
 
-    public void ToggleFOrceThirdPerson()   
+    public UpdateCharacterCamera(GameWorld world) : base(world)
+    {
+    }
+
+    public void ToggleFOrceThirdPerson()
     {
         forceThirdPerson = !forceThirdPerson;
     }
 
-    protected override void Update(Entity entity, LocalPlayer localPlayer, LocalPlayerCharacterControl characterControl, PlayerCameraSettings cameraSettings)
+    protected override void Update(Entity entity, LocalPlayer localPlayer, LocalPlayerCharacterControl characterControl,
+        PlayerCameraSettings cameraSettings)
     {
-    
-        
         if (localPlayer.controlledEntity == Entity.Null || !EntityManager.HasComponent<Character>(localPlayer.controlledEntity))
         {
             controlledEntity = Entity.Null;
             return;
         }
-            
+
         if (characterControl.firstPerson.char1P == Entity.Null)
         {
             controlledEntity = Entity.Null;
             return;
         }
 
-        GameDebug.Assert(EntityManager.HasComponent<CharacterInterpolatedData>(localPlayer.controlledEntity),"Controlled entity has no animstate");
+        GameDebug.Assert(EntityManager.HasComponent<CharacterInterpolatedData>(localPlayer.controlledEntity), "Controlled entity has no animstate");
 
         var character = EntityManager.GetComponentObject<Character>(localPlayer.controlledEntity);
         var charPredictedState = EntityManager.GetComponentData<CharacterPredictedData>(localPlayer.controlledEntity);
-        
+
         var animState = EntityManager.GetComponentData<CharacterInterpolatedData>(localPlayer.controlledEntity);
         var character1P = EntityManager.GetComponentObject<Character1P>(characterControl.firstPerson.char1P);
 
@@ -179,47 +180,47 @@ public class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,LocalPlayer
         if (characterChanged)
         {
             controlledEntity = localPlayer.controlledEntity;
-            
-        }            
+        }
 
         // Update character visibility
-        var camProfile = forceThirdPerson ? CameraProfile.ThirdPerson : charPredictedState.cameraProfile; 
+        var camProfile = forceThirdPerson ? CameraProfile.ThirdPerson : charPredictedState.cameraProfile;
         var thirdPerson = camProfile != CameraProfile.FirstPerson;
         foreach (var charPress in character.presentations)
         {
             charPress.SetVisible(thirdPerson);
         }
+
         foreach (var charPress in characterControl.firstPerson.presentations)
         {
             charPress.SetVisible(!thirdPerson);
         }
-      
+
         // Update camera settings
         var userCommand = EntityManager.GetComponentData<UserCommandComponentData>(localPlayer.controlledEntity);
         var lookRotation = userCommand.command.lookRotation;
-        
+
         cameraSettings.isEnabled = true;
 
         // Update FOV
-        if(characterChanged)
+        if (characterChanged)
             cameraSettings.fieldOfView = Game.configFov.FloatValue;
         var settings = character.heroTypeData.sprintCameraSettings;
-        var targetFOV = animState.sprinting == 1 ? settings.FOVFactor* Game.configFov.FloatValue : Game.configFov.FloatValue;
+        var targetFOV = animState.sprinting == 1 ? settings.FOVFactor * Game.configFov.FloatValue : Game.configFov.FloatValue;
         var speed = targetFOV > cameraSettings.fieldOfView ? settings.FOVInceraetSpeed : settings.FOVDecreaseSpeed;
         cameraSettings.fieldOfView = Mathf.MoveTowards(cameraSettings.fieldOfView, targetFOV, speed);
-        
+
         switch (camProfile)
         {
             case CameraProfile.FirstPerson:
             {
-                var eyePos = charPredictedState.position + Vector3.up*character.eyeHeight;
-                
+                var eyePos = charPredictedState.position + Vector3.up * character.eyeHeight;
+
                 // Set camera position and adjust 1P char. As 1P char is scaled down we need to "up-scale" camera
                 // animation to world space. We dont want to upscale cam transform relative to 1PChar so we adjust
                 // position accordingly
                 var camLocalOffset = character1P.cameraTransform.position - character1P.transform.position;
-                var cameraRotationOffset = Quaternion.Inverse(character1P.transform.rotation)*character1P.cameraTransform.rotation;
-                var camWorldOffset = camLocalOffset/character1P.transform.localScale.x;  
+                var cameraRotationOffset = Quaternion.Inverse(character1P.transform.rotation) * character1P.cameraTransform.rotation;
+                var camWorldOffset = camLocalOffset / character1P.transform.localScale.x;
                 var camWorldPos = eyePos + camWorldOffset;
                 var charWorldPos = camWorldPos - camLocalOffset;
 
@@ -241,26 +242,27 @@ public class UpdateCharacterCamera : BaseComponentSystem<LocalPlayer,LocalPlayer
                 {
                     camDist3P -= 0.2f;
                 }
+
                 if (Input.GetAxis("Mouse ScrollWheel") < 0)
                 {
                     camDist3P += 0.2f;
                 }
-#endif                    
-                
-                
-                var eyePos = charPredictedState.position + Vector3.up*character.eyeHeight;
-                cameraSettings.position = eyePos; 
+#endif
+
+
+                var eyePos = charPredictedState.position + Vector3.up * character.eyeHeight;
+                cameraSettings.position = eyePos;
                 cameraSettings.rotation = lookRotation;
 
                 // Simpe offset of camera for better 3rd person view. This is only for animation debug atm
                 var viewDir = cameraSettings.rotation * Vector3.forward;
                 cameraSettings.position += -camDist3P * viewDir;
-                cameraSettings.position += lookRotation*Vector3.right*0.5f + lookRotation*Vector3.up*0.5f;
+                cameraSettings.position += lookRotation * Vector3.right * 0.5f + lookRotation * Vector3.up * 0.5f;
                 break;
             }
         }
-        
-        
+
+
         // TODO (mogensh) find better place to put this. 
         if (LocalPlayerCharacterControl.ShowHistory.IntValue > 0)
         {

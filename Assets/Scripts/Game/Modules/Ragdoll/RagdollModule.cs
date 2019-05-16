@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class RagdollModule 
+public class RagdollModule
 {
     public RagdollModule(GameWorld world)
     {
@@ -11,7 +11,7 @@ public class RagdollModule
             m_SystemRoot = new GameObject("RagdollSystem");
             m_SystemRoot.transform.SetParent(world.SceneRoot.transform);
         }
-        
+
         m_updateRagdolls = m_world.GetECSWorld().CreateManager<UpdateRagdolls>(m_world);
         m_handleRagdollSpawn = m_world.GetECSWorld().CreateManager<HandleRagdollSpawn>(m_world, m_SystemRoot);
         m_handleRagdollDespawn = m_world.GetECSWorld().CreateManager<HandleRagdollDespawn>(m_world);
@@ -19,12 +19,11 @@ public class RagdollModule
 
     public void Shutdown()
     {
-
         m_world.GetECSWorld().DestroyManager(m_updateRagdolls);
         m_world.GetECSWorld().DestroyManager(m_handleRagdollSpawn);
         m_world.GetECSWorld().DestroyManager(m_handleRagdollDespawn);
-        
-        if(m_SystemRoot != null)
+
+        if (m_SystemRoot != null)
             GameObject.Destroy(m_SystemRoot);
     }
 
@@ -38,12 +37,12 @@ public class RagdollModule
     {
         m_handleRagdollDespawn.Update();
     }
-    
+
     public void LateUpdate()
     {
         m_updateRagdolls.Update();
     }
-    
+
     protected GameWorld m_world;
     protected GameObject m_SystemRoot;
 

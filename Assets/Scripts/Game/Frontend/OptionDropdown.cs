@@ -15,17 +15,18 @@ public class OptionDropdown : OptionUI
             return;
 
         bool found = false;
-        for(int i = 0; i < values.Count; i++)
+        for (int i = 0; i < values.Count; i++)
         {
-            if(configVar.Value == values[i])
+            if (configVar.Value == values[i])
             {
                 dropdown.value = i;
                 found = true;
                 break;
             }
         }
+
         // If not found set to one past last valid value, if the dropdown has one such
-        if(!found && dropdown.options.Count > values.Count)
+        if (!found && dropdown.options.Count > values.Count)
         {
             dropdown.value = dropdown.options.Count - 1;
         }
@@ -33,7 +34,7 @@ public class OptionDropdown : OptionUI
 
     public override void UpdateToConfigVar()
     {
-        if(dropdown.value < values.Count)
+        if (dropdown.value < values.Count)
             configVar.Value = values[dropdown.value];
     }
 }

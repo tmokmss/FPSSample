@@ -36,25 +36,26 @@ public class ServerCameraSystem
 
         var t = Time.realtimeSinceStartup;
 
-        if(m_NextCapture > -1)
+        if (m_NextCapture > -1)
         {
             m_NextCaptureTick--;
-            if(m_NextCaptureTick == 5)
+            if (m_NextCaptureTick == 5)
                 NextCamera();
-            if(m_NextCaptureTick <= 0)
+            if (m_NextCaptureTick <= 0)
             {
                 Console.EnqueueCommand("screenshot");
                 m_NextCapture--;
                 m_NextCaptureTick = 10;
             }
+
             return;
         }
 
         m_Camera.transform.localEulerAngles = m_OriginalOrientation + new Vector3(
-                Mathf.Sin(t * k_IdleCycle.x) * k_IdleLevel.x,
-                Mathf.Sin(t * k_IdleCycle.y) * k_IdleLevel.y,
-                Mathf.Sin(t * k_IdleCycle.z) * k_IdleLevel.z
-                );
+                                                  Mathf.Sin(t * k_IdleCycle.x) * k_IdleLevel.x,
+                                                  Mathf.Sin(t * k_IdleCycle.y) * k_IdleLevel.y,
+                                                  Mathf.Sin(t * k_IdleCycle.z) * k_IdleLevel.z
+                                              );
 
         if (t > m_NextSwitchTime)
             NextCamera();
@@ -92,11 +93,13 @@ public class ServerCameraSystem
             Console.Write("Already capturing!");
             return;
         }
-        if(m_CameraSpots == null || m_CameraSpots.Length == 0)
+
+        if (m_CameraSpots == null || m_CameraSpots.Length == 0)
         {
             Console.Write("No server cam spots!");
             return;
         }
+
         Console.SetOpen(false);
         m_NextCapture = m_CameraSpots.Length - 1;
         m_NextCaptureTick = 10;

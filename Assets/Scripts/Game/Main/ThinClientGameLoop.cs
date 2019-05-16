@@ -22,7 +22,6 @@ public class NullSnapshotConsumer : ISnapshotConsumer
 
 public class ThinClientGameWorld
 {
-    
     public bool PredictionEnabled = true;
 
     public float frameTimeScale = 1.0f;
@@ -40,7 +39,7 @@ public class ThinClientGameWorld
 
     public ThinClientGameWorld(GameWorld world, NetworkClient networkClient, NetworkStatisticsClient networkStatistics)
     {
-        m_NetworkClient = networkClient;          
+        m_NetworkClient = networkClient;
         m_NetworkStatistics = networkStatistics;
 
         m_NullSnapshotConsumer = new NullSnapshotConsumer();
@@ -52,7 +51,7 @@ public class ThinClientGameWorld
     {
     }
 
-   
+
     // This is called at the actual client frame rate, so may be faster or slower than tickrate.
     public void Update(float frameDuration)
     {
@@ -79,23 +78,23 @@ public class ThinClientGameWorld
             //var userCommand = m_GameWorld.GetEntityManager().GetComponentData<UserCommandComponentData>(m_localPlayer.controlledEntity);
             //m_ReplicatedEntityModule.FinalizedStateHistory(m_PredictedTime.tick-1, m_NetworkClient.serverTime, ref userCommand.command);
         }
-#endif                
-        
+#endif
     }
-    
+
     public void LateUpdate(ChatSystemClient chatSystem, float frameDuration)
     {
     }
 
 
     GameObject localPlayerPrefab = null;
+
     public LocalPlayer RegisterLocalPlayer(int playerId)
     {
         //m_ReplicatedEntityModule.SetLocalPlayerId(playerId);
         //m_localPlayer = m_PlayerModule.RegisterLocalPlayer(playerId, m_NetworkClient);
-        if(localPlayerPrefab == null)
+        if (localPlayerPrefab == null)
             localPlayerPrefab = Resources.Load("Prefabs/LocalPlayer") as GameObject;
-        m_localPlayer = GameObject.Instantiate(localPlayerPrefab).GetComponent<LocalPlayer>();// m_world.Spawn<LocalPlayer>(prefab.gameObject);
+        m_localPlayer = GameObject.Instantiate(localPlayerPrefab).GetComponent<LocalPlayer>(); // m_world.Spawn<LocalPlayer>(prefab.gameObject);
         m_localPlayer.playerId = playerId;
         m_localPlayer.networkClient = m_NetworkClient;
         m_localPlayer.command.lookPitch = 90;
@@ -137,8 +136,10 @@ public class ThinClientGameWorld
         m_PredictedTime.AddDuration(deltaPredictedTime);
 
         // Adjust time to be synchronized with server
-        int preferredBufferedCommandCount = 2;      
-        int preferredTick = m_NetworkClient.serverTime + (int)(((m_NetworkClient.timeSinceSnapshot + m_NetworkStatistics.rtt.average) / 1000.0f) * m_GameWorld.worldTime.tickRate) + preferredBufferedCommandCount;
+        int preferredBufferedCommandCount = 2;
+        int preferredTick = m_NetworkClient.serverTime +
+                            (int) (((m_NetworkClient.timeSinceSnapshot + m_NetworkStatistics.rtt.average) / 1000.0f) *
+                                   m_GameWorld.worldTime.tickRate) + preferredBufferedCommandCount;
 
         bool resetTime = false;
         if (!resetTime && m_PredictedTime.tick < preferredTick - 3)
@@ -162,7 +163,6 @@ public class ThinClientGameWorld
             m_GameWorld.nextTickTime = Game.frameTime;
             m_PredictedTime.tick = preferredTick;
             m_PredictedTime.SetTime(preferredTick, 0);
-
         }
         else
         {
@@ -216,17 +216,17 @@ public class ThinClientGameWorld
     GameWorld m_GameWorld;
     GameTime m_PredictedTime = new GameTime(60);
     GameTime m_RenderTime = new GameTime(60);
-    
+
     // External systems
     NetworkClient m_NetworkClient;
     NetworkStatisticsClient m_NetworkStatistics;
     ClientFrontendUpdate m_ClientFrontendUpdate;
-    
-    
+
+
     //readonly UpdateNamePlates m_UpdateNamePlates;
     //readonly SpinSystem m_SpinSystem;
     //readonly TeleporterSystemClient m_TeleporterSystemClient;
-     
+
     LocalPlayer m_localPlayer;
     private ISnapshotConsumer m_NullSnapshotConsumer;
 }
@@ -247,7 +247,7 @@ public class ThinClientGameLoop : Game.IGameLoop
     {
         NetworkClient.m_DropSnapshots = true;
 
-#if UNITY_EDITOR        
+#if UNITY_EDITOR
         Game.game.levelManager.UnloadLevel();
 #endif
         Console.AddCommand("disconnect", CmdDisconnect, "Disconnect from server if connected", this.GetHashCode());
@@ -292,7 +292,7 @@ public class ThinClientGameLoop : Game.IGameLoop
             }
         }
 
-        for(int i = 0; i < thinClients.Count;++i)
+        for (int i = 0; i < thinClients.Count; ++i)
         {
             thinClients[i].Update();
         }
@@ -314,16 +314,16 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
     public ThinClient()
     {
         m_StateMachine = new StateMachine<ClientState>();
-        m_StateMachine.Add(ClientState.Browsing,    EnterBrowsingState,     UpdateBrowsingState,    LeaveBrowsingState);
-        m_StateMachine.Add(ClientState.Connecting,  EnterConnectingState,   UpdateConnectingState,  null);
-        m_StateMachine.Add(ClientState.Loading,     EnterLoadingState,      UpdateLoadingState,     null);
-        m_StateMachine.Add(ClientState.Playing,     EnterPlayingState,      UpdatePlayingState,     LeavePlayingState);
+        m_StateMachine.Add(ClientState.Browsing, EnterBrowsingState, UpdateBrowsingState, LeaveBrowsingState);
+        m_StateMachine.Add(ClientState.Connecting, EnterConnectingState, UpdateConnectingState, null);
+        m_StateMachine.Add(ClientState.Loading, EnterLoadingState, UpdateLoadingState, null);
+        m_StateMachine.Add(ClientState.Playing, EnterPlayingState, UpdatePlayingState, LeavePlayingState);
         m_StateMachine.SwitchTo(ClientState.Browsing);
 
         m_GameWorld = new GameWorld("ClientWorld");
 
         m_Transport = new SocketTransport();
-        
+
         m_NetworkClient = new NetworkClient(m_Transport);
 
         if (Application.isEditor || Game.game.buildId == "AutoBuild")
@@ -337,7 +337,6 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
 
         m_requestedPlayerSettings.playerName = ClientGameLoop.clientPlayerName.Value;
         m_requestedPlayerSettings.teamId = -1;
-        
     }
 
     public void Shutdown()
@@ -348,34 +347,41 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
         m_StateMachine.Shutdown();
 
         m_NetworkClient.Shutdown();
-        
+
         m_GameWorld.Shutdown();
         m_Transport.Shutdown();
     }
 
-    public void OnConnect(int clientId) { }
-    public void OnDisconnect(int clientId) { }
+    public void OnConnect(int clientId)
+    {
+    }
+
+    public void OnDisconnect(int clientId)
+    {
+    }
 
     unsafe public void OnEvent(int clientId, NetworkEvent info)
     {
         Profiler.BeginSample("-ProcessEvent");
-        switch ((GameNetworkEvents.EventType)info.type.typeId)
+        switch ((GameNetworkEvents.EventType) info.type.typeId)
         {
             case GameNetworkEvents.EventType.Chat:
-                fixed(uint* data = info.data)
+                fixed (uint* data = info.data)
                 {
                     var reader = new NetworkReader(data, info.type.schema);
                     //m_ChatSystem.ReceiveMessage(reader.ReadString(256));
                 }
+
                 break;
         }
+
         Profiler.EndSample();
     }
 
     public void OnMapUpdate(ref NetworkReader data)
     {
         m_LevelName = data.ReadString();
-        if(m_StateMachine.CurrentState() != ClientState.Loading)
+        if (m_StateMachine.CurrentState() != ClientState.Loading)
             m_StateMachine.SwitchTo(ClientState.Loading);
     }
 
@@ -393,13 +399,13 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
 
         m_NetworkClient.SendData();
 
-        if(m_NetworkClient.isConnected && m_playerSettingsUpdated)
+        if (m_NetworkClient.isConnected && m_playerSettingsUpdated)
         {
             m_playerSettingsUpdated = false;
             SendPlayerSettings();
         }
 
-        if(m_clientWorld != null)
+        if (m_clientWorld != null)
             m_NetworkStatistics.Update(m_clientWorld.frameTimeScale, GameTime.GetDuration(m_clientWorld.RenderTime, m_clientWorld.PredictedTime));
 
         Profiler.EndSample();
@@ -420,11 +426,13 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
     }
 
     int connectRetryCount;
+
     void EnterConnectingState()
     {
         GameDebug.Assert(m_ClientState == ClientState.Browsing, "Expected ClientState to be browsing");
         GameDebug.Assert(m_clientWorld == null, "Expected ClientWorld to be null");
-        GameDebug.Assert(m_NetworkClient.connectionState == NetworkClient.ConnectionState.Disconnected, "Expected network connectionState to be disconnected");
+        GameDebug.Assert(m_NetworkClient.connectionState == NetworkClient.ConnectionState.Disconnected,
+            "Expected network connectionState to be disconnected");
 
         m_ClientState = ClientState.Connecting;
         connectRetryCount = 0;
@@ -440,7 +448,7 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
                 // Do nothing; just wait for either success or failure
                 break;
             case NetworkClient.ConnectionState.Disconnected:
-                if(connectRetryCount < 2)
+                if (connectRetryCount < 2)
                 {
                     connectRetryCount++;
                     var msg = string.Format("Trying to connect to {0} (attempt #{1})...", targetServer, connectRetryCount);
@@ -454,6 +462,7 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
                     m_NetworkClient.Disconnect();
                     m_StateMachine.SwitchTo(ClientState.Browsing);
                 }
+
                 break;
         }
     }
@@ -464,7 +473,7 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
         GameDebug.Assert(m_NetworkClient.isConnected);
 
         m_requestedPlayerSettings.playerName = "ThinPlayer";
-        m_requestedPlayerSettings.characterType = (short)Game.characterType.IntValue;
+        m_requestedPlayerSettings.characterType = (short) Game.characterType.IntValue;
         m_playerSettingsUpdated = true;
 
         m_ClientState = ClientState.Loading;
@@ -491,27 +500,26 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
         m_clientWorld.PredictionEnabled = m_predictionEnabled;
 
         m_LocalPlayer = m_clientWorld.RegisterLocalPlayer(m_NetworkClient.clientId);
-        
-        m_NetworkClient.QueueEvent((ushort)GameNetworkEvents.EventType.PlayerReady, true, (ref NetworkWriter data) => {});
+
+        m_NetworkClient.QueueEvent((ushort) GameNetworkEvents.EventType.PlayerReady, true, (ref NetworkWriter data) => { });
 
         m_ClientState = ClientState.Playing;
     }
 
     void LeavePlayingState()
     {
-
         //Game.game.clientFrontend.Clear();
 
         GameObject.Destroy(m_LocalPlayer.gameObject);
         m_LocalPlayer = null;
-        
+
         m_clientWorld.Shutdown();
         m_clientWorld = null;
 
         // TODO (petera) replace this with a stack of levels or similar thing. For now we just load the menu no matter what
         //Game.game.levelManager.UnloadLevel();
         //Game.game.levelManager.LoadLevel("level_menu");
-        
+
         m_GameWorld.Shutdown();
         m_GameWorld = new GameWorld("ClientWorld");
 
@@ -540,7 +548,7 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
             ConfigVar.DirtyFlags &= ~ConfigVar.Flags.ClientInfo;
         }
 
-        float frameDuration = m_lastFrameTime != 0 ? (float)(Game.frameTime - m_lastFrameTime) : 0;
+        float frameDuration = m_lastFrameTime != 0 ? (float) (Game.frameTime - m_lastFrameTime) : 0;
         m_lastFrameTime = Game.frameTime;
 
         m_clientWorld.Update(frameDuration);
@@ -549,10 +557,8 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
 
     public void RemoteConsoleCommand(string command)
     {
-        m_NetworkClient.QueueEvent((ushort)GameNetworkEvents.EventType.RemoteConsoleCmd, true, (ref NetworkWriter writer) =>
-        {
-            writer.WriteString("args", command);
-        });
+        m_NetworkClient.QueueEvent((ushort) GameNetworkEvents.EventType.RemoteConsoleCmd, true,
+            (ref NetworkWriter writer) => { writer.WriteString("args", command); });
     }
 
     public void Disconnect()
@@ -563,10 +569,8 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
 
     void SendPlayerSettings()
     {
-        m_NetworkClient.QueueEvent((ushort)GameNetworkEvents.EventType.PlayerSetup, true, (ref NetworkWriter writer) =>
-        {
-            m_requestedPlayerSettings.Serialize(ref writer);
-        });
+        m_NetworkClient.QueueEvent((ushort) GameNetworkEvents.EventType.PlayerSetup, true,
+            (ref NetworkWriter writer) => { m_requestedPlayerSettings.Serialize(ref writer); });
     }
 
     public void Connect(string targetServer)
@@ -584,6 +588,7 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
         Loading,
         Playing,
     }
+
     StateMachine<ClientState> m_StateMachine;
 
     ClientState m_ClientState;
@@ -591,7 +596,7 @@ public class ThinClient : INetworkCallbacks, INetworkClientCallbacks
     GameWorld m_GameWorld;
     private SocketTransport m_Transport;
     NetworkClient m_NetworkClient;
-    
+
     LocalPlayer m_LocalPlayer;
     PlayerSettings m_requestedPlayerSettings = new PlayerSettings();
     bool m_playerSettingsUpdated;

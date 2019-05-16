@@ -4,5 +4,5 @@
 public class AssetRegistryRoot : ScriptableObject
 {
     public bool serverBuild;
-    public ScriptableObject[] assetRegistries; 
+    public ScriptableObject[] assetRegistries;
 }

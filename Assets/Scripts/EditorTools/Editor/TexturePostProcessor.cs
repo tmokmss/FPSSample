@@ -186,6 +186,7 @@ class TextureSettingsTool
             },
         }
     };
+
     class PlatformSettings
     {
         public string Name;
@@ -202,6 +203,7 @@ class TextureSettingsTool
             {
                 platformSettings.maxTextureSize = Size;
             }
+
             platformSettings.format = Format;
             importer.SetPlatformTextureSettings(platformSettings);
         }
@@ -229,7 +231,8 @@ class TextureSettingsTool
             if (ok)
                 Debug.Log("Checking " + importer.assetPath + ": <color=#00ff00>Ok</color>");
             else
-                Debug.LogWarning("Checking " + importer.assetPath + ": <color=#ff0000>Failed</color> (" + error + ")", AssetDatabase.LoadAssetAtPath(importer.assetPath, typeof(Texture)));
+                Debug.LogWarning("Checking " + importer.assetPath + ": <color=#ff0000>Failed</color> (" + error + ")",
+                    AssetDatabase.LoadAssetAtPath(importer.assetPath, typeof(Texture)));
             return ok;
         }
 
@@ -238,15 +241,19 @@ class TextureSettingsTool
             if (importer.anisoLevel != anisoLevel) return string.Format("anisoLevel should be {0} but is {1}", anisoLevel, importer.anisoLevel);
             if (importer.textureType != textureType) return string.Format("textureType should be {0} but is {1}", textureType, importer.textureType);
             if (importer.sRGBTexture != sRGBTexture) return string.Format("sRGBTexture should be {0} but is {1}", sRGBTexture, importer.sRGBTexture);
-            if (importer.streamingMipmaps != streamingMipmaps) return string.Format("streamingMipmaps should be {0} but is {1}", streamingMipmaps, importer.streamingMipmaps);
-            if (importer.textureCompression != textureCompression) return string.Format("textureCompression should be {0} but is {1}", textureCompression, importer.textureCompression);
+            if (importer.streamingMipmaps != streamingMipmaps)
+                return string.Format("streamingMipmaps should be {0} but is {1}", streamingMipmaps, importer.streamingMipmaps);
+            if (importer.textureCompression != textureCompression)
+                return string.Format("textureCompression should be {0} but is {1}", textureCompression, importer.textureCompression);
             foreach (var s in platformSettings)
             {
                 var ps = importer.GetPlatformTextureSettings(s.Name);
                 if (ps.overridden != true) return "no override for " + s.Name;
                 if (ps.format != s.Format) return string.Format("format for {0} should be {1} but is {2}", s.Name, s.Format, ps.format);
-                if (s.Size > 0 && ps.maxTextureSize != s.Size) string.Format("maxsize for {0} should be {1} but is {2}", s.Name, s.Size, ps.maxTextureSize);
+                if (s.Size > 0 && ps.maxTextureSize != s.Size)
+                    string.Format("maxsize for {0} should be {1} but is {2}", s.Name, s.Size, ps.maxTextureSize);
             }
+
             return "";
         }
 
@@ -268,7 +275,7 @@ class TextureSettingsTool
     [MenuItem("Assets/TextureRules/ApplyTextureSettings")]
     public static void ApplyTextureSettings()
     {
-        foreach(var g in Selection.assetGUIDs)
+        foreach (var g in Selection.assetGUIDs)
         {
             var path = AssetDatabase.GUIDToAssetPath(g);
             var importer = AssetImporter.GetAtPath(path) as TextureImporter;
@@ -292,7 +299,6 @@ class TextureSettingsTool
 
     public static void VerifyTextureSettings(string[] textures)
     {
-
         Debug.Log("Verifying texture import settings");
         Debug.Log("=================================");
         int noImporter = 0;
@@ -309,6 +315,7 @@ class TextureSettingsTool
                 Debug.Log("Texture " + path + " has no importer?");
                 continue;
             }
+
             bool verified = false;
             foreach (var s in settings)
             {
@@ -321,12 +328,14 @@ class TextureSettingsTool
                     break;
                 }
             }
+
             if (!verified)
             {
                 //Debug.Log("Texture " + path + " matches no rule");
                 noRule++;
             }
         }
+
         Debug.Log("===================");
         Debug.Log("Num textures: " + textures.Length);
         Debug.Log("Num skipped : " + noRule);

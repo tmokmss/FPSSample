@@ -5,7 +5,6 @@ using Unity.Entities;
 using UnityEngine;
 
 
-
 public struct MovableData : IComponentData, IInterpolatedComponent<MovableData>
 {
     Vector3 position;
@@ -15,11 +14,11 @@ public struct MovableData : IComponentData, IInterpolatedComponent<MovableData>
     {
         return new InterpolatedComponentSerializerFactory<MovableData>();
     }
-    
+
     public void Serialize(ref SerializeContext context, ref NetworkWriter writer)
     {
         var transform = context.entityManager.GetComponentObject<Transform>(context.entity);
-        
+
         writer.WriteVector3Q("position", transform.position);
         writer.WriteQuaternionQ("rotation", transform.rotation);
     }
@@ -43,7 +42,7 @@ public class Movable : ComponentDataProxy<MovableData>
 {
     public void Start()
     {
-        if(Game.GetGameLoop<ServerGameLoop>() == null)
+        if (Game.GetGameLoop<ServerGameLoop>() == null)
         {
             GetComponent<Rigidbody>().isKinematic = true;
         }

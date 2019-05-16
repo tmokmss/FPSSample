@@ -9,7 +9,7 @@ public class LightProbesVolumeEditor : Editor
     public override void OnInspectorGUI()
     {
         EditorGUI.BeginChangeCheck();
-        var volume = (LightProbesVolumeSettings)target;
+        var volume = (LightProbesVolumeSettings) target;
         base.DrawDefaultInspector();
         if (GUILayout.Button("Create Light Probes in Selected Volume"))
         {

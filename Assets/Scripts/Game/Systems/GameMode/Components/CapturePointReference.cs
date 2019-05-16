@@ -28,15 +28,14 @@ public class CapturePointReference : MonoBehaviour
 
     private void OnDestroy()
     {
-        for(int i=0; i < capturePointReferences.Count; ++i)
+        for (int i = 0; i < capturePointReferences.Count; ++i)
         {
             var r = capturePointReferences[i];
-            if(r.index == capturePointIndex && r.animator == GetComponent<Animator>())
+            if (r.index == capturePointIndex && r.animator == GetComponent<Animator>())
             {
                 capturePointReferences.RemoveAt(i);
                 return;
             }
         }
     }
-
 }

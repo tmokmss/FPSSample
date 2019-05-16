@@ -7,12 +7,12 @@ using UnityEngine;
 public struct TeleporterPresentationData : IComponentData, IReplicatedComponent
 {
     [NonSerialized] public int effectTick;
-    
+
     public static IReplicatedComponentSerializerFactory CreateSerializerFactory()
     {
         return new ReplicatedComponentSerializerFactory<TeleporterPresentationData>();
     }
-    
+
     public void Serialize(ref SerializeContext context, ref NetworkWriter writer)
     {
         writer.WriteInt32("effectTick", effectTick);
@@ -27,5 +27,4 @@ public struct TeleporterPresentationData : IComponentData, IReplicatedComponent
 [DisallowMultipleComponent]
 public class TeleporterPresentation : ComponentDataProxy<TeleporterPresentationData>
 {
-    
 }

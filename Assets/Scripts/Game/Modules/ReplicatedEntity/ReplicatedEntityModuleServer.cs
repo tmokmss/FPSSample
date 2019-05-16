@@ -3,10 +3,12 @@ using UnityEngine;
 
 
 [DisableAutoCreation]
-public class HandleReplicatedEntityDataSpawn : InitializeComponentDataSystem<ReplicatedEntityData,HandleReplicatedEntityDataSpawn.Initialized>
+public class HandleReplicatedEntityDataSpawn : InitializeComponentDataSystem<ReplicatedEntityData, HandleReplicatedEntityDataSpawn.Initialized>
 {
-    public struct Initialized : IComponentData{}
-    
+    public struct Initialized : IComponentData
+    {
+    }
+
     public HandleReplicatedEntityDataSpawn(GameWorld world, NetworkServer network,
         ReplicatedEntityRegistry assetRegistry, ReplicatedEntityCollection entityCollection) : base(world)
     {
@@ -18,16 +20,16 @@ public class HandleReplicatedEntityDataSpawn : InitializeComponentDataSystem<Rep
     protected override void Initialize(Entity entity, ReplicatedEntityData spawned)
     {
         var typeId = m_assetRegistry.GetEntryIndex(spawned.assetGuid);
-        spawned.id = m_network.RegisterEntity(spawned.id, (ushort)typeId, spawned.predictingPlayerId);
+        spawned.id = m_network.RegisterEntity(spawned.id, (ushort) typeId, spawned.predictingPlayerId);
 
         m_entityCollection.Register(EntityManager, spawned.id, entity);
 
         PostUpdateCommands.SetComponent(entity, spawned);
 
-        if(ReplicatedEntityModuleServer.m_showInfo.IntValue > 0)
+        if (ReplicatedEntityModuleServer.m_showInfo.IntValue > 0)
             GameDebug.Log("HandleReplicatedEntityDataDespawn.Initialize entity:" + entity + " type:" + typeId + " id:" + spawned.id);
     }
-    
+
     private readonly NetworkServer m_network;
     private readonly ReplicatedEntityRegistry m_assetRegistry;
     private readonly ReplicatedEntityCollection m_entityCollection;
@@ -45,7 +47,7 @@ public class HandleReplicatedEntityDataDespawn : DeinitializeComponentDataSystem
 
     protected override void Deinitialize(Entity entity, ReplicatedEntityData component)
     {
-        if(ReplicatedEntityModuleServer.m_showInfo.IntValue > 0)
+        if (ReplicatedEntityModuleServer.m_showInfo.IntValue > 0)
             GameDebug.Log("HandleReplicatedEntityDataDespawn.Deinitialize entity:" + entity + " id:" + component.id);
         m_entityCollection.Unregister(EntityManager, component.id);
         m_network.UnregisterEntity(component.id);
@@ -59,7 +61,7 @@ public class ReplicatedEntityModuleServer
 {
     [ConfigVar(Name = "server.replicatedsysteminfo", DefaultValue = "0", Description = "Show replicated system info")]
     public static ConfigVar m_showInfo;
-    
+
     public ReplicatedEntityModuleServer(GameWorld world, BundledResourceManager resourceSystem, NetworkServer network)
     {
         m_world = world;
@@ -71,30 +73,30 @@ public class ReplicatedEntityModuleServer
             m_SystemRoot = new GameObject("ReplicatedEntitySystem");
             m_SystemRoot.transform.SetParent(world.SceneRoot.transform);
         }
-        
+
         m_handleDataSpawn = m_world.GetECSWorld().CreateManager<HandleReplicatedEntityDataSpawn>(m_world, network,
             m_assetRegistry, m_entityCollection);
 
         m_handleDataDespawn = m_world.GetECSWorld().CreateManager<HandleReplicatedEntityDataDespawn>(m_world, network,
             m_entityCollection);
-        
-        
+
+
         m_UpdateReplicatedOwnerFlag = m_world.GetECSWorld().CreateManager<UpdateReplicatedOwnerFlag>(m_world);
         m_UpdateReplicatedOwnerFlag.SetLocalPlayerId(-1);
-        
+
         // Load all replicated entity resources
         m_assetRegistry.LoadAllResources(resourceSystem);
     }
-    
+
     public void Shutdown()
     {
         m_world.GetECSWorld().DestroyManager(m_handleDataSpawn);
-        
+
         m_world.GetECSWorld().DestroyManager(m_handleDataDespawn);
-        
+
         m_world.GetECSWorld().DestroyManager(m_UpdateReplicatedOwnerFlag);
-            
-        if(m_SystemRoot != null)
+
+        if (m_SystemRoot != null)
             GameObject.Destroy(m_SystemRoot);
     }
 
@@ -134,7 +136,6 @@ public class ReplicatedEntityModuleServer
     }
 
 
-
     private readonly GameWorld m_world;
 
     private readonly GameObject m_SystemRoot;
@@ -142,8 +143,8 @@ public class ReplicatedEntityModuleServer
     private readonly ReplicatedEntityCollection m_entityCollection;
 
     private readonly HandleReplicatedEntityDataSpawn m_handleDataSpawn;
-    
+
     private readonly HandleReplicatedEntityDataDespawn m_handleDataDespawn;
-    
+
     readonly UpdateReplicatedOwnerFlag m_UpdateReplicatedOwnerFlag;
 }

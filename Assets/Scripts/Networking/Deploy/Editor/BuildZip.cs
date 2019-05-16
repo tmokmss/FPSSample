@@ -15,7 +15,7 @@ namespace ConnectedGames.Build
         int m_Progress;
         Stopwatch m_Timer = new Stopwatch();
         string m_Platform;
-        
+
         // NOTE: Zipping doesn't use label, this is only here in case this zip is supposed to be uploaded
         // then the label will be used in the upload call
         string m_Label;
@@ -47,10 +47,10 @@ namespace ConnectedGames.Build
 
         public bool IsDone
         {
-            get 
-            { 
+            get
+            {
                 UnityEngine.Debug.Assert(m_Process != null);
-                return m_Process.HasExited;    
+                return m_Process.HasExited;
             }
         }
 
@@ -68,8 +68,9 @@ namespace ConnectedGames.Build
             {
                 File.Delete(m_DstPath);
             }
+
             var arguments = new StringBuilder();
-            arguments.Append("a -bsp1 -bb3 -bt -mx1 \"");  //a -y -r -bsp1 -bse1 -bso1 {0} {1} -mx9
+            arguments.Append("a -bsp1 -bb3 -bt -mx1 \""); //a -y -r -bsp1 -bse1 -bso1 {0} {1} -mx9
             arguments.Append(m_DstPath);
             arguments.Append("\" ");
             arguments.Append("\"" + m_SrcPath + "\" ");
@@ -103,7 +104,7 @@ namespace ConnectedGames.Build
                     Match m = REX_SevenZipStatus.Match(e.Data ?? "");
                     if (m != null && m.Success)
                     {
-                        m_Progress = int.Parse(m.Groups["p"].Value);                  
+                        m_Progress = int.Parse(m.Groups["p"].Value);
                     }
                 }
             };
@@ -115,7 +116,7 @@ namespace ConnectedGames.Build
 
             m_Timer.Start();
             bool ret = m_Process.Start();
-            if(ret)
+            if (ret)
                 m_Process.BeginOutputReadLine();
             return ret;
         }

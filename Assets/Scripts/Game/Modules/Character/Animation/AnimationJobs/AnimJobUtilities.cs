@@ -3,8 +3,8 @@ using UnityEngine.Experimental.Animations;
 
 public static class AnimJobUtilities
 {
-  public static void SolveTwoBoneIK 
-  (
+    public static void SolveTwoBoneIK
+    (
         AnimationStream stream,
         TransformStreamHandle topHandle,
         TransformStreamHandle midHandle,
@@ -45,7 +45,7 @@ public static class AnimJobUtilities
         topHandle.SetRotation(stream, fromTo * aRotation);
         lowHandle.SetRotation(stream, Quaternion.Lerp(lowHandle.GetRotation(stream), effectorRotation, rotWeight));
     }
-    
+
     static float TriangleAngle(float aLen, Vector3 v1, Vector3 v2)
     {
         float aLen1 = v1.magnitude;

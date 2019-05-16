@@ -26,7 +26,7 @@ public class FloatRollingAverage
         {
             var oldValue = m_Entries[0];
 
-            if(oldValue == min || oldValue == max)
+            if (oldValue == min || oldValue == max)
             {
                 // Recalculate min and max
                 min = float.MaxValue;
@@ -58,7 +58,7 @@ public class FloatRollingAverage
         m_SqrSum += value * value;
 
         average = m_Sum / samples;
-        float f = (m_SqrSum - m_Sum * m_Sum / samples) / samples;   
+        float f = (m_SqrSum - m_Sum * m_Sum / samples) / samples;
         stdDeviation = f >= 0 ? Mathf.Sqrt(f) : 0;
     }
 

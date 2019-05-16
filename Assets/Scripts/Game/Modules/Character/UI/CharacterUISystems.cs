@@ -4,11 +4,11 @@ using UnityEngine;
 [DisableAutoCreation]
 public class UpdateCharacterUI : BaseComponentSystem
 {
-    ComponentGroup Group;   
+    ComponentGroup Group;
 
     public UpdateCharacterUI(GameWorld world) : base(world)
     {
-        m_prefab = Resources.Load<IngameHUD>("Prefabs/CharacterHUD");       
+        m_prefab = Resources.Load<IngameHUD>("Prefabs/CharacterHUD");
     }
 
     protected override void OnCreateManager()
@@ -36,12 +36,11 @@ public class UpdateCharacterUI : BaseComponentSystem
         var localPlayerArray = Group.GetComponentArray<LocalPlayer>();
         var playerCamSettingsArray = Group.GetComponentArray<PlayerCameraSettings>();
         var charControlArray = Group.GetComponentArray<LocalPlayerCharacterControl>();
-        
+
         GameDebug.Assert(localPlayerArray.Length <= 1, "There should never be more than 1 local player!");
 
         for (var i = 0; i < localPlayerArray.Length; i++)
         {
-            
             var player = localPlayerArray[i];
             var characterControl = charControlArray[i];
             var cameraSettings = playerCamSettingsArray[i];
@@ -53,14 +52,14 @@ public class UpdateCharacterUI : BaseComponentSystem
             if (characterControl.lastRegisteredControlledEntity != player.controlledEntity)
             {
                 // Delete all current UI elements
-                if(characterControl.healthUI != null)
+                if (characterControl.healthUI != null)
                     GameObject.Destroy(characterControl.healthUI.gameObject);
                 characterControl.healthUI = null;
-                
-                foreach(var charUI in characterControl.registeredCharUIs)
+
+                foreach (var charUI in characterControl.registeredCharUIs)
                     GameObject.Destroy(charUI.gameObject);
                 characterControl.registeredCharUIs.Clear();
-                    
+
                 // 
                 characterControl.lastRegisteredControlledEntity = Entity.Null;
 
@@ -70,7 +69,7 @@ public class UpdateCharacterUI : BaseComponentSystem
                 {
                     characterControl.lastRegisteredControlledEntity = player.controlledEntity;
                 }
-                    
+
 
                 // Build new UI elements
                 if (characterControl.lastRegisteredControlledEntity != Entity.Null &&
@@ -81,7 +80,7 @@ public class UpdateCharacterUI : BaseComponentSystem
                         EntityManager.GetComponentObject<Character>(characterEntity);
 
                     var charPresentation = character.presentation;
-                    
+
                     if (EntityManager.HasComponent<CharacterUISetup>(charPresentation))
                     {
                         // TODO (mogensh) we should move UI setup out to Hero setup (or something similar clientside)
@@ -102,7 +101,7 @@ public class UpdateCharacterUI : BaseComponentSystem
                         {
                             var abilityUI = GameObject.Instantiate(uiPrefab);
                             abilityUI.abilityOwner = characterEntity;
-                        
+
                             abilityUI.transform.SetParent(characterControl.hud.transform, false);
                             characterControl.registeredCharUIs.Add(abilityUI);
                         }
@@ -138,7 +137,7 @@ public class UpdateCharacterUI : BaseComponentSystem
                 var healthState = EntityManager.GetComponentData<HealthStateData>(characterControl.lastRegisteredControlledEntity);
                 characterControl.healthUI.UpdateUI(ref healthState);
             }
-                
+
 
             characterControl.hud.FrameUpdate(player, cameraSettings);
 
@@ -148,7 +147,6 @@ public class UpdateCharacterUI : BaseComponentSystem
             }
         }
     }
-    
+
     IngameHUD m_prefab;
 }
-

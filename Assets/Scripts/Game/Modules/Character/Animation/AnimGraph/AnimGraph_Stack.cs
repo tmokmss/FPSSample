@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 
 [CreateAssetMenu(fileName = "Stack", menuName = "FPS Sample/Animation/AnimGraph/Stack")]
-public class AnimGraph_Stack : AnimGraphAsset 
+public class AnimGraph_Stack : AnimGraphAsset
 {
     public List<AnimGraphAsset> rootNodes = new List<AnimGraphAsset>();
 
@@ -31,7 +31,7 @@ public class AnimGraph_Stack : AnimGraphAsset
 
                 var outputPort = 0;
                 subGraph.GetPlayableOutput(0, ref m_RootPlayable, ref outputPort);
-             
+
 
                 var animStackEntry = new AnimStackEntry()
                 {
@@ -85,6 +85,6 @@ public class AnimGraph_Stack : AnimGraphAsset
         }
 
         Playable m_RootPlayable;
-        List<AnimStackEntry> m_subGraphs = new List<AnimStackEntry>(); 
+        List<AnimStackEntry> m_subGraphs = new List<AnimStackEntry>();
     }
 }

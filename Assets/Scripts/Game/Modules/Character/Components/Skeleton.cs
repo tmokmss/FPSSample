@@ -4,27 +4,25 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [ExecuteAlways]
-public class Skeleton : MonoBehaviour, ISkeletonTypeComponent//
-{    
+public class Skeleton : MonoBehaviour, ISkeletonTypeComponent //
+{
     public static event Action<Skeleton> SkeletonEnabled;
     public static event Action<Skeleton> SkeletonDisabled;
 
     public bool drawSkeleton;
     public Color skeletonColor = Color.green;
-    [Range(0.01f, 5.0f)]
-    public float boneSize = 1.0f;
+    [Range(0.01f, 5.0f)] public float boneSize = 1.0f;
     public bool drawTripods;
 
 
     // TODO: Make bone arrays show up in editor as read only @sunek
-    [FormerlySerializedAs("m_Bones")]
-    public Transform[] bones;
-    [FormerlySerializedAs("m_BoneNames")]
-    public int[] nameHashes;
+    [FormerlySerializedAs("m_Bones")] public Transform[] bones;
+    [FormerlySerializedAs("m_BoneNames")] public int[] nameHashes;
+
     [FormerlySerializedAs("m_ParentIndex")]
     public int[] parentIndex;
-    [FormerlySerializedAs("m_Bindpose")]
-    public Bonepose[] importPose;
+
+    [FormerlySerializedAs("m_Bindpose")] public Bonepose[] importPose;
 
     [Serializable]
     public struct Bonepose
@@ -37,9 +35,9 @@ public class Skeleton : MonoBehaviour, ISkeletonTypeComponent//
 #if UNITY_EDITOR
     void Start()
     {
-        skeletonColor = UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 1f, 1f, 1f, 1f);        
+        skeletonColor = UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 1f, 1f, 1f, 1f);
     }
-    
+
     void OnEnable()
     {
         if (SkeletonEnabled != null)
@@ -47,7 +45,7 @@ public class Skeleton : MonoBehaviour, ISkeletonTypeComponent//
             SkeletonEnabled(this);
         }
     }
-    
+
     void OnDisable()
     {
         if (SkeletonDisabled != null)
@@ -56,7 +54,7 @@ public class Skeleton : MonoBehaviour, ISkeletonTypeComponent//
         }
     }
 #endif
-    
+
     public bool StoreBoneData(Transform skeletonRoot)
     {
         if (!skeletonRoot)
@@ -65,7 +63,7 @@ public class Skeleton : MonoBehaviour, ISkeletonTypeComponent//
             nameHashes = new int[0];
             parentIndex = new int[0];
             importPose = new Bonepose[0];
-            return false; 
+            return false;
         }
 
         var boneList = new List<Transform>();
@@ -97,6 +95,7 @@ public class Skeleton : MonoBehaviour, ISkeletonTypeComponent//
         {
             parentIndex[i] = GetBoneIndex(bones[i].parent.gameObject.name.GetHashCode());
         }
+
         return true;
     }
 

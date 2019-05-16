@@ -8,16 +8,38 @@ using UnityEngine;
 
 public static class NetworkUtils
 {
-    public static float UInt32ToFloat(uint value) { return new UIntFloat() { intValue = value }.floatValue; }
-    public static uint FloatToUInt32(float value) { return new UIntFloat() { floatValue = value }.intValue; }
+    public static float UInt32ToFloat(uint value)
+    {
+        return new UIntFloat() {intValue = value}.floatValue;
+    }
 
-    public static Color32 Uint32ToColor32(uint value) { return new Color32((byte)(value & 0xff), (byte)((value >> 8) & 0xff), (byte)((value >> 16) & 0xff), (byte)((value >> 24) & 0xff)); }
-    public static UInt32 Color32ToUInt32(Color32 value) { return (uint)value.r | (uint)(value.g << 8) | (uint)(value.b << 16) | (uint)(value.a << 24); }
+    public static uint FloatToUInt32(float value)
+    {
+        return new UIntFloat() {floatValue = value}.intValue;
+    }
 
-    public static double DoubleToUInt64(ulong value) { return new ULongDouble() { longValue = value }.doubleValue; }
-    public static ulong UInt64ToDouble(double value) { return new ULongDouble() { doubleValue = value }.longValue; }
+    public static Color32 Uint32ToColor32(uint value)
+    {
+        return new Color32((byte) (value & 0xff), (byte) ((value >> 8) & 0xff), (byte) ((value >> 16) & 0xff), (byte) ((value >> 24) & 0xff));
+    }
+
+    public static UInt32 Color32ToUInt32(Color32 value)
+    {
+        return (uint) value.r | (uint) (value.g << 8) | (uint) (value.b << 16) | (uint) (value.a << 24);
+    }
+
+    public static double DoubleToUInt64(ulong value)
+    {
+        return new ULongDouble() {longValue = value}.doubleValue;
+    }
+
+    public static ulong UInt64ToDouble(double value)
+    {
+        return new ULongDouble() {doubleValue = value}.longValue;
+    }
 
     static readonly string hexdigits = "0123456789ABCDEF";
+
     public static string HexString(byte[] values, int count)
     {
         var d = new char[count * 2];
@@ -26,7 +48,8 @@ public static class NetworkUtils
             d[i * 2 + 0] = hexdigits[values[i] >> 4];
             d[i * 2 + 1] = hexdigits[values[i] & 0xf];
         }
-        return new string(d) + " ("+ count + ")";
+
+        return new string(d) + " (" + count + ")";
     }
 
     static NetworkUtils()
@@ -39,24 +62,20 @@ public static class NetworkUtils
     [StructLayout(LayoutKind.Explicit)]
     struct UIntFloat
     {
-        [FieldOffset(0)]
-        public float floatValue;
-        [FieldOffset(0)]
-        public uint intValue;
+        [FieldOffset(0)] public float floatValue;
+        [FieldOffset(0)] public uint intValue;
     }
 
     [StructLayout(LayoutKind.Explicit)]
     struct ULongDouble
     {
-        [FieldOffset(0)]
-        public double doubleValue;
-        [FieldOffset(0)]
-        public ulong longValue;
+        [FieldOffset(0)] public double doubleValue;
+        [FieldOffset(0)] public ulong longValue;
     }
 
     public static int CalculateRequiredBits(long min, long max)
     {
-        return (min == max) ? 0 : (int)Math.Log(max - min, 2) + 1;
+        return (min == max) ? 0 : (int) Math.Log(max - min, 2) + 1;
     }
 
     public static void MemCopy(byte[] src, int srcIndex, byte[] dst, int dstIndex, int count)
@@ -76,13 +95,14 @@ public static class NetworkUtils
 
         return 0;
     }
+
     public static int MemCmp(uint[] a, int aIndex, uint[] b, int bIndex, int count)
     {
         for (int i = 0; i < count; ++i)
         {
             var diff = b[bIndex++] - a[aIndex++];
             if (diff != 0)
-                return (int)diff;
+                return (int) diff;
         }
 
         return 0;
@@ -95,8 +115,10 @@ public static class NetworkUtils
         {
             hash = hash * 179 + array[i] + 1;
         }
+
         return hash;
     }
+
     public static uint SimpleHashStreaming(uint old_hash, uint value)
     {
         return old_hash * 179 + value + 1;
@@ -130,6 +152,7 @@ public static class NetworkUtils
                 return true;
             }
         }
+
         return false;
     }
 
@@ -170,6 +193,7 @@ public static class NetworkUtils
                 GameDebug.Log("Error " + e.Message + " while getting IP properties for " + item.Description);
             }
         }
+
         return addresses;
     }
 }
@@ -192,6 +216,7 @@ class ByteArrayComp : IEqualityComparer<byte[]>, IComparer<byte[]>
             if (d != 0)
                 return d;
         }
+
         return 0;
     }
 
@@ -206,7 +231,7 @@ class ByteArrayComp : IEqualityComparer<byte[]>, IComparer<byte[]>
             throw new ArgumentNullException("Trying to get hash of null");
         var xl = x.Length;
         if (xl >= 4)
-            return (int)(x[0] + (x[1] << 8) + (x[2] << 16) + (x[3] << 24));
+            return (int) (x[0] + (x[1] << 8) + (x[2] << 16) + (x[3] << 24));
         else
             return 0;
     }
@@ -225,4 +250,3 @@ public class Aggregator
         previousValue = value;
     }
 }
-

@@ -11,7 +11,7 @@ using UnityEngine;
 public class Twist : MonoBehaviour, ISkeletonTypeComponent
 {
     public List<TwistChain> twistChains = new List<TwistChain>();
-    
+
 //    public AimAxis aimAxis;
 
 //    public enum AimAxis
@@ -23,8 +23,7 @@ public class Twist : MonoBehaviour, ISkeletonTypeComponent
     public struct TwistJoint
     {
         public Transform joint;
-        [Range(-1.0f, 1.0f)]
-        public float factor;
+        [Range(-1.0f, 1.0f)] public float factor;
     }
 
     [Serializable]
@@ -33,8 +32,7 @@ public class Twist : MonoBehaviour, ISkeletonTypeComponent
         public Transform driver;
         public List<TwistJoint> twistJoints;
 
-        [HideInInspector]
-        public quaternion bindpose;
+        [HideInInspector] public quaternion bindpose;
 
         public bool HasValidData()
         {
@@ -79,10 +77,10 @@ public class Twist : MonoBehaviour, ISkeletonTypeComponent
             if (!twistChain.HasValidData())
                 continue;
 
-             var delta = math.inverse(twistChain.bindpose) * twistChain.driver.localRotation;
+            var delta = math.inverse(twistChain.bindpose) * twistChain.driver.localRotation;
 
             var twist = new quaternion(0.0f, delta.y, 0.0f, delta.w);
-            
+
             // TODO: Add support for variable axis
 //            quaternion twist;
 //            switch (aimAxis)
@@ -111,8 +109,7 @@ public class Twist : MonoBehaviour, ISkeletonTypeComponent
                 var twistRotation = math.slerp(quaternion.identity, twist, twistChain.twistJoints[j].factor);
                 twistChain.twistJoints[j].joint.localRotation = twistRotation;
             }
-        }       
+        }
     }
 #endif
-
 }

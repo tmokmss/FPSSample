@@ -12,5 +12,4 @@ public class SpawnPoint : MonoBehaviour
         Gizmos.DrawRay(transform.position + transform.up * 1.5f, transform.forward);
     }
 #endif
-
 }

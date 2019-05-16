@@ -14,6 +14,7 @@ public class GameCamera : MonoBehaviour
     }
 
     private bool pushed = false;
+
     private void Update()
     {
         if (Game.game == null)

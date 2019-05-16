@@ -9,13 +9,12 @@ public class TeleporterServer : MonoBehaviour
     public Vector3 spawnPosition;
     public SpatialEffectTypeDefinition effect;
 
-    [System.NonSerialized]
-    public HitCollision characterInside;
+    [System.NonSerialized] public HitCollision characterInside;
 
     void OnTriggerStay(Collider c)
     {
         // System is responsible for removing characters
-        if(characterInside == null)
+        if (characterInside == null)
             characterInside = c.gameObject.GetComponent<HitCollision>();
     }
 

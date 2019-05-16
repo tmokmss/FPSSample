@@ -18,7 +18,7 @@ public static class Sequence
     public static ushort ToUInt16(int value)
     {
         GameDebug.Assert(value >= 0);
-        return (ushort)(value & 0xffff);
+        return (ushort) (value & 0xffff);
     }
 
     // TODO : We can probably implement this more elegantly?
@@ -35,7 +35,7 @@ public static class Sequence
             {
                 var diff2 = k_Modulo - b + value;
                 if (diff2 < k_MaxUInt16Diff)
-                    return (int)(baseline + diff2);
+                    return (int) (baseline + diff2);
                 else
                     return -1;
             }
@@ -49,7 +49,7 @@ public static class Sequence
             {
                 var diff2 = k_Modulo - value + b;
                 if (diff2 < k_MaxUInt16Diff)
-                    return (int)(baseline - diff2);
+                    return (int) (baseline - diff2);
                 else
                     return -1;
             }
@@ -63,7 +63,10 @@ public static class Sequence
 
 public class SequenceBuffer<T> where T : class
 {
-    public int Capacity { get { return m_Sequences.Length; } }
+    public int Capacity
+    {
+        get { return m_Sequences.Length; }
+    }
 
     public SequenceBuffer(int capacity, Func<T> factory)
     {

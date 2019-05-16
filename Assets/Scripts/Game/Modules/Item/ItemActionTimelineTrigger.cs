@@ -6,29 +6,31 @@ using UnityEngine.Experimental.PlayerLoop;
 using UnityEngine.Playables;
 
 
-public class ItemActionTimelineTrigger : MonoBehaviour  
+public class ItemActionTimelineTrigger : MonoBehaviour
 {
     [Serializable]
     public struct ActionTimelines
     {
         public CharacterPredictedData.Action action;
-        public PlayableDirector director;   
+        public PlayableDirector director;
     }
+
     public ActionTimelines[] actionTimelines;
 
-    public Dictionary<CharacterPredictedData.Action, PlayableDirector> m_actionTimelines = new Dictionary<CharacterPredictedData.Action, PlayableDirector>();
+    public Dictionary<CharacterPredictedData.Action, PlayableDirector> m_actionTimelines =
+        new Dictionary<CharacterPredictedData.Action, PlayableDirector>();
+
     public PlayableDirector m_currentActionTimeline = null;
     public CharacterPredictedData.Action m_prevAction;
     public int m_prevActionTick;
 
     void Awake()
     {
-        foreach (var map in actionTimelines) 
+        foreach (var map in actionTimelines)
         {
-            if(map.director != null)
+            if (map.director != null)
                 m_actionTimelines.Add(map.action, map.director);
         }
-            
     }
 }
 
@@ -36,17 +38,19 @@ public class ItemActionTimelineTrigger : MonoBehaviour
 [DisableAutoCreation]
 public class UpdateItemActionTimelineTrigger : BaseComponentSystem<CharacterPresentationSetup, ItemActionTimelineTrigger>
 {
-    public UpdateItemActionTimelineTrigger(GameWorld world) : base(world) {}
-    
+    public UpdateItemActionTimelineTrigger(GameWorld world) : base(world)
+    {
+    }
+
     protected override void Update(Entity entity, CharacterPresentationSetup charPresentation, ItemActionTimelineTrigger behavior)
     {
         if (!charPresentation.IsVisible)
             return;
-            
+
         var animState = EntityManager.GetComponentData<CharacterInterpolatedData>(charPresentation.character);
         Update(behavior, animState);
     }
-    
+
     public static void Update(ItemActionTimelineTrigger behavior, CharacterInterpolatedData animState)
     {
         var newAction = behavior.m_prevAction != animState.charAction;
@@ -67,6 +71,7 @@ public class UpdateItemActionTimelineTrigger : BaseComponentSystem<CharacterPres
                 behavior.m_currentActionTimeline.Play();
             }
         }
+
         behavior.m_prevAction = animState.charAction;
         behavior.m_prevActionTick = animState.charActionTick;
     }

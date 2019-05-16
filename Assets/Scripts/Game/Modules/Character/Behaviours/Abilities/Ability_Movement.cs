@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Ability_Movement",menuName = "FPS Sample/Abilities/Ability_Movement")]
+[CreateAssetMenu(fileName = "Ability_Movement", menuName = "FPS Sample/Abilities/Ability_Movement")]
 public class Ability_Movement : CharBehaviorFactory
 {
     public struct Settings : IComponentData
@@ -12,12 +12,12 @@ public class Ability_Movement : CharBehaviorFactory
     }
 
     public Settings settings;
-    
+
     public override Entity Create(EntityManager entityManager, List<Entity> entities)
     {
         var entity = CreateCharBehavior(entityManager);
         entities.Add(entity);
-		
+
         // Ability components
         entityManager.AddComponentData(entity, settings);
 
@@ -27,11 +27,11 @@ public class Ability_Movement : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class Movement_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,Ability_Movement.Settings>
+class Movement_RequestActive : BaseComponentDataSystem<CharBehaviour, AbilityControl, Ability_Movement.Settings>
 {
     public Movement_RequestActive(GameWorld world) : base(world)
     {
-        ExtraComponentRequirements = new ComponentType[] { typeof(ServerEntity) } ;
+        ExtraComponentRequirements = new ComponentType[] {typeof(ServerEntity)};
     }
 
     protected override void Update(Entity entity, CharBehaviour charAbility, AbilityControl abilityCtrl,
@@ -54,7 +54,7 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
 {
     [ConfigVar(Name = "debug.charactermove", Description = "Show graphs of one character's movement along x, y, z", DefaultValue = "0")]
     public static ConfigVar debugCharacterMove;
-    
+
     // Debugging graphs to show player movement in 3 axis
     static float[] movehist_x = new float[100];
     static float[] movehist_y = new float[100];
@@ -62,18 +62,18 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
     static float lastUsedFrame;
 
     readonly int m_platformLayer;
-    readonly int m_charCollisionALayer; 
-    readonly int m_charCollisionBLayer; 
+    readonly int m_charCollisionALayer;
+    readonly int m_charCollisionBLayer;
 
     public Movement_Update(GameWorld world) : base(world)
     {
         m_platformLayer = LayerMask.NameToLayer("Platform");
         m_charCollisionALayer = LayerMask.NameToLayer("CharCollisionA");
         m_charCollisionBLayer = LayerMask.NameToLayer("CharCollisionB");
-        ExtraComponentRequirements = new ComponentType[] { typeof(ServerEntity) } ;
+        ExtraComponentRequirements = new ComponentType[] {typeof(ServerEntity)};
     }
-    
-    protected override void Update(Entity abilityEntity, CharBehaviour charAbility, AbilityControl abilityCtrl, Ability_Movement.Settings settings )
+
+    protected override void Update(Entity abilityEntity, CharBehaviour charAbility, AbilityControl abilityCtrl, Ability_Movement.Settings settings)
     {
         if (abilityCtrl.active == 0)
         {
@@ -82,22 +82,23 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
                 abilityCtrl.behaviorState = AbilityControl.State.Idle;
                 EntityManager.SetComponentData(abilityEntity, abilityCtrl);
             }
+
             return;
         }
 
         // Movement is always active (unless canceled)
         abilityCtrl.behaviorState = AbilityControl.State.Active;
         EntityManager.SetComponentData(abilityEntity, abilityCtrl);
-        
-        
+
+
         var time = m_world.worldTime;
-       
+
         var command = EntityManager.GetComponentData<UserCommandComponentData>(charAbility.character).command;
         var predictedState = EntityManager.GetComponentData<CharacterPredictedData>(charAbility.character);
         var character = EntityManager.GetComponentObject<Character>(charAbility.character);
-        
+
         var newPhase = CharacterPredictedData.LocoState.MaxValue;
-        
+
         var phaseDuration = time.DurationSinceTick(predictedState.locoStartTick);
 
         var isOnGround = predictedState.IsOnGround();
@@ -115,7 +116,7 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
                 newPhase = CharacterPredictedData.LocoState.Stand;
             }
         }
-        
+
         // Jump
         if (isOnGround)
             predictedState.jumpCount = 0;
@@ -126,14 +127,16 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
             newPhase = CharacterPredictedData.LocoState.Jump;
         }
 
-        if (command.buttons.IsSet(UserCommand.Button.Jump) && predictedState.locoState == CharacterPredictedData.LocoState.InAir && predictedState.jumpCount < 2)
+        if (command.buttons.IsSet(UserCommand.Button.Jump) && predictedState.locoState == CharacterPredictedData.LocoState.InAir &&
+            predictedState.jumpCount < 2)
         {
             predictedState.jumpCount = predictedState.jumpCount + 1;
             predictedState.velocity.y = 0;
             newPhase = CharacterPredictedData.LocoState.DoubleJump;
         }
 
-        if (predictedState.locoState == CharacterPredictedData.LocoState.Jump || predictedState.locoState == CharacterPredictedData.LocoState.DoubleJump)
+        if (predictedState.locoState == CharacterPredictedData.LocoState.Jump ||
+            predictedState.locoState == CharacterPredictedData.LocoState.DoubleJump)
         {
             if (phaseDuration >= Game.config.jumpAscentDuration)
             {
@@ -147,7 +150,7 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
             predictedState.locoState = newPhase;
             predictedState.locoStartTick = time.tick;
         }
-        
+
         if (debugCharacterMove.IntValue > 0)
         {
             // Only show for one player
@@ -174,19 +177,19 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
         // Apply damange impulse from previus frame
         if (time.tick == predictedState.damageTick + 1)
         {
-            predictedState.velocity += predictedState.damageDirection*predictedState.damageImpulse;
+            predictedState.velocity += predictedState.damageDirection * predictedState.damageImpulse;
             predictedState.locoState = CharacterPredictedData.LocoState.InAir;
             predictedState.locoStartTick = time.tick;
         }
-        
+
         var moveQuery = EntityManager.GetComponentObject<CharacterMoveQuery>(charAbility.character);
 
         // Simple adjust of height while on platform
-        if (predictedState.locoState == CharacterPredictedData.LocoState.Stand && 
-            character.groundCollider != null && 
+        if (predictedState.locoState == CharacterPredictedData.LocoState.Stand &&
+            character.groundCollider != null &&
             character.groundCollider.gameObject.layer == m_platformLayer)
         {
-            if (character.altitude < moveQuery.settings.skinWidth - 0.01f )
+            if (character.altitude < moveQuery.settings.skinWidth - 0.01f)
             {
                 var platform = character.groundCollider;
                 var posY = platform.transform.position.y + moveQuery.settings.skinWidth;
@@ -201,11 +204,11 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
         // Setup movement query
         moveQuery.collisionLayer = character.teamId == 0 ? m_charCollisionALayer : m_charCollisionBLayer;
         moveQuery.moveQueryStart = predictedState.position;
-        moveQuery.moveQueryEnd = moveQuery.moveQueryStart + (float3)deltaPos;
-        
-        EntityManager.SetComponentData(charAbility.character,predictedState);
+        moveQuery.moveQueryEnd = moveQuery.moveQueryStart + (float3) deltaPos;
+
+        EntityManager.SetComponentData(charAbility.character, predictedState);
     }
-    
+
     void CalculateMovement(ref GameTime gameTime, ref CharacterPredictedData predicted, ref UserCommand command, ref Vector3 deltaPos)
     {
         var velocity = predicted.velocity;
@@ -215,7 +218,8 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
             case CharacterPredictedData.LocoState.DoubleJump:
 
                 // In jump we overwrite velocity y component with linear movement up
-                velocity = CalculateGroundVelocity(velocity, ref command, Game.config.playerSpeed, Game.config.playerAirFriction, Game.config.playerAiracceleration, gameTime.tickDuration);
+                velocity = CalculateGroundVelocity(velocity, ref command, Game.config.playerSpeed, Game.config.playerAirFriction,
+                    Game.config.playerAiracceleration, gameTime.tickDuration);
                 velocity.y = Game.config.jumpAscentHeight / Game.config.jumpAscentDuration;
                 deltaPos += velocity * gameTime.tickDuration;
 
@@ -224,7 +228,8 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
 
                 var gravity = Game.config.playerGravity;
                 velocity += Vector3.down * gravity * gameTime.tickDuration;
-                velocity = CalculateGroundVelocity(velocity, ref command, Game.config.playerSpeed, Game.config.playerAirFriction, Game.config.playerAiracceleration, gameTime.tickDuration);
+                velocity = CalculateGroundVelocity(velocity, ref command, Game.config.playerSpeed, Game.config.playerAirFriction,
+                    Game.config.playerAiracceleration, gameTime.tickDuration);
 
                 if (velocity.y < -Game.config.maxFallVelocity)
                     velocity.y = -Game.config.maxFallVelocity;
@@ -243,14 +248,15 @@ class Movement_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, A
 
         var playerSpeed = predicted.sprinting == 1 ? Game.config.playerSprintSpeed : Game.config.playerSpeed;
 
-        velocity = CalculateGroundVelocity(velocity, ref command, playerSpeed, Game.config.playerFriction, Game.config.playerAcceleration, gameTime.tickDuration);
+        velocity = CalculateGroundVelocity(velocity, ref command, playerSpeed, Game.config.playerFriction, Game.config.playerAcceleration,
+            gameTime.tickDuration);
 //        Debug.DrawLine(predictedState.State.position, predictedState.State.position + velocity, Color.yellow,1 );
-        
+
         // Simple follow ground code so character sticks to ground when running down hill
-        velocity.y = -400.0f*gameTime.tickDuration;
-        
+        velocity.y = -400.0f * gameTime.tickDuration;
+
 //        Debug.DrawLine(predictedState.State.position, predictedState.State.position + velocity, Color.green, 1 );
-        
+
         deltaPos = velocity * gameTime.tickDuration;
     }
 
@@ -301,15 +307,15 @@ class Movement_HandleCollision : BaseComponentDataSystem<CharBehaviour, AbilityC
 {
     public Movement_HandleCollision(GameWorld world) : base(world)
     {
-        ExtraComponentRequirements = new ComponentType[] { typeof(ServerEntity) } ;
+        ExtraComponentRequirements = new ComponentType[] {typeof(ServerEntity)};
     }
-    
+
     protected override void Update(Entity abilityEntity, CharBehaviour charAbility, AbilityControl abilityCtrl, Ability_Movement.Settings settings)
     {
         if (abilityCtrl.active == 0)
             return;
 
-        
+
         var time = m_world.worldTime;
         var predictedState = EntityManager.GetComponentData<CharacterPredictedData>(charAbility.character);
         var query = EntityManager.GetComponentObject<CharacterMoveQuery>(charAbility.character);
@@ -323,29 +329,29 @@ class Movement_HandleCollision : BaseComponentDataSystem<CharBehaviour, AbilityC
             {
                 if (command.moveMagnitude != 0.0f)
                 {
-                    predictedState.locoState = CharacterPredictedData.LocoState.GroundMove;  
+                    predictedState.locoState = CharacterPredictedData.LocoState.GroundMove;
                 }
                 else
                 {
-                    predictedState.locoState = CharacterPredictedData.LocoState.Stand;    
+                    predictedState.locoState = CharacterPredictedData.LocoState.Stand;
                 }
             }
             else
             {
-                predictedState.locoState = CharacterPredictedData.LocoState.InAir;                    
+                predictedState.locoState = CharacterPredictedData.LocoState.InAir;
             }
-            
+
             predictedState.locoStartTick = time.tick;
         }
-    
+
         // Manually calculate resulting velocity as characterController.velocity is linked to Time.deltaTime
         var newPos = query.moveQueryResult;
         var oldPos = query.moveQueryStart;
         var velocity = (newPos - oldPos) / time.tickDuration;
-    
+
         predictedState.velocity = velocity;
         predictedState.position = query.moveQueryResult;
-        
+
         EntityManager.SetComponentData(charAbility.character, predictedState);
     }
 }

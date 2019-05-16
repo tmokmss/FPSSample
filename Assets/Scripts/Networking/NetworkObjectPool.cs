@@ -5,8 +5,15 @@ using UnityEngine;
 // TODO : Optimize internal data structures
 public class NetworkObjectPool<T> where T : class, new()
 {
-    public int allocated { get { return m_Allocated.Count; } }
-    public int capacity { get { return m_Allocated.Capacity; } }
+    public int allocated
+    {
+        get { return m_Allocated.Count; }
+    }
+
+    public int capacity
+    {
+        get { return m_Allocated.Capacity; }
+    }
 
     public NetworkObjectPool(int initialSize, Func<T> factory = null)
     {

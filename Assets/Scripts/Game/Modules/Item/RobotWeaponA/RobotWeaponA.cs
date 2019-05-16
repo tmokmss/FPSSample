@@ -25,17 +25,17 @@ public class GunBarrelSetup
 
 
 [ClientOnlyComponent]
-public class RobotWeaponA : MonoBehaviour    
+public class RobotWeaponA : MonoBehaviour
 {
     [NonSerialized] public TickEventHandler primFireEvent = new TickEventHandler(0.5f);
     [NonSerialized] public TickEventHandler secFireEvent = new TickEventHandler(0.5f);
     [NonSerialized] public TickEventHandler meleeImpactEvent = new TickEventHandler(0.5f);
-    
+
     public GunBarrelSetup barrelSetup;
-    
+
     public SoundDef secondaryFireSound;
     public VisualEffect secondaryMuzzleFlash;
-    
+
     public SoundDef meleeImpactSound;
     public VisualEffect meleeImpactEffect;
 }
@@ -43,13 +43,13 @@ public class RobotWeaponA : MonoBehaviour
 
 // System
 [DisableAutoCreation]
-public class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA,CharacterPresentationSetup>
+public class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA, CharacterPresentationSetup>
 {
     public System_RobotWeaponA(GameWorld world) : base(world)
     {
         ExtraComponentRequirements = new[] {ComponentType.Subtractive<DespawningEntity>()};
     }
-    
+
     protected override void Update(Entity entity, RobotWeaponA weapon, CharacterPresentationSetup charPresentation)
     {
         if (!charPresentation.IsVisible)
@@ -60,7 +60,7 @@ public class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA,CharacterPre
     }
 
 
-    public void Update(GameTime time, RobotWeaponA weapon,ref CharacterReplicatedData charRepAll, float deltaTime)
+    public void Update(GameTime time, RobotWeaponA weapon, ref CharacterReplicatedData charRepAll, float deltaTime)
     {
         GameDebug.Assert(weapon.barrelSetup != null && weapon.barrelSetup.barrels.Length > 0, "Robotweapon has no barrels defined");
 
@@ -76,10 +76,10 @@ public class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA,CharacterPre
         }
 
         // Update using chaingun ability state
-        var chaingunAbility = charRepAll.FindAbilityWithComponent(EntityManager,typeof(Ability_Chaingun.InterpolatedState));
-        GameDebug.Assert(chaingunAbility != Entity.Null,"AbilityController does not own a Ability_Chaingun ability");
+        var chaingunAbility = charRepAll.FindAbilityWithComponent(EntityManager, typeof(Ability_Chaingun.InterpolatedState));
+        GameDebug.Assert(chaingunAbility != Entity.Null, "AbilityController does not own a Ability_Chaingun ability");
         var chaingunInterpolatedState = EntityManager.GetComponentData<Ability_Chaingun.InterpolatedState>(chaingunAbility);
-        
+
         if (weapon.primFireEvent.Update(time, chaingunInterpolatedState.fireTick))
         {
             weapon.barrelSetup.index = (weapon.barrelSetup.index + 1) % weapon.barrelSetup.barrels.Length;
@@ -89,13 +89,13 @@ public class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA,CharacterPre
             weapon.barrelSetup.muzzleFlash[index].Play();
             if (weapon.barrelSetup.fireSoundHandle.IsValid() && weapon.barrelSetup.fireSoundHandle.emitter.playing)
                 Game.SoundSystem.Stop(weapon.barrelSetup.fireSoundHandle, 0.1f);
-            weapon.barrelSetup.fireSoundHandle = Game.SoundSystem.Play(weapon.barrelSetup.fireSound, 
+            weapon.barrelSetup.fireSoundHandle = Game.SoundSystem.Play(weapon.barrelSetup.fireSound,
                 weapon.barrelSetup.muzzleFlash[index].transform.position);
         }
-        
+
         // Update using grenade ability state
-        var grenadeAbility = charRepAll.FindAbilityWithComponent(EntityManager,typeof(Ability_GrenadeLauncher.InterpolatedState));
-        GameDebug.Assert(grenadeAbility != Entity.Null,"AbilityController does not own a Ability_GrenadeLauncher ability");
+        var grenadeAbility = charRepAll.FindAbilityWithComponent(EntityManager, typeof(Ability_GrenadeLauncher.InterpolatedState));
+        GameDebug.Assert(grenadeAbility != Entity.Null, "AbilityController does not own a Ability_GrenadeLauncher ability");
         var grenadeInterpolatedState = EntityManager.GetComponentData<Ability_GrenadeLauncher.InterpolatedState>(grenadeAbility);
         if (weapon.secFireEvent.Update(time, grenadeInterpolatedState.fireTick))
         {
@@ -103,23 +103,23 @@ public class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA,CharacterPre
                 Game.SoundSystem.Play(weapon.secondaryFireSound, weapon.transform.position);
 
             if (weapon.secondaryMuzzleFlash != null)
-                weapon.secondaryMuzzleFlash.Play();   
+                weapon.secondaryMuzzleFlash.Play();
         }
 
 
         // Update using Melee ability ability state
-        var meleeAbility = charRepAll.FindAbilityWithComponent(EntityManager,typeof(Ability_Melee.InterpolatedState));
-        GameDebug.Assert(meleeAbility != Entity.Null,"AbilityController does not own a Ability_Melee ability");
+        var meleeAbility = charRepAll.FindAbilityWithComponent(EntityManager, typeof(Ability_Melee.InterpolatedState));
+        GameDebug.Assert(meleeAbility != Entity.Null, "AbilityController does not own a Ability_Melee ability");
         var meleeInterpolatedState = EntityManager.GetComponentData<Ability_Melee.InterpolatedState>(meleeAbility);
         if (weapon.meleeImpactEvent.Update(time, meleeInterpolatedState.impactTick))
         {
-            if(weapon.meleeImpactSound != null)
-                Game.SoundSystem.Play(weapon.meleeImpactSound, weapon.transform.position);// TODO this should be hand position
-                
-            if(weapon.meleeImpactEffect != null)
+            if (weapon.meleeImpactSound != null)
+                Game.SoundSystem.Play(weapon.meleeImpactSound, weapon.transform.position); // TODO this should be hand position
+
+            if (weapon.meleeImpactEffect != null)
                 weapon.meleeImpactEffect.Play();
         }
-        
+
         // Update barrel state
         for (var i = 0; i < weapon.barrelSetup.states.Length; i++)
         {
@@ -145,14 +145,18 @@ public class System_RobotWeaponA : BaseComponentSystem<RobotWeaponA,CharacterPre
 
 
 [DisableAutoCreation]
-public class RobotWeaponClientProjectileSpawnHandler : InitializeComponentGroupSystem<ClientProjectile,RobotWeaponClientProjectileSpawnHandler.Initialzied>
+public class RobotWeaponClientProjectileSpawnHandler : InitializeComponentGroupSystem<ClientProjectile,
+    RobotWeaponClientProjectileSpawnHandler.Initialzied>
 {
-    public struct Initialzied : IComponentData {}
+    public struct Initialzied : IComponentData
+    {
+    }
 
     private ComponentGroup WeaponGroup;
-    
+
     public RobotWeaponClientProjectileSpawnHandler(GameWorld world) : base(world)
-    {}
+    {
+    }
 
     protected override void OnCreateManager()
     {
@@ -164,7 +168,7 @@ public class RobotWeaponClientProjectileSpawnHandler : InitializeComponentGroupS
     {
         var clientProjectileArray = group.GetComponentArray<ClientProjectile>();
         var weaponArray = WeaponGroup.GetComponentArray<RobotWeaponA>();
-        var charPresentationArray =  WeaponGroup.GetComponentArray<CharacterPresentationSetup>();
+        var charPresentationArray = WeaponGroup.GetComponentArray<CharacterPresentationSetup>();
 
         for (var i = 0; i < clientProjectileArray.Length; i++)
         {
@@ -179,7 +183,7 @@ public class RobotWeaponClientProjectileSpawnHandler : InitializeComponentGroupS
 
                 if (!charPresentation.IsVisible)
                     continue;
-                
+
                 if (charPresentation.character == projectileOwner)
                 {
                     var weapon = weaponArray[j];

@@ -84,6 +84,7 @@ public class Console
 
     static string lastMsg = "";
     static double timeLastMsg;
+
     public static void Write(string msg)
     {
         // Have to condition on cvar being null as this may run before cvar system is initialized
@@ -92,6 +93,7 @@ public class Console
             lastMsg = msg;
             timeLastMsg = Game.frameTime;
         }
+
         OutputString(msg);
     }
 
@@ -103,6 +105,7 @@ public class Console
             OutputString("Cannot add command " + name + " twice");
             return;
         }
+
         s_Commands.Add(name, new ConsoleCommand(name, method, description, tag));
     }
 
@@ -119,6 +122,7 @@ public class Console
             if (c.Value.tag == tag)
                 removals.Add(c.Key);
         }
+
         foreach (var c in removals)
             RemoveCommand(c);
     }
@@ -182,12 +186,14 @@ public class Console
                 s_PendingCommandsWaitForFrames--;
                 break;
             }
+
             if (s_PendingCommandsWaitForLoad)
             {
                 if (!Game.game.levelManager.IsCurrentLevelLoaded())
                     break;
                 s_PendingCommandsWaitForLoad = false;
             }
+
             // Remove before executing as we may hit an 'exec' command that wants to insert commands
             var cmd = s_PendingCommands[0];
             s_PendingCommands.RemoveAt(0);
@@ -219,8 +225,10 @@ public class Console
                 pos++;
                 return input.Substring(startPos, pos - startPos - 1);
             }
+
             pos++;
         }
+
         return input.Substring(startPos);
     }
 
@@ -233,8 +241,10 @@ public class Console
             {
                 return input.Substring(startPos, pos - startPos);
             }
+
             pos++;
         }
+
         return input.Substring(startPos);
     }
 
@@ -256,6 +266,7 @@ public class Console
             else
                 res.Add(Parse(input, ref pos));
         }
+
         return res;
     }
 
@@ -344,11 +355,13 @@ public class Console
             OutputString("Usage: waitload\nWait for level load\n");
             return;
         }
+
         if (!Game.game.levelManager.IsLoadingLevel())
         {
             OutputString("waitload: not loading level; ignoring\n");
             return;
         }
+
         s_PendingCommandsWaitForLoad = true;
     }
 
@@ -383,7 +396,7 @@ public class Console
         }
         catch (Exception e)
         {
-            if(!silent)
+            if (!silent)
                 OutputString("Exec failed: " + e.Message);
         }
     }
@@ -434,6 +447,7 @@ public class Console
         {
             lcp = Mathf.Min(lcp, CommonPrefix(matches[i], matches[i + 1]));
         }
+
         prefix += matches[0].Substring(prefix.Length, lcp - prefix.Length);
         if (matches.Count > 1)
         {
@@ -445,6 +459,7 @@ public class Console
         {
             prefix += " ";
         }
+
         return prefix;
     }
 
@@ -482,6 +497,7 @@ public class Console
             if (!a.StartsWith(b.Substring(0, i), true, null))
                 return i - 1;
         }
+
         return minl;
     }
 

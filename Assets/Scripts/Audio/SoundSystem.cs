@@ -8,9 +8,13 @@ using Random = UnityEngine.Random;
 
 public class SoundSystemNull : ISoundSystem
 {
-    public void Init(AudioMixer mixer) { }
+    public void Init(AudioMixer mixer)
+    {
+    }
 
-    public void MountBank(SoundBank bank) { }
+    public void MountBank(SoundBank bank)
+    {
+    }
 
     public SoundSystem.SoundHandle Play(SoundDef soundDef)
     {
@@ -32,13 +36,21 @@ public class SoundSystemNull : ISoundSystem
         return default(SoundSystem.SoundHandle);
     }
 
-    public void SetCurrentListener(AudioListener audioListener) { }
+    public void SetCurrentListener(AudioListener audioListener)
+    {
+    }
 
-    public void Stop(SoundSystem.SoundHandle sh, float fadeOutTime = 0) { }
+    public void Stop(SoundSystem.SoundHandle sh, float fadeOutTime = 0)
+    {
+    }
 
-    public void UnmountBank(SoundBank bank) { }
+    public void UnmountBank(SoundBank bank)
+    {
+    }
 
-    public void Update() { }
+    public void Update()
+    {
+    }
 }
 
 public class SoundSystem : ISoundSystem
@@ -52,7 +64,8 @@ public class SoundSystem : ISoundSystem
     [ConfigVar(Name = "sound.spatialize", DefaultValue = "1", Description = "Use spatializer")]
     public static ConfigVar soundSpatialize;
 
-    [ConfigVar(Name = "sound.mute", DefaultValue = "-1", Description = "Is audio enabled. -1 causes default behavior (on when window has focus)", Flags = ConfigVar.Flags.None)]
+    [ConfigVar(Name = "sound.mute", DefaultValue = "-1", Description = "Is audio enabled. -1 causes default behavior (on when window has focus)",
+        Flags = ConfigVar.Flags.None)]
     public static ConfigVar soundMute;
 
     // Debugging only
@@ -62,8 +75,10 @@ public class SoundSystem : ISoundSystem
     // Exposed in options menu
     [ConfigVar(Name = "sound.menuvol", DefaultValue = "1", Description = "Menu volume", Flags = ConfigVar.Flags.None)]
     public static ConfigVar soundMenuVol;
+
     [ConfigVar(Name = "sound.sfxvol", DefaultValue = "1", Description = "SFX volume", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar soundSFXVol;
+
     [ConfigVar(Name = "sound.musicvol", DefaultValue = "1", Description = "Music volume", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar soundMusicVol;
 
@@ -72,7 +87,12 @@ public class SoundSystem : ISoundSystem
     {
         public SoundEmitter emitter;
         public int seq;
-        public bool IsValid() { return emitter != null && emitter.seqId == seq; }
+
+        public bool IsValid()
+        {
+            return emitter != null && emitter.seqId == seq;
+        }
+
         public SoundHandle(SoundEmitter e)
         {
             emitter = e;
@@ -105,6 +125,7 @@ public class SoundSystem : ISoundSystem
     }
 
     static AudioMixerGroup[] s_MixerGroups;
+
     public void Init(AudioMixer mixer)
     {
         m_SourceHolder = new GameObject("SoundSystemSources");
@@ -124,10 +145,10 @@ public class SoundSystem : ISoundSystem
         }
 
         // Set up mixer groups
-        s_MixerGroups = new AudioMixerGroup[(int)SoundMixerGroup._Count];
-        s_MixerGroups[(int)SoundMixerGroup.Menu] = m_AudioMixer.FindMatchingGroups("Menu")[0];
-        s_MixerGroups[(int)SoundMixerGroup.Music] = m_AudioMixer.FindMatchingGroups("Music")[0];
-        s_MixerGroups[(int)SoundMixerGroup.SFX] = m_AudioMixer.FindMatchingGroups("SFX")[0];
+        s_MixerGroups = new AudioMixerGroup[(int) SoundMixerGroup._Count];
+        s_MixerGroups[(int) SoundMixerGroup.Menu] = m_AudioMixer.FindMatchingGroups("Menu")[0];
+        s_MixerGroups[(int) SoundMixerGroup.Music] = m_AudioMixer.FindMatchingGroups("Music")[0];
+        s_MixerGroups[(int) SoundMixerGroup.SFX] = m_AudioMixer.FindMatchingGroups("SFX")[0];
     }
 
     public struct SoundReq
@@ -154,7 +175,7 @@ public class SoundSystem : ISoundSystem
         SoundEmitter emitter = null;
         float distance = float.MinValue;
         var listenerPos = m_CurrentListener != null ? m_CurrentListener.transform.position : Vector3.zero;
-        foreach(var e in m_Emitters)
+        foreach (var e in m_Emitters)
         {
             var s = e.source;
 
@@ -173,7 +194,7 @@ public class SoundSystem : ISoundSystem
 
             // Pick closest; assuming 2d sounds very close!
             var dist = 0.0f;
-            if(s.spatialBlend > 0.0f)
+            if (s.spatialBlend > 0.0f)
             {
                 dist = (s.transform.position - listenerPos).magnitude;
 
@@ -183,19 +204,20 @@ public class SoundSystem : ISoundSystem
                     dist *= 0.5f;
             }
 
-            if(dist > distance)
+            if (dist > distance)
             {
                 distance = dist;
                 emitter = e;
             }
-
         }
-        if(emitter != null)
+
+        if (emitter != null)
         {
             emitter.Kill();
             emitter.seqId = m_SequenceId++;
             return emitter;
         }
+
         GameDebug.Log("Unable to allocate sound emitter!");
         return null;
     }
@@ -203,8 +225,9 @@ public class SoundSystem : ISoundSystem
     public SoundHandle Play(WeakSoundDef weakSoundDef)
     {
         SoundDef def;
-        return m_SoundDefs.TryGetValue(weakSoundDef.guid , out def) ? Play(def) : new SoundHandle(null);
+        return m_SoundDefs.TryGetValue(weakSoundDef.guid, out def) ? Play(def) : new SoundHandle(null);
     }
+
     public SoundHandle Play(SoundDef soundDef)
     {
         GameDebug.Assert(soundDef != null);
@@ -245,7 +268,7 @@ public class SoundSystem : ISoundSystem
         Profiler.BeginSample("SoundSystem.AllocEmitter");
         var e = AllocEmitter();
         Profiler.EndSample();
-        
+
         if (e == null)
             return new SoundHandle(null);
 
@@ -267,6 +290,7 @@ public class SoundSystem : ISoundSystem
             GameDebug.LogWarning("SoundSystem.Stop(): invalid SoundHandle");
             return;
         }
+
         if (fadeOutTime == 0.0f)
             sh.emitter.fadeToKill.SetValue(0.0f);
         else
@@ -277,12 +301,13 @@ public class SoundSystem : ISoundSystem
     }
 
     bool focus = false;
+
     public void Update()
     {
-        if(focus != Application.isFocused)
+        if (focus != Application.isFocused)
         {
             focus = Application.isFocused;
-            if(soundMute.IntValue == -1)
+            if (soundMute.IntValue == -1)
                 m_MasterVolume.MoveTo(focus ? 1.0f : 0.0f, 0.5f);
         }
 
@@ -317,6 +342,7 @@ public class SoundSystem : ISoundSystem
                 e.source = MakeAudioSource();
                 e.repeatCount = 0;
             }
+
             if (e.fadeToKill.IsMoving())
             {
                 e.source.volume = AmplitudeFromDecibel(e.soundDef.volume) * e.fadeToKill.GetValue();
@@ -326,17 +352,20 @@ public class SoundSystem : ISoundSystem
                 // kill no matter what
                 e.Kill();
             }
+
             if (e.source.isPlaying)
             {
                 count++;
                 continue;
             }
+
             if (e.repeatCount > 1)
             {
                 e.repeatCount--;
                 StartEmitter(e);
                 continue;
             }
+
             // Reset for reuse
             e.playing = false;
             e.source.transform.parent = m_SourceHolder.transform;
@@ -345,25 +374,31 @@ public class SoundSystem : ISoundSystem
             e.source.transform.position = Vector3.zero;
             e.fadeToKill.SetValue(1.0f);
         }
+
         if (soundDebug.IntValue > 0)
         {
             DebugOverlay.Write(30, 1, "Mixer: {0} {1}", m_AudioMixer.GetInstanceID(), Game.game.audioMixer.GetInstanceID());
             int ii = 4;
-            foreach(var o in GameObject.FindObjectsOfType<AudioMixerGroup>())
+            foreach (var o in GameObject.FindObjectsOfType<AudioMixerGroup>())
             {
                 DebugOverlay.Write(30, ii++, "group: {0} {1}", o.name, o.GetInstanceID());
             }
+
             DebugOverlay.Write(1, 1, "Num audios {0}", count);
             for (int i = 0, c = m_Emitters.Length; i < c; ++i)
             {
                 var e = m_Emitters[i];
-                DebugOverlay.Write(1, 3 + i, "Emitter {0:##}  {1} {2} {3}", i, e.playing ? e.soundDef.name : "<n/a>", e.source.gameObject.activeInHierarchy ? "act":"nact", e.playing ? "Mixer: " +e.source.outputAudioMixerGroup.audioMixer.GetInstanceID() : "");
+                DebugOverlay.Write(1, 3 + i, "Emitter {0:##}  {1} {2} {3}", i, e.playing ? e.soundDef.name : "<n/a>",
+                    e.source.gameObject.activeInHierarchy ? "act" : "nact",
+                    e.playing ? "Mixer: " + e.source.outputAudioMixerGroup.audioMixer.GetInstanceID() : "");
             }
-            if(m_CurrentListener == null)
+
+            if (m_CurrentListener == null)
             {
                 DebugOverlay.Write(DebugOverlay.Width / 2 - 5, DebugOverlay.Height, "No AudioListener?");
                 return;
             }
+
             for (int i = 0, c = m_Emitters.Length; i < c; ++i)
             {
                 var e = m_Emitters[i];
@@ -371,9 +406,11 @@ public class SoundSystem : ISoundSystem
                     continue;
                 var s = e.source.spatialBlend;
                 Vector3 locpos = m_CurrentListener.transform.InverseTransformPoint(e.source.transform.position);
-                float x = Mathf.Lerp(e.source.panStereo*10.0f, Mathf.Clamp(locpos.x, -10, 10), s); ;
+                float x = Mathf.Lerp(e.source.panStereo * 10.0f, Mathf.Clamp(locpos.x, -10, 10), s);
+                ;
                 float z = Mathf.Lerp(-10.0f, Mathf.Clamp(locpos.z, -10, 10), s);
-                DebugOverlay.Write(Color.Lerp(Color.green, Color.blue, s), DebugOverlay.Width / 2 + x, DebugOverlay.Height / 2 - z, "{0} ({1:##.#})", e.soundDef.name, locpos.magnitude);
+                DebugOverlay.Write(Color.Lerp(Color.green, Color.blue, s), DebugOverlay.Width / 2 + x, DebugOverlay.Height / 2 - z, "{0} ({1:##.#})",
+                    e.soundDef.name, locpos.magnitude);
             }
         }
     }
@@ -395,7 +432,7 @@ public class SoundSystem : ISoundSystem
         Profiler.BeginSample(".Set source clip");
         source.clip = soundDef.clips[Random.Range(0, soundDef.clips.Count)];
         Profiler.EndSample();
-        
+
         Profiler.BeginSample(".Setup source");
         // Map from halftone space to linear playback multiplier
         source.pitch = Mathf.Pow(2.0f, Random.Range(soundDef.pitchMin, soundDef.pitchMax) / 12.0f);
@@ -405,15 +442,15 @@ public class SoundSystem : ISoundSystem
         source.loop = soundDef.loopCount < 1 ? true : false;
         source.rolloffMode = soundDef.rolloffMode;
         float delay = Random.Range(soundDef.delayMin, soundDef.delayMax);
-        if(s_MixerGroups != null)
-            source.outputAudioMixerGroup = s_MixerGroups[(int)soundDef.soundGroup];
+        if (s_MixerGroups != null)
+            source.outputAudioMixerGroup = s_MixerGroups[(int) soundDef.soundGroup];
         source.spatialBlend = soundDef.spatialBlend;
         source.panStereo = Random.Range(soundDef.panMin, soundDef.panMax);
         Profiler.EndSample();
 
         // soundSpatialize can be null as this is run from editor too
         Profiler.BeginSample(".Setup spatializer");
-        if(soundSpatialize != null && soundSpatialize.IntValue > 0 && soundDef.spatialBlend > 0.5f)
+        if (soundSpatialize != null && soundSpatialize.IntValue > 0 && soundDef.spatialBlend > 0.5f)
         {
             source.spatialize = true;
             source.SetSpatializerFloat(0, 8.0f);
@@ -429,8 +466,9 @@ public class SoundSystem : ISoundSystem
         {
             source.spatialize = false;
         }
+
         Profiler.EndSample();
-        
+
         // TODO (petera) can we remove this? -- should never be needed due to re-enabling code in main update loop
         if (!source.enabled)
         {
@@ -453,6 +491,7 @@ public class SoundSystem : ISoundSystem
         {
             m_SoundDefs[bank.soundDefGuids[i]] = bank.soundDefs[i];
         }
+
         GameDebug.Log("Mounted soundbank: " + bank.name + " with " + bank.soundDefGuids.Count + " sounds");
     }
 
@@ -463,6 +502,7 @@ public class SoundSystem : ISoundSystem
         {
             m_SoundDefs.Remove(bank.soundDefGuids[i]);
         }
+
         GameDebug.Log("Unmounted soundbank: " + bank.name + " with " + bank.soundDefGuids.Count + " sounds");
     }
 
@@ -487,6 +527,7 @@ public class SoundSystem : ISoundSystem
         {
             return 0;
         }
+
         return Mathf.Pow(2.0f, decibel / 6.0f);
     }
 
@@ -497,5 +538,4 @@ public class SoundSystem : ISoundSystem
     GameObject m_SourceHolder;
     AudioListener m_CurrentListener;
     Interpolator m_MasterVolume = new Interpolator(1.0f, Interpolator.CurveType.SmoothStep);
-
 }

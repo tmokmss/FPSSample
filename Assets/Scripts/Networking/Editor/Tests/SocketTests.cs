@@ -2,9 +2,7 @@ using System;
 using System.Threading;
 using System.Net;
 using NUnit.Framework;
-
 using System.Net.Sockets;
-
 using Unity.Networking.Transport;
 using Unity.Collections;
 using Unity.Networking.Transport.LowLevel.Unsafe;
@@ -18,26 +16,25 @@ namespace TransportTests
         [Test]
         public void UdpC_BindToEndpoint_ReturnSocketHandle()
         {
-            using (var socket = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
+            using (var socket = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
             {
                 var endpoint = new IPEndPoint(IPAddress.Any, 0);
                 var socketError = socket.Bind(endpoint);
 
-                Assert.AreEqual(socketError, (int)SocketError.Success);
+                Assert.AreEqual(socketError, (int) SocketError.Success);
             }
         }
 
         [Test]
         public void UdpC_BindMultipleToSameEndpoint_ReturnSocketError()
         {
-            using (var first = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
-            using (var second = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
+            using (var first = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
+            using (var second = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
             {
-
                 var endpoint = new IPEndPoint(IPAddress.Any, 50001);
 
                 var socketError = first.Bind(endpoint);
-                Assert.AreEqual(socketError, (int)SocketError.Success);
+                Assert.AreEqual(socketError, (int) SocketError.Success);
 
                 var error = second.Bind(endpoint);
                 Assert.AreEqual(error, (int) SocketError.AddressAlreadyInUse);
@@ -47,7 +44,7 @@ namespace TransportTests
         [Test]
         public void UdpC_ListenThenConnect_ShouldFail()
         {
-            using (var socket = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
+            using (var socket = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
             {
                 var endpoint = new IPEndPoint(IPAddress.Any, 50007);
                 socket.Bind(endpoint);
@@ -62,8 +59,8 @@ namespace TransportTests
         [Test]
         public void UdpC_ConnectTest_ShouldConnect()
         {
-            using (var server = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
-            using (var client = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
+            using (var server = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
+            using (var client = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
             {
                 var serverPort = 50009;
 
@@ -85,11 +82,11 @@ namespace TransportTests
         [Test]
         public void UdpC_MultipleConnectTest_ShouldConnect()
         {
-            using (var server = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
-            using (var client0 = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
-            using (var client1 = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
-            using (var client2 = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
-            using (var client3 = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
+            using (var server = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
+            using (var client0 = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
+            using (var client1 = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
+            using (var client2 = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
+            using (var client3 = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
             {
                 var serverPort = 50005;
 
@@ -126,8 +123,8 @@ namespace TransportTests
         [Test]
         public void UdpC_ConnectSendTest_ShouldConnectAndReceiveData()
         {
-            using (var server = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
-            using (var client = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
+            using (var server = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
+            using (var client = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
             {
                 var serverPort = 50008;
 
@@ -161,8 +158,8 @@ namespace TransportTests
         [Test]
         public void UdpC_ReconnectAndResend_ShouldReconnectAndResend()
         {
-            using (var server = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
-            using (var client = new UdpNetworkDriver(new NetworkDataStreamParameter{}))
+            using (var server = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
+            using (var client = new UdpNetworkDriver(new NetworkDataStreamParameter { }))
             {
                 var serverPort = 50007;
 
@@ -180,12 +177,13 @@ namespace TransportTests
                 client.Disconnect(id);
 
                 server.ScheduleUpdate().Complete();
-                
+
                 var data = new byte[1472];
                 var size = 1472;
                 NetworkConnection from;
 
-                Assert.AreEqual(ExperimentalEventType.Disconnect, PollEvent(ExperimentalEventType.Disconnect, maxIterations, server, ref data, out size, out from));
+                Assert.AreEqual(ExperimentalEventType.Disconnect,
+                    PollEvent(ExperimentalEventType.Disconnect, maxIterations, server, ref data, out size, out from));
 
                 id = client.Connect(new IPEndPoint(IPAddress.Loopback, serverPort));
                 ConnectTogether(server, client, maxIterations, out serverConnection, out clientConnection);
@@ -210,15 +208,14 @@ namespace TransportTests
         {
             int customTimeout = 1000;
 
-            using (var server = new UdpNetworkDriver(new NetworkConfigParameter { disconnectTimeout = customTimeout }))
-            using (var client = new UdpNetworkDriver(new NetworkConfigParameter { disconnectTimeout = customTimeout }))
+            using (var server = new UdpNetworkDriver(new NetworkConfigParameter {disconnectTimeout = customTimeout}))
+            using (var client = new UdpNetworkDriver(new NetworkConfigParameter {disconnectTimeout = customTimeout}))
             {
-
                 var serverPort = 50006;
 
                 server.Bind(new IPEndPoint(IPAddress.Loopback, serverPort));
                 client.Bind(new IPEndPoint(IPAddress.Loopback, 0));
-                
+
                 server.Listen();
 
                 var id = client.Connect(new IPEndPoint(IPAddress.Loopback, serverPort));
@@ -231,7 +228,7 @@ namespace TransportTests
 
                 // Force timeout
                 Thread.Sleep(customTimeout + 500);
-                
+
                 var message = new DataStreamWriter(7, Allocator.Persistent);
                 message.Write((byte) 'm');
                 message.Write((byte) 'e');
@@ -245,17 +242,19 @@ namespace TransportTests
                 var data = new byte[1472];
                 int size = -1;
                 NetworkConnection from;
-                Assert.AreEqual(ExperimentalEventType.Disconnect, PollEvent(ExperimentalEventType.Disconnect, maxIterations, server, ref data, out size, out from));
+                Assert.AreEqual(ExperimentalEventType.Disconnect,
+                    PollEvent(ExperimentalEventType.Disconnect, maxIterations, server, ref data, out size, out from));
                 Assert.AreEqual(from, clientConnection);
             }
         }
 
-        ExperimentalEventType PollEvent(ExperimentalEventType ev, int maxIterations, UdpNetworkDriver socket, ref byte[] buffer, out int size, out NetworkConnection connection)
+        ExperimentalEventType PollEvent(ExperimentalEventType ev, int maxIterations, UdpNetworkDriver socket, ref byte[] buffer, out int size,
+            out NetworkConnection connection)
         {
             int iterator = 0;
             size = 0;
             connection = default(NetworkConnection);
-            
+
             while (iterator++ < maxIterations)
             {
                 DataStreamReader reader;
@@ -268,14 +267,18 @@ namespace TransportTests
                         reader.ReadBytesIntoArray(ref context, ref buffer, reader.Length);
                         size = reader.Length;
                     }
+
                     return e;
                 }
+
                 socket.ScheduleUpdate().Complete();
             }
+
             return ExperimentalEventType.Empty;
         }
 
-        void SendReceive(UdpNetworkDriver sender, UdpNetworkDriver receiver, NetworkConnection from, NetworkConnection to, byte[] data, int maxIterations)
+        void SendReceive(UdpNetworkDriver sender, UdpNetworkDriver receiver, NetworkConnection from, NetworkConnection to, byte[] data,
+            int maxIterations)
         {
             using (var writer = new DataStreamWriter(data.Length, Allocator.Persistent))
             {
@@ -298,7 +301,8 @@ namespace TransportTests
             }
         }
 
-        void ConnectTogether(UdpNetworkDriver server, UdpNetworkDriver client, int maxIterations, out NetworkConnection serverConnection, out NetworkConnection clientConnection)
+        void ConnectTogether(UdpNetworkDriver server, UdpNetworkDriver client, int maxIterations, out NetworkConnection serverConnection,
+            out NetworkConnection clientConnection)
         {
             int servers = 0, clients = 0, iterations = 0;
             serverConnection = default(NetworkConnection);
@@ -335,12 +339,12 @@ namespace TransportTests
         public void UdpC_LongGoingTest()
         {
             using (UdpCClient server = new UdpCClient(12000))
-            using (UdpCClient c0     = new UdpCClient(12001, 12000))
-            using (UdpCClient c1     = new UdpCClient(12002, 12000))
-            using (UdpCClient c2     = new UdpCClient(12003, 12000))
-            using (UdpCClient c3     = new UdpCClient(12004, 12000))
-            using (UdpCClient c4     = new UdpCClient(12005, 12000))
-            using (UdpCClient c5     = new UdpCClient(12006, 12000))
+            using (UdpCClient c0 = new UdpCClient(12001, 12000))
+            using (UdpCClient c1 = new UdpCClient(12002, 12000))
+            using (UdpCClient c2 = new UdpCClient(12003, 12000))
+            using (UdpCClient c3 = new UdpCClient(12004, 12000))
+            using (UdpCClient c4 = new UdpCClient(12005, 12000))
+            using (UdpCClient c5 = new UdpCClient(12006, 12000))
             {
                 long start = 0, now = 0;
                 start = NetworkUtils.stopwatch.ElapsedMilliseconds;
@@ -388,7 +392,7 @@ namespace TransportTests
 
         public UdpCClient(int port, int serverPort = -1)
         {
-            m_Socket = new UdpNetworkDriver(new NetworkDataStreamParameter{});
+            m_Socket = new UdpNetworkDriver(new NetworkDataStreamParameter { });
             m_Socket.Bind(new IPEndPoint(IPAddress.Loopback, port));
             if (serverPort == -1)
                 m_Socket.Listen();
@@ -406,13 +410,13 @@ namespace TransportTests
             {
                 using (var message = new DataStreamWriter(7, Allocator.Persistent))
                 {
-                    message.Write((byte)'m');
-                    message.Write((byte)'e');
-                    message.Write((byte)'s');
-                    message.Write((byte)'s');
-                    message.Write((byte)'a');
-                    message.Write((byte)'g');
-                    message.Write((byte)'e');
+                    message.Write((byte) 'm');
+                    message.Write((byte) 'e');
+                    message.Write((byte) 's');
+                    message.Write((byte) 's');
+                    message.Write((byte) 'a');
+                    message.Write((byte) 'g');
+                    message.Write((byte) 'e');
 
                     m_Socket.Send(conn, message);
                 }
@@ -437,6 +441,7 @@ namespace TransportTests
                 {
                     reader.ReadBytes(ref context, writer.GetUnsafePtr(), reader.Length);
                 }
+
                 switch (ev)
                 {
                     case ExperimentalEventType.Connect:

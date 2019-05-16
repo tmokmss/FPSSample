@@ -6,7 +6,6 @@ using UnityEngine;
 /// Light weight state machine
 /// </summary>
 /// <typeparam name="T"></typeparam>
-
 class StateMachine<T>
 {
     public delegate void StateFunc();
@@ -36,7 +35,8 @@ class StateMachine<T>
     public void SwitchTo(T state)
     {
         GameDebug.Assert(m_States.ContainsKey(state), "Trying to switch to unknown state " + state.ToString());
-        GameDebug.Assert(m_CurrentState == null || !m_CurrentState.Id.Equals(state), "Trying to switch to " + state.ToString() + " but that is already current state");
+        GameDebug.Assert(m_CurrentState == null || !m_CurrentState.Id.Equals(state),
+            "Trying to switch to " + state.ToString() + " but that is already current state");
 
         var newState = m_States[state];
         GameDebug.Log("Switching state: " + (m_CurrentState != null ? m_CurrentState.Id.ToString() : "null") + " -> " + state.ToString());
@@ -46,7 +46,6 @@ class StateMachine<T>
         if (newState.Enter != null)
             newState.Enter();
         m_CurrentState = newState;
-
     }
 
     class State
@@ -58,6 +57,7 @@ class StateMachine<T>
             Update = update;
             Leave = leave;
         }
+
         public T Id;
         public StateFunc Enter;
         public StateFunc Update;

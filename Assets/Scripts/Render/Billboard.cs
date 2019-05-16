@@ -6,6 +6,7 @@ using UnityEngine;
 public class Billboard : MonoBehaviour
 {
     private Camera lastcam;
+
     void OnWillRenderObject()
     {
         lastcam = Camera.current;

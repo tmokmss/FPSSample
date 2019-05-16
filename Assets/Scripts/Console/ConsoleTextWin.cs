@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using System;
-
 #if UNITY_STANDALONE_WIN
-
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -47,13 +45,15 @@ public class ConsoleTextWin : IConsoleUI
                 m_ForegroundWindow = GetForegroundWindow();
                 m_ResetWindowTime = Time.time + 1;
             }
+
             AllocConsole();
         }
+
         m_PreviousOutput = System.Console.Out;
         SetConsoleTitle(m_ConsoleTitle);
         System.Console.BackgroundColor = System.ConsoleColor.Black;
         System.Console.Clear();
-        System.Console.SetOut(new StreamWriter(System.Console.OpenStandardOutput()) { AutoFlush = true });
+        System.Console.SetOut(new StreamWriter(System.Console.OpenStandardOutput()) {AutoFlush = true});
         m_CurrentLine = "";
         DrawInputline();
     }
@@ -67,7 +67,7 @@ public class ConsoleTextWin : IConsoleUI
 
     public void ConsoleUpdate()
     {
-        if(m_ForegroundWindow != IntPtr.Zero && Time.time > m_ResetWindowTime)
+        if (m_ForegroundWindow != IntPtr.Zero && Time.time > m_ResetWindowTime)
         {
             ShowWindow(m_ForegroundWindow, 9);
             SetForegroundWindow(m_ForegroundWindow);
@@ -108,13 +108,13 @@ public class ConsoleTextWin : IConsoleUI
                 DrawInputline();
                 break;
             default:
+            {
+                if (keyInfo.KeyChar != '\u0000')
                 {
-                    if (keyInfo.KeyChar != '\u0000')
-                    {
-                        m_CurrentLine += keyInfo.KeyChar;
-                        DrawInputline();
-                    }
+                    m_CurrentLine += keyInfo.KeyChar;
+                    DrawInputline();
                 }
+            }
                 break;
         }
     }

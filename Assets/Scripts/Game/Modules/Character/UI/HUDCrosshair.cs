@@ -10,7 +10,7 @@ public static class MathHelper // TODO where to put this`?
         while (difference > 180) difference -= 360;
         return difference;
     }
-}   
+}
 
 
 public class HUDCrosshair : MonoBehaviour
@@ -34,7 +34,7 @@ public class HUDCrosshair : MonoBehaviour
 
     public void FrameUpdate(PlayerCameraSettings cameraSettings)
     {
-        if(debugHudMarker.IntValue > 0)
+        if (debugHudMarker.IntValue > 0)
         {
             if (debugHudMarker.IntValue == 1)
             {
@@ -46,6 +46,7 @@ public class HUDCrosshair : MonoBehaviour
                 deathMarker.gameObject.SetActive(true);
                 m_hideDeathIndicatorTime = Time.time + 5.0f;
             }
+
             debugHudMarker.Value = "0";
         }
 
@@ -54,11 +55,13 @@ public class HUDCrosshair : MonoBehaviour
             if (Time.time > m_hideHitIndicatorTime)
                 hitMaker.gameObject.SetActive(false);
         }
+
         if (deathMarker.gameObject.activeSelf)
         {
             if (Time.time > m_hideDeathIndicatorTime)
                 deathMarker.gameObject.SetActive(false);
         }
+
         if (damageIndicator.gameObject.activeSelf)
         {
             UpdateHitDirectionIndicator(cameraSettings.rotation);
@@ -70,7 +73,7 @@ public class HUDCrosshair : MonoBehaviour
     public void ShowHitMarker(bool lethal)
     {
         hitMaker.gameObject.SetActive(true);
-        m_hideHitIndicatorTime = Time.time + hitIndicatorShowDuration; 
+        m_hideHitIndicatorTime = Time.time + hitIndicatorShowDuration;
 
         if (lethal)
         {
@@ -93,7 +96,7 @@ public class HUDCrosshair : MonoBehaviour
         var rot = Quaternion.Euler(0, 0, 180 - angle);
         damageIndicator.transform.rotation = rot;
     }
-    
+
     public void ShowHitDirectionIndicator(float damageAngle)
     {
         m_damageAngle = damageAngle;

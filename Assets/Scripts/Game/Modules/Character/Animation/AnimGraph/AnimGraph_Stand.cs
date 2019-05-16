@@ -32,28 +32,21 @@ public class AnimGraph_Stand : AnimGraphAsset
     public float turnThreshold = 100;
     public float turnTransitionSpeed = 7.5f;
 
-    [Range(0, 2)]
-    public float shootPoseMagnitude = 1.0f;
-    [Range(0f, 10f)]
-    public float shootPoseEnterSpeed = 5f;
-    [Range(0f, 10f)]
-    public float shootPoseExitSpeed = 5f;
+    [Range(0, 2)] public float shootPoseMagnitude = 1.0f;
+    [Range(0f, 10f)] public float shootPoseEnterSpeed = 5f;
+    [Range(0f, 10f)] public float shootPoseExitSpeed = 5f;
     public AnimationCurve shootPoseEnter;
     public AnimationCurve shootPoseExit;
 
-    [Range(0, 1)]
-    public float blendOutAimOnReloadPitch = 0.5f;
-    [Range(0, 1)]
-    public float blendOutAimOnReloadYaw = 0.5f;
+    [Range(0, 1)] public float blendOutAimOnReloadPitch = 0.5f;
+    [Range(0, 1)] public float blendOutAimOnReloadYaw = 0.5f;
     public AnimationCurve blendOutAimOnReload;
 
-    [Space(10)]
-    public FootIkJob.JobSettings footIK;
+    [Space(10)] public FootIkJob.JobSettings footIK;
     public string leftToeBone;
     public string rightToeBone;
 
-    [Space(10)]
-    public ActionAnimationDefinition[] actionAnimations;
+    [Space(10)] public ActionAnimationDefinition[] actionAnimations;
 
     public override IAnimGraphInstance Instatiate(EntityManager entityManager, Entity owner, PlayableGraph graph,
         Entity animStateOwner)
@@ -64,16 +57,17 @@ public class AnimGraph_Stand : AnimGraphAsset
 
     class CharacterAnimGraph_3PStand : IAnimGraphInstance, IGraphState
     {
-        public CharacterAnimGraph_3PStand(EntityManager entityManager, Entity owner, PlayableGraph graph, Entity animStateOwner, AnimGraph_Stand template)
-        {            
+        public CharacterAnimGraph_3PStand(EntityManager entityManager, Entity owner, PlayableGraph graph, Entity animStateOwner,
+            AnimGraph_Stand template)
+        {
             if (s_Instances == null)
             {
                 s_Instances = new List<CharacterAnimGraph_3PStand>(16);
             }
-        
+
             s_Instances.Add(this);
-            
-            
+
+
             m_template = template;
             m_EntityManager = entityManager;
             m_Owner = owner;
@@ -85,25 +79,25 @@ public class AnimGraph_Stand : AnimGraphAsset
             GameDebug.Assert(entityManager.HasComponent<Skeleton>(owner), "Owner has no Skeleton component");
             var skeleton = entityManager.GetComponentObject<Skeleton>(owner);
 
-            GameDebug.Assert(entityManager.HasComponent<CharacterPredictedData>(m_AnimStateOwner),"Owner has no CharPredictedState component");
+            GameDebug.Assert(entityManager.HasComponent<CharacterPredictedData>(m_AnimStateOwner), "Owner has no CharPredictedState component");
 
             var leftToes = skeleton.bones[skeleton.GetBoneIndex(template.leftToeBone.GetHashCode())];
             var rightToes = skeleton.bones[skeleton.GetBoneIndex(template.rightToeBone.GetHashCode())];
 
             // Locomotion mixer and loco animation
-            m_locomotionMixer = AnimationMixerPlayable.Create(graph, (int)LocoMixerPort.Count);
+            m_locomotionMixer = AnimationMixerPlayable.Create(graph, (int) LocoMixerPort.Count);
 
             // Idle
             m_animIdle = AnimationClipPlayable.Create(graph, template.animIdle);
             m_animIdle.SetApplyFootIK(true);
-            graph.Connect(m_animIdle, 0, m_locomotionMixer, (int)LocoMixerPort.Idle);
-            m_locomotionMixer.SetInputWeight((int)LocoMixerPort.Idle, 1.0f);
+            graph.Connect(m_animIdle, 0, m_locomotionMixer, (int) LocoMixerPort.Idle);
+            m_locomotionMixer.SetInputWeight((int) LocoMixerPort.Idle, 1.0f);
 
             // Turns and trasitions
             m_animTurnL = CreateTurnAnim(graph, template.animTurnL, LocoMixerPort.TurnL);
             m_animTurnR = CreateTurnAnim(graph, template.animTurnR, LocoMixerPort.TurnR);
 
-            var ports = new int[] { (int)LocoMixerPort.Idle, (int)LocoMixerPort.TurnL, (int)LocoMixerPort.TurnR };
+            var ports = new int[] {(int) LocoMixerPort.Idle, (int) LocoMixerPort.TurnL, (int) LocoMixerPort.TurnR};
             m_Transition = new SimpleTranstion<AnimationMixerPlayable>(m_locomotionMixer, ports);
 
             // Foot IK  
@@ -131,7 +125,7 @@ public class AnimGraph_Stand : AnimGraphAsset
             m_mask = 1 << m_defaultLayer | 1 << m_playerLayer | 1 << m_platformLayer;
 
             // Aim and Aim mixer
-            m_aimMixer = AnimationMixerPlayable.Create(graph, (int)AimMixerPort.Count, true);
+            m_aimMixer = AnimationMixerPlayable.Create(graph, (int) AimMixerPort.Count, true);
 
             m_animAimLeft = CreateAimAnim(graph, template.animAimLeft, AimMixerPort.AimLeft);
             m_animAimMid = CreateAimAnim(graph, template.animAimMid, AimMixerPort.AimMid);
@@ -145,7 +139,7 @@ public class AnimGraph_Stand : AnimGraphAsset
 
             var aimMixerPort = m_additiveMixer.AddInput(m_aimMixer, 0);
             m_additiveMixer.SetInputWeight(aimMixerPort, 1);
-            m_additiveMixer.SetLayerAdditive((uint)aimMixerPort, true);
+            m_additiveMixer.SetLayerAdditive((uint) aimMixerPort, true);
 
             // Actions
             m_actionAnimationHandler = new ActionAnimationHandler(m_additiveMixer, template.actionAnimations);
@@ -159,7 +153,7 @@ public class AnimGraph_Stand : AnimGraphAsset
             m_animShootPose.Pause();
             m_ShootPosePort = m_additiveMixer.AddInput(m_animShootPose, 0);
             m_additiveMixer.SetInputWeight(m_ShootPosePort, 0.0f);
-            m_additiveMixer.SetLayerAdditive((uint)m_ShootPosePort, true);
+            m_additiveMixer.SetLayerAdditive((uint) m_ShootPosePort, true);
         }
 
         public void Shutdown()
@@ -167,7 +161,9 @@ public class AnimGraph_Stand : AnimGraphAsset
             s_Instances.Remove(this);
         }
 
-        public void SetPlayableInput(int index, Playable playable, int playablePort) { }
+        public void SetPlayableInput(int index, Playable playable, int playablePort)
+        {
+        }
 
         public void GetPlayableOutput(int index, ref Playable playable, ref int playablePort)
         {
@@ -199,7 +195,7 @@ public class AnimGraph_Stand : AnimGraphAsset
                 {
                     var sign = Mathf.Sign(aimYawLocal);
                     animState.turnStartAngle = animState.rotation;
-                    animState.turnDirection = (short)sign;
+                    animState.turnDirection = (short) sign;
                 }
             }
 
@@ -208,7 +204,8 @@ public class AnimGraph_Stand : AnimGraphAsset
 
             if (animState.turnDirection != 0)
             {
-                var rotateAngleRemaining = Mathf.DeltaAngle(animState.rotation, animState.turnStartAngle) + m_template.animTurnAngle * animState.turnDirection;
+                var rotateAngleRemaining = Mathf.DeltaAngle(animState.rotation, animState.turnStartAngle) +
+                                           m_template.animTurnAngle * animState.turnDirection;
 
                 if (rotateAngleRemaining * animState.turnDirection <= 0)
                 {
@@ -338,7 +335,7 @@ public class AnimGraph_Stand : AnimGraphAsset
             DebugSceneView(animState);
 #endif
             DebugApplyPresentation();
-            
+
             m_footIk.SetJobData(footIkJob);
             m_EntityManager.SetComponentData(m_AnimStateOwner, animState);
             Profiler.EndSample();
@@ -353,23 +350,24 @@ public class AnimGraph_Stand : AnimGraphAsset
             // Handle turning
             float rotateAngleRemaining = 0f;
             if (animState.turnDirection != 0)
-                rotateAngleRemaining = Mathf.DeltaAngle(animState.rotation, animState.turnStartAngle) + m_template.animTurnAngle * animState.turnDirection;
+                rotateAngleRemaining = Mathf.DeltaAngle(animState.rotation, animState.turnStartAngle) +
+                                       m_template.animTurnAngle * animState.turnDirection;
 
             if (animState.turnDirection == 0)
             {
-                m_Transition.Update((int)LocoMixerPort.Idle, m_template.turnTransitionSpeed, Time.deltaTime);
+                m_Transition.Update((int) LocoMixerPort.Idle, m_template.turnTransitionSpeed, Time.deltaTime);
             }
             else
             {
                 var fraction = 1f - Mathf.Abs(rotateAngleRemaining / m_template.animTurnAngle);
-                var mixerPort = (animState.turnDirection == -1) ? (int)LocoMixerPort.TurnL : (int)LocoMixerPort.TurnR;
+                var mixerPort = (animState.turnDirection == -1) ? (int) LocoMixerPort.TurnL : (int) LocoMixerPort.TurnR;
                 var anim = (animState.turnDirection == -1) ? m_animTurnL : m_animTurnR;
 
                 m_Transition.Update(mixerPort, m_template.turnTransitionSpeed, Time.deltaTime);
                 anim.SetTime(anim.GetAnimationClip().length * fraction);
 
                 // Reset the time of the idle, so it's reset when we transition back
-                if (m_locomotionMixer.GetInputWeight((int)LocoMixerPort.Idle) < 0.01f)
+                if (m_locomotionMixer.GetInputWeight((int) LocoMixerPort.Idle) < 0.01f)
                     m_animIdle.SetTime(0f);
             }
 
@@ -378,7 +376,7 @@ public class AnimGraph_Stand : AnimGraphAsset
             var aimMultiplier = 1f;
             if (animState.charAction == CharacterPredictedData.Action.Reloading && m_template.blendOutAimOnReload != null)
             {
-                var normalizedTime = (float)(m_ReloadActionAnimation.animation.GetTime() / m_ReloadActionAnimation.animation.GetDuration());
+                var normalizedTime = (float) (m_ReloadActionAnimation.animation.GetTime() / m_ReloadActionAnimation.animation.GetDuration());
                 aimMultiplier = m_template.blendOutAimOnReload.Evaluate(normalizedTime);
             }
 
@@ -395,16 +393,16 @@ public class AnimGraph_Stand : AnimGraphAsset
             var aimYawMult = Mathf.Lerp(m_template.blendOutAimOnReloadYaw, 1f, aimMultiplier);
             aimYawFraction = Mathf.Lerp(0.0f, aimYawFraction, aimYawMult);
 
-            m_aimMixer.SetInputWeight((int)AimMixerPort.AimMid, 1.0f - aimYawFraction);
+            m_aimMixer.SetInputWeight((int) AimMixerPort.AimMid, 1.0f - aimYawFraction);
             if (aimYawLocal < 0)
             {
-                m_aimMixer.SetInputWeight((int)AimMixerPort.AimLeft, aimYawFraction);
-                m_aimMixer.SetInputWeight((int)AimMixerPort.AimRight, 0.0f);
+                m_aimMixer.SetInputWeight((int) AimMixerPort.AimLeft, aimYawFraction);
+                m_aimMixer.SetInputWeight((int) AimMixerPort.AimRight, 0.0f);
             }
             else
             {
-                m_aimMixer.SetInputWeight((int)AimMixerPort.AimLeft, 0.0f);
-                m_aimMixer.SetInputWeight((int)AimMixerPort.AimRight, aimYawFraction);
+                m_aimMixer.SetInputWeight((int) AimMixerPort.AimLeft, 0.0f);
+                m_aimMixer.SetInputWeight((int) AimMixerPort.AimRight, aimYawFraction);
             }
 
             var characterActionDuration = time.DurationSinceTick(animState.charActionTick);
@@ -428,8 +426,8 @@ public class AnimGraph_Stand : AnimGraphAsset
             job.ikOffset = animState.footIkOffset;
             m_footIk.SetJobData(job);
 
-            Profiler.EndSample();   
-            
+            Profiler.EndSample();
+
             DebugUpdatePresentation(animState);
         }
 
@@ -439,7 +437,7 @@ public class AnimGraph_Stand : AnimGraphAsset
             playable.SetApplyFootIK(false);
             playable.Pause();
             playable.SetDuration(clip.length);
-            graph.Connect(playable, 0, m_aimMixer, (int)mixerPort);
+            graph.Connect(playable, 0, m_aimMixer, (int) mixerPort);
             return playable;
         }
 
@@ -450,8 +448,8 @@ public class AnimGraph_Stand : AnimGraphAsset
             playable.Pause();
             playable.SetDuration(clip.length);
 
-            graph.Connect(playable, 0, m_locomotionMixer, (int)mixerPort);
-            m_locomotionMixer.SetInputWeight((int)mixerPort, 0.0f);
+            graph.Connect(playable, 0, m_locomotionMixer, (int) mixerPort);
+            m_locomotionMixer.SetInputWeight((int) mixerPort, 0.0f);
 
             return playable;
         }
@@ -463,12 +461,14 @@ public class AnimGraph_Stand : AnimGraphAsset
 
             if (m_LeftHitSuccess)
             {
-                leftOffset = Mathf.Clamp(m_LeftHit.point.y - m_LeftFootPos.y + m_template.footIK.leftToeStandPos.y, -m_template.footIK.maxStepSize, m_template.footIK.maxStepSize);
+                leftOffset = Mathf.Clamp(m_LeftHit.point.y - m_LeftFootPos.y + m_template.footIK.leftToeStandPos.y, -m_template.footIK.maxStepSize,
+                    m_template.footIK.maxStepSize);
             }
 
             if (m_RightHitSuccess)
             {
-                rightOffset = Mathf.Clamp(m_RightHit.point.y - m_RightFootPos.y + m_template.footIK.rightToeStandPos.y, -m_template.footIK.maxStepSize, m_template.footIK.maxStepSize);
+                rightOffset = Mathf.Clamp(m_RightHit.point.y - m_RightFootPos.y + m_template.footIK.rightToeStandPos.y,
+                    -m_template.footIK.maxStepSize, m_template.footIK.maxStepSize);
             }
 
             var stepMag = Mathf.Abs(leftOffset - rightOffset);
@@ -551,25 +551,25 @@ public class AnimGraph_Stand : AnimGraphAsset
                 Debug.DrawLine(m_RightHit.point, m_RightHit.point + m_RightHit.normal, Color.red);
             }
         }
-        
+
         void DebugUpdatePresentation(CharacterInterpolatedData animState)
         {
             if (debugStandIk.IntValue > 0)
-            {                
+            {
                 var charIndex = s_Instances.IndexOf(this);
                 var lineIndex = charIndex * 3 + 3;
-                
-                var debugString = "Char " + charIndex + " - IK Offset: " + animState.footIkOffset.x.ToString("0.000") + 
-                    ", " + animState.footIkOffset.y.ToString("0.000");
+
+                var debugString = "Char " + charIndex + " - IK Offset: " + animState.footIkOffset.x.ToString("0.000") +
+                                  ", " + animState.footIkOffset.y.ToString("0.000");
                 DebugOverlay.Write(s_DebugColors[charIndex % s_DebugColors.Length], 2, lineIndex, debugString);
-                GameDebug.Log(debugString);                                
+                GameDebug.Log(debugString);
             }
         }
-        
+
         void DebugApplyPresentation()
-        {      
+        {
             if (debugStandIk.IntValue > 0)
-            {                
+            {
                 var charIndex = s_Instances.IndexOf(this);
                 var lineIndex = charIndex * 3 + 1;
 
@@ -577,19 +577,19 @@ public class AnimGraph_Stand : AnimGraphAsset
                 var leftHitString = "Char " + charIndex + " - Left XForm hit:  Nothing";
                 if (m_LeftHitSuccess)
                     leftHitString = "Char " + charIndex + " - Left XForm hit:  " + m_LeftHit.transform.name;
-                
+
                 DebugOverlay.Write(color, 2, lineIndex, leftHitString);
                 GameDebug.Log(leftHitString);
 
                 var rightHitString = "Char " + charIndex + " - Right XForm hit: Nothing";
                 if (m_RightHitSuccess)
-                    rightHitString = "Char " + charIndex + " - Right XForm hit: " + m_RightHit.transform.name;                
-                
+                    rightHitString = "Char " + charIndex + " - Right XForm hit: " + m_RightHit.transform.name;
+
                 DebugOverlay.Write(color, 2, lineIndex + 1, rightHitString);
-                GameDebug.Log(rightHitString);                
+                GameDebug.Log(rightHitString);
             }
         }
-        
+
 
         enum LocoMixerPort
         {
@@ -622,7 +622,7 @@ public class AnimGraph_Stand : AnimGraphAsset
             Turning,
             TurnStart,
             TurnEnd
-        }        
+        }
 
         readonly int m_defaultLayer;
         readonly int m_playerLayer;
@@ -681,7 +681,7 @@ public class AnimGraph_Stand : AnimGraphAsset
         public float rightFootUp;
         public float rightFootDown;
     }
-    
+
     // Used for nicely ordered debug logging
     static List<CharacterAnimGraph_3PStand> s_Instances;
     static Color[] s_DebugColors = {Color.blue, Color.red, Color.green};

@@ -20,16 +20,16 @@ public class CharacterDebugWindow : EditorWindow
         public float damage;
     }
 
-    private static DamageInfo damageInfo = new DamageInfo(); 
-    
+    private static DamageInfo damageInfo = new DamageInfo();
+
     [MenuItem("FPS Sample/Windows/Character Debug")]
     public static void ShowWindow()
     {
         GetWindow<CharacterDebugWindow>(false, "Char Debug", true);
 
-        ScanForCharacters();       
+        ScanForCharacters();
     }
-    
+
     private void OnEnable()
     {
         EditorApplication.playModeStateChanged += change => ScanForCharacters();
@@ -47,7 +47,7 @@ public class CharacterDebugWindow : EditorWindow
         {
             var aimPointWorld = presentState.position + damageInfo.aimPoint;
             EditorGUI.BeginChangeCheck();
-            var pos = Handles.PositionHandle(aimPointWorld,quaternion.identity);
+            var pos = Handles.PositionHandle(aimPointWorld, quaternion.identity);
             if (EditorGUI.EndChangeCheck())
             {
                 damageInfo.aimPoint = pos - presentState.position;
@@ -68,19 +68,19 @@ public class CharacterDebugWindow : EditorWindow
             var aimPointWorld = presentState.position + damageInfo.aimPoint;
             var damDir = damageInfo.direction * Vector3.forward;
             var damStart = aimPointWorld - damDir * 2;
-            var damVector = damageInfo.direction*Vector3.forward * 100;    
+            var damVector = damageInfo.direction * Vector3.forward * 100;
             Debug.DrawLine(damStart, damStart + damVector, Color.red);
             DebugDraw.Sphere(damStart, 0.1f, Color.red);
-        }        
+        }
     }
 
     static void ScanForCharacters()
     {
         availableCharacters = FindObjectsOfType<Character>();
-        if(availableCharacters.Length > 0)
+        if (availableCharacters.Length > 0)
             character = availableCharacters[0];
     }
-    
+
     void OnGUI()
     {
         GUILayout.Label("CHARACTER", EditorStyles.boldLabel);
@@ -102,18 +102,18 @@ public class CharacterDebugWindow : EditorWindow
             }
 
             selectedindex = EditorGUILayout.Popup("Char", selectedindex, charNames);
-            if(selectedindex >= 0 && selectedindex < availableCharacters.Length)
+            if (selectedindex >= 0 && selectedindex < availableCharacters.Length)
                 character = availableCharacters[selectedindex];
         }
-        
+
         if (character == null)
         {
             GUILayout.Label("Please select character ...");
             return;
         }
-        
+
         GUILayout.Label("DAMAGE", EditorStyles.boldLabel);
-        
+
         // Give damage
         damageInfo.damage = EditorGUILayout.FloatField("damage", damageInfo.damage);
         damageInfo.impulse = EditorGUILayout.FloatField("impulse", damageInfo.impulse);
@@ -121,14 +121,13 @@ public class CharacterDebugWindow : EditorWindow
         damageInfo.direction.eulerAngles = EditorGUILayout.Vector3Field("dir", damageInfo.direction.eulerAngles);
         if (GUILayout.Button("Give Damage"))
         {
-            
             var goe = character.GetComponent<GameObjectEntity>();
             var presentState = goe.EntityManager.GetComponentData<CharacterInterpolatedData>(goe.Entity);
 
             var aimPointWorld = presentState.position + damageInfo.aimPoint;
             var damDir = damageInfo.direction * Vector3.forward;
             var damStart = aimPointWorld - damDir * 2;
-            
+
             var collisionMask = ~0U;
             var queryReciever = World.Active.GetExistingManager<RaySphereQueryReciever>();
             var id = queryReciever.RegisterQuery(new RaySphereQueryReciever.Query()
@@ -141,7 +140,7 @@ public class CharacterDebugWindow : EditorWindow
                 radius = 0,
                 mask = collisionMask,
             });
-        
+
             RaySphereQueryReciever.Query query;
             RaySphereQueryReciever.QueryResult queryResult;
             queryReciever.GetResult(id, out query, out queryResult);

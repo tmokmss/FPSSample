@@ -23,12 +23,12 @@ public class RandomCameraSelector : MonoBehaviour
 
     void Update()
     {
-        if(Time.time > nextCamTime)
+        if (Time.time > nextCamTime)
         {
             nextCamTime = Time.time + cameraTime;
             cameraAnimator.SetInteger("CameraNumber", camSeq[seq]);
             seq++;
-            if(seq >= camSeq.Count)
+            if (seq >= camSeq.Count)
             {
                 seq = 0;
                 camSeq.Shuffle();

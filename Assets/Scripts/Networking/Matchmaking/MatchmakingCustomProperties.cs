@@ -8,8 +8,7 @@ namespace UnityEngine.Ucg.Matchmaking
     [Serializable]
     public class MatchmakingPlayerProperties
     {
-        [SerializeField]
-        public int hats;
+        [SerializeField] public int hats;
     }
 
     /// <summary>
@@ -18,7 +17,6 @@ namespace UnityEngine.Ucg.Matchmaking
     [Serializable]
     public class MatchmakingGroupProperties
     {
-        [SerializeField]
-        public int mode;
+        [SerializeField] public int mode;
     }
 }

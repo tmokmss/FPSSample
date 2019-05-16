@@ -4,7 +4,6 @@ using UnityEditor;
 public static class EnableInstancingOnAllMaterials
 {
     [MenuItem("FPS Sample/Performance/Enable Instancing on All Materials")]
-
     static void DoIt()
     {
         var materialGuids = AssetDatabase.FindAssets("t:Material");

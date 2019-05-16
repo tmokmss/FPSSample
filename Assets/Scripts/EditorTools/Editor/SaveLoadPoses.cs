@@ -25,7 +25,9 @@ public class Bone : ISerializationCallbackReceiver
     [SerializeField] private float[] pos = new float[3];
     [SerializeField] private float[] rot = new float[4];
 
-    Bone() {}
+    Bone()
+    {
+    }
 
     public Bone(string name, Vector3 position, Quaternion rotation)
     {
@@ -40,8 +42,8 @@ public class Bone : ISerializationCallbackReceiver
         var serializedRotation = rotation;
         changeHandedness(ref serializedPosition, ref serializedRotation);
 
-        pos = new[] { serializedPosition.x, serializedPosition.y, serializedPosition.z };
-        rot = new[] { serializedRotation.x, serializedRotation.y, serializedRotation.z, serializedRotation.w };
+        pos = new[] {serializedPosition.x, serializedPosition.y, serializedPosition.z};
+        rot = new[] {serializedRotation.x, serializedRotation.y, serializedRotation.z, serializedRotation.w};
     }
 
     public void OnAfterDeserialize()
@@ -73,7 +75,10 @@ public class Pose
 {
     public string name = "";
     public List<Bone> bones = new List<Bone>();
-    Pose() {}
+
+    Pose()
+    {
+    }
 
     public Pose(string name, List<Bone> bones)
     {
@@ -103,7 +108,7 @@ public static class SaveLoadPoses
     {
         LoadPose(PoseType.tpose);
     }
-    
+
     [MenuItem("FPS Sample/Animation/Skeleton Pose Interop/Load from tmp folder: Human Pose (Selected)")]
     static void LoadHumanPose()
     {
@@ -127,7 +132,7 @@ public static class SaveLoadPoses
     {
         SavePose(PoseType.tpose);
     }
-   
+
     [MenuItem("FPS Sample/Animation/Skeleton Pose Interop/Save to tmp folder: Human Pose (Selected)")]
     static void SaveHumanPose()
     {
@@ -143,7 +148,7 @@ public static class SaveLoadPoses
             var json = File.ReadAllText(filepath);
             poses = JsonUtility.FromJson<Poses>(json);
         }
-       
+
         if (poses == null)
         {
             poses = new Poses();
@@ -171,7 +176,7 @@ public static class SaveLoadPoses
                 if (SetPose(pose))
                 {
                     Debug.Log("Successfully loaded pose: " + poseType);
-                    return true; 
+                    return true;
                 }
             }
         }
@@ -179,7 +184,7 @@ public static class SaveLoadPoses
         Debug.LogWarning("Failed to load pose..: " + poseType);
         return false;
     }
-    
+
     static void SavePose(string poseType)
     {
         var poses = ReadFromJson();
@@ -226,7 +231,10 @@ public static class SaveLoadPoses
     static bool SetPose(Pose pose)
     {
         var selected = Selection.activeGameObject;
-        if (selected == null) { return false; }
+        if (selected == null)
+        {
+            return false;
+        }
 
         var root = selected.transform;
 

@@ -13,5 +13,3 @@ public class TeleporterClient : MonoBehaviour
 
     [NonSerialized] public TickEventHandler effectEvent = new TickEventHandler(0.5f);
 }
-
-

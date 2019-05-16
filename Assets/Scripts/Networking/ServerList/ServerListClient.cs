@@ -43,9 +43,9 @@ public class ServerListClient
             {
                 // Check if server info already known
                 var idx = -1;
-                for(var i = 0; i < KnownServers.Count; i++)
+                for (var i = 0; i < KnownServers.Count; i++)
                 {
-                    if(KnownServers[i].Address == serverInfo.Ip && KnownServers[i].Port == serverInfo.Port)
+                    if (KnownServers[i].Address == serverInfo.Ip && KnownServers[i].Port == serverInfo.Port)
                     {
                         idx = i;
                         break;
@@ -58,6 +58,7 @@ public class ServerListClient
                     this.KnownServers.Add(new ServerInfo());
                     idx = this.KnownServers.Count - 1;
                 }
+
                 var s = this.KnownServers[idx];
                 s.Address = serverInfo.Ip;
                 s.Port = serverInfo.Port;
@@ -95,6 +96,7 @@ public class ServerListClient
             GameDebug.LogError("There was an error calling server list. Error: " + m_WebRequestAsyncOp.webRequest.error);
             return new ServerListResponse(); // TODO: What is the current methodolgy for handling exceptions and errors?
         }
+
         m_WebRequestAsyncOp = null;
 
         return JsonUtility.FromJson<ServerListResponse>(m_Request.downloadHandler.text);

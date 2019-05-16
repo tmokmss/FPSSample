@@ -15,15 +15,19 @@ public class ClientProjectile : MonoBehaviour
     public float offsetScaleDuration = 0.5f;
     public SoundSystem.SoundHandle m_ThrustSoundHandle;
     public SpatialEffectTypeDefinition impactEffect;
-    
+
     // State
-    public bool IsVisible { get { return m_isVisible == 1; } }
+    public bool IsVisible
+    {
+        get { return m_isVisible == 1; }
+    }
+
     [NonSerialized] public Entity projectile;
     [NonSerialized] public bool impacted;
     [NonSerialized] public float roll;
     [NonSerialized] public Vector3 startOffset;
     [NonSerialized] public float offsetScale;
-    
+
     [NonSerialized] public int poolIndex;
     [NonSerialized] public int bufferIndex;
 
@@ -32,18 +36,18 @@ public class ClientProjectile : MonoBehaviour
         projectile = Entity.Null;
         impacted = false;
     }
-    
+
     public void SetVisible(bool isVisible)
     {
         var newVal = isVisible ? 1 : 0;
         if (m_isVisible != -1 && newVal == m_isVisible)
             return;
         m_isVisible = newVal;
-        
-        if(shellRoot != null)
+
+        if (shellRoot != null)
             shellRoot.SetActive(isVisible);
 
-        if(trailRoot != null)
+        if (trailRoot != null)
         {
             if (isVisible)
                 StartAllEffects(trailRoot);
@@ -67,9 +71,9 @@ public class ClientProjectile : MonoBehaviour
 
     public void SetMuzzlePosition(EntityManager entityManager, float3 muzzlePos)
     {
-        if(ProjectileModuleClient.logInfo.IntValue > 1)
+        if (ProjectileModuleClient.logInfo.IntValue > 1)
             GameDebug.Log("SetMuzzlePosition clientprojectile:" + name + " projectile:" + projectile);
-        
+
         var projectileData = entityManager.GetComponentData<ProjectileData>(projectile);
 
         var dir = Vector3.Normalize(projectileData.endPos - projectileData.startPos);
@@ -80,7 +84,7 @@ public class ClientProjectile : MonoBehaviour
         startOffset = invQ * deltaPos;
         offsetScale = 1;
     }
-    
+
     void StopAllEffects(GameObject root)
     {
         VisualEffect[] effects = root.GetComponentsInChildren<VisualEffect>();

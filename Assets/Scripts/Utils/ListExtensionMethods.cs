@@ -21,7 +21,6 @@ public static class ListExtensionMethods
             list[r] = t;
         }
     }
-
 }
 
 public static class ArrayExtensionMethods
@@ -33,6 +32,7 @@ public static class ArrayExtensionMethods
             if (array[i].Equals(needle))
                 return i;
         }
+
         return -1;
     }
 

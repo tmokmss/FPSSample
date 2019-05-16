@@ -8,7 +8,11 @@ using UnityEditorInternal;
 public class SkeletonImporter : AssetPostprocessor
 {
     uint m_Version = 3;
-    public override uint GetVersion() {return m_Version;}
+
+    public override uint GetVersion()
+    {
+        return m_Version;
+    }
 
     List<TwistConfig> m_TwistConfigs = new List<TwistConfig>();
     List<FanConfig> m_FanConfigs = new List<FanConfig>();
@@ -28,13 +32,17 @@ public class SkeletonImporter : AssetPostprocessor
         public List<FanConfig> fanConfig = new List<FanConfig>();
         public List<TranslateScaleConfig> translateScaleConfig = new List<TranslateScaleConfig>();
     }
-    
-    
+
+
     [Serializable]
     public class TypeData
     {
         public string type = "";
-        public TypeData() {}
+
+        public TypeData()
+        {
+        }
+
         public TypeData(string type)
         {
             this.type = type;
@@ -49,7 +57,10 @@ public class SkeletonImporter : AssetPostprocessor
         public List<String> twistJoints = new List<String>();
         public List<float> twistFactors = new List<float>();
 
-        public TwistConfig() {}
+        public TwistConfig()
+        {
+        }
+
         public TwistConfig(string driver, string aimAxis, List<String> twistJoints, List<float> twistFactors)
         {
             this.driver = driver;
@@ -58,7 +69,7 @@ public class SkeletonImporter : AssetPostprocessor
             this.twistFactors = twistFactors;
         }
     }
-    
+
     [Serializable]
     public class FanConfig
     {
@@ -66,7 +77,10 @@ public class SkeletonImporter : AssetPostprocessor
         public string driverB;
         public string driven;
 
-        public FanConfig() {}
+        public FanConfig()
+        {
+        }
+
         public FanConfig(string driverA, string driverB, string driven)
         {
             this.driverA = driverA;
@@ -75,7 +89,7 @@ public class SkeletonImporter : AssetPostprocessor
         }
     }
 
-    
+
     [Serializable]
     public class TranslateScaleConfig
     {
@@ -85,9 +99,12 @@ public class SkeletonImporter : AssetPostprocessor
         public List<float> stretchFactors = new List<float>();
         public List<float> scaleFactors = new List<float>();
 
-        
-        public TranslateScaleConfig() {}
-        public TranslateScaleConfig(string driver, string aimAxis, List<String> stretchBones, List<float> stretchFactors,  List<float> scaleFactors)
+
+        public TranslateScaleConfig()
+        {
+        }
+
+        public TranslateScaleConfig(string driver, string aimAxis, List<String> stretchBones, List<float> stretchFactors, List<float> scaleFactors)
         {
             this.driver = driver;
             this.aimAxis = aimAxis;
@@ -95,8 +112,8 @@ public class SkeletonImporter : AssetPostprocessor
             this.stretchFactors = stretchFactors;
             this.scaleFactors = scaleFactors;
         }
-    }   
-    
+    }
+
     void OnPostprocessGameObjectWithUserProperties(GameObject go, string[] propNames, System.Object[] values)
     {
         string stringValue;
@@ -112,17 +129,19 @@ public class SkeletonImporter : AssetPostprocessor
 
                     foreach (var twistConfig in componentConfig.twistConfig)
                     {
-                        m_TwistConfigs.Add(twistConfig); 
+                        m_TwistConfigs.Add(twistConfig);
                     }
+
                     foreach (var fanConfig in componentConfig.fanConfig)
                     {
-                            m_FanConfigs.Add(fanConfig);                    
+                        m_FanConfigs.Add(fanConfig);
                     }
+
                     foreach (var translateScaleConfig in componentConfig.translateScaleConfig)
                     {
                         m_TranslateScaleConfigs.Add(translateScaleConfig);
-                    }                    
-                }               
+                    }
+                }
             }
         }
     }
@@ -131,7 +150,7 @@ public class SkeletonImporter : AssetPostprocessor
     {
         // Attempt to find skeleton root
         var skeletonRoot = root.transform.Find("Skeleton");
-        
+
         // TODO: (sunek) Be able to setup skeleton within the editor and get rid of this?
         if (skeletonRoot == null)
         {
@@ -141,14 +160,14 @@ public class SkeletonImporter : AssetPostprocessor
                 var hips = animator.GetBoneTransform(HumanBodyBones.Hips);
                 if (hips != null)
                 {
-                    skeletonRoot = animator.GetBoneTransform(HumanBodyBones.Hips).parent;   
+                    skeletonRoot = animator.GetBoneTransform(HumanBodyBones.Hips).parent;
                 }
-            }            
+            }
         }
-        
+
         if (skeletonRoot == null)
             return;
-        
+
         if (skeletonRoot.GetComponent<MeshFilter>() || skeletonRoot.GetComponent<SkinnedMeshRenderer>() || skeletonRoot.GetComponent<Collider>())
         {
             return;
@@ -161,9 +180,9 @@ public class SkeletonImporter : AssetPostprocessor
         AddTranslateScaleComponents(root, m_TranslateScaleConfigs);
     }
 
-   static void AddTwistComponents(GameObject root, List<TwistConfig> twistConfigs)
+    static void AddTwistComponents(GameObject root, List<TwistConfig> twistConfigs)
     {
-         if (twistConfigs.Count == 0)
+        if (twistConfigs.Count == 0)
             return;
 
         var twistComponent = root.AddComponent<Twist>();
@@ -193,7 +212,7 @@ public class SkeletonImporter : AssetPostprocessor
 //                    twistComponent.aimAxis = Twist.AimAxis.X;
 //                    break;
 //            }
-                        
+
             twistChain.twistJoints = new List<Twist.TwistJoint>();
             for (var j = 0; j < twistConfig.twistJoints.Count; j++)
             {
@@ -209,7 +228,7 @@ public class SkeletonImporter : AssetPostprocessor
 
         twistComponent.SetBindpose();
     }
-    
+
     static void AddFanComponents(GameObject root, List<FanConfig> fanConfigs)
     {
         if (fanConfigs.Count == 0)
@@ -219,7 +238,7 @@ public class SkeletonImporter : AssetPostprocessor
 
         for (var i = 0; i < fanConfigs.Count; i++)
         {
-            var fanData = new Fan.FanData();            
+            var fanData = new Fan.FanData();
             fanData.driven = FindInChildren(root.transform, fanConfigs[i].driven);
             fanData.driverA = FindInChildren(root.transform, fanConfigs[i].driverA);
             fanData.driverB = FindInChildren(root.transform, fanConfigs[i].driverB);
@@ -243,15 +262,15 @@ public class SkeletonImporter : AssetPostprocessor
             var config = translateScaleConfigs[i];
             var chain = new TranslateScale.TranslateScaleChain();
             chain.driver = FindInChildren(root.transform, config.driver);
-            
+
             if (!chain.driver)
                 continue;
-            
+
             chain.drivenJoints = new List<TranslateScale.Driven>();
             for (var j = 0; j < config.stretchBones.Count; j++)
             {
                 var driven = new TranslateScale.Driven();
-                driven.joint = FindInChildren(root.transform,config.stretchBones[j]);
+                driven.joint = FindInChildren(root.transform, config.stretchBones[j]);
                 driven.scaleFactor = config.scaleFactors[j];
                 driven.strectchFactor = config.stretchFactors[j];
                 chain.drivenJoints.Add(driven);
@@ -263,7 +282,7 @@ public class SkeletonImporter : AssetPostprocessor
 
         component.SetBindpose();
     }
-    
+
     static Transform FindInChildren(Transform parent, string name)
     {
         var result = parent.Find(name);
@@ -275,6 +294,7 @@ public class SkeletonImporter : AssetPostprocessor
             if (result != null)
                 return result;
         }
+
         return null;
     }
 }

@@ -69,14 +69,14 @@ public class BuildTools
         if (clearFolder)
         {
             Debug.Log(" deleting old folders ..");
-            foreach(var file in Directory.GetFiles(fullBuildPath))
+            foreach (var file in Directory.GetFiles(fullBuildPath))
                 File.Delete(file);
-            foreach(var dir in monoDirs)
-                Directory.Delete(dir,true);
-            foreach(var dir in il2cppDirs)
-                Directory.Delete(dir,true);
-            foreach(var dir in Directory.GetDirectories(fullBuildPath).Where(s => s.EndsWith("_Data")))
-                Directory.Delete(dir,true);
+            foreach (var dir in monoDirs)
+                Directory.Delete(dir, true);
+            foreach (var dir in il2cppDirs)
+                Directory.Delete(dir, true);
+            foreach (var dir in Directory.GetDirectories(fullBuildPath).Where(s => s.EndsWith("_Data")))
+                Directory.Delete(dir, true);
         }
 
         if (il2cpp)
@@ -88,7 +88,7 @@ public class BuildTools
         {
             UnityEditor.PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
         }
-        
+
         /// Colossal hack to work around build postprocessing expecting everything to be writable in the unity
         /// installation, but if people have unity in p4 it will be readonly.
         var editorHome = EditorApplication.applicationPath.BeforeLast("/") + "/Data/PlaybackEngines/windowsstandalonesupport";
@@ -96,10 +96,10 @@ public class BuildTools
         if (Directory.Exists(editorHome))
         {
             var files = Directory.GetFiles(editorHome, "*.*", SearchOption.AllDirectories);
-            foreach(var f in files)
+            foreach (var f in files)
             {
                 var attr = File.GetAttributes(f);
-                if((attr & FileAttributes.ReadOnly) != 0)
+                if ((attr & FileAttributes.ReadOnly) != 0)
                 {
                     attr = attr & ~FileAttributes.ReadOnly;
                     Debug.Log("Setting " + f + " to read/write");
@@ -107,8 +107,9 @@ public class BuildTools
                 }
             }
         }
+
         Debug.Log("Done.");
-        
+
         Environment.SetEnvironmentVariable("BUILD_ID", buildId, EnvironmentVariableTarget.Process);
         var result = BuildPipeline.BuildPlayer(levels, exePathName, target, opts);
         Environment.SetEnvironmentVariable("BUILD_ID", "", EnvironmentVariableTarget.Process);
@@ -123,11 +124,11 @@ public class BuildTools
 
 
         var stepCount = result.steps.Count();
-        Debug.Log(" Steps:"+ stepCount);
-        for(var i=0;i<stepCount;i++)
+        Debug.Log(" Steps:" + stepCount);
+        for (var i = 0; i < stepCount; i++)
         {
             var step = result.steps[i];
-            Debug.Log("-- " + (i+1) + "/" + stepCount + " " + step.name + " " + step.duration.Seconds + "s --");
+            Debug.Log("-- " + (i + 1) + "/" + stepCount + " " + step.name + " " + step.duration.Seconds + "s --");
             foreach (var msg in step.messages)
                 Debug.Log(msg.content);
         }
@@ -164,6 +165,7 @@ public class BuildTools
             var path = AssetDatabase.GUIDToAssetPath(a);
             result.Add(AssetDatabase.LoadAssetAtPath<T>(path));
         }
+
         return result;
     }
 
@@ -222,10 +224,12 @@ public class BuildTools
             if (dependency.Value > 1)
                 shared.Add(dependency.Key);
         }
+
         return shared;
     }
 
-    public static void BuildBundles(string bundlePath, BuildTarget target, bool buildBundledAssets, bool buildBundledLevels, bool force = false, List<LevelInfo> buildOnlyLevels = null)
+    public static void BuildBundles(string bundlePath, BuildTarget target, bool buildBundledAssets, bool buildBundledLevels, bool force = false,
+        List<LevelInfo> buildOnlyLevels = null)
     {
         Debug.Log("Scene cooking started");
 
@@ -248,7 +252,8 @@ public class BuildTools
             BundledResourceBuilder.BuildBundles(path, target, assetBundleOptions);
     }
 
-    public static void BuildLevelBundles(string path, BuildTarget target, BuildAssetBundleOptions assetBundleOptions, List<LevelInfo> buildOnlyLevels = null)
+    public static void BuildLevelBundles(string path, BuildTarget target, BuildAssetBundleOptions assetBundleOptions,
+        List<LevelInfo> buildOnlyLevels = null)
     {
         var builds = new List<AssetBundleBuild>();
         foreach (var levelInfo in LoadLevelInfos())
@@ -321,13 +326,15 @@ public class BuildTools
         foreach (var g in Selection.assetGUIDs)
             paths.Add(AssetDatabase.GUIDToAssetPath(g));
 
-        if (EditorUtility.DisplayDialog("Reserialize " + paths.Count + " assets", "Do you want to reserialize " + paths.Count + " assets?", "Yes, I do!"))
+        if (EditorUtility.DisplayDialog("Reserialize " + paths.Count + " assets", "Do you want to reserialize " + paths.Count + " assets?",
+            "Yes, I do!"))
         {
-            foreach(var p in paths)
+            foreach (var p in paths)
             {
                 var a = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(p);
                 EditorUtility.SetDirty(a);
             }
+
             AssetDatabase.SaveAssets();
         }
     }
@@ -373,10 +380,10 @@ public class BuildTools
         var dstPath = buildName + ".zip";
 
         Debug.Log("Starting upload src=" + buildPath + " platform=" + platform + " isClient=N/A" +
-            " clientApi=" + clientApi + " projectId=" + projectId + " orgId=" + orgId +
-            " projectName=" + projectName + " accessToken=" + accessToken);
+                  " clientApi=" + clientApi + " projectId=" + projectId + " orgId=" + orgId +
+                  " projectName=" + projectName + " accessToken=" + accessToken);
 
-        deploy.CompressAndUpload(buildPath, buildPath+"/"+dstPath, platform, buildName);
+        deploy.CompressAndUpload(buildPath, buildPath + "/" + dstPath, platform, buildName);
         while (!deploy.Done)
         {
             deploy.UpdateLoop();
@@ -423,8 +430,8 @@ public class BuildTools
         // Build boot.cfg
         var bootCfg = new string[]
         {
-           "client",
-           "load level_menu"
+            "client",
+            "load level_menu"
         };
         File.WriteAllLines(buildPath + "/" + Game.k_BootConfigFilename, bootCfg);
         Debug.Log("  " + Game.k_BootConfigFilename);
@@ -432,36 +439,36 @@ public class BuildTools
         Debug.Log("Writing steam upload bat file.");
         var steamBat = new string[]
         {
-@"@echo off",
-@"color",
-@"echo Verifying Steam SDK...",
-@"if not exist c:\steam\sdk\tools\ContentBuilder (",
-@"    echo Failed. Steam SDK must be installed at c:\steam",
-@"    goto :err",
-@")",
-@"echo OK. Found SDK at c:\steam",
-@"echo Looking for zipped game...",
-@"if not exist " + zipName + " (",
-@"    echo Failed. Did not locate zip: " + zipName,
-@"    goto :err",
-@")",
-@"echo OK. Found game at "+zipName,
-@"echo Removing old stage area",
-@"rmdir /s /q c:\steam\stage",
-@"echo Extracting build to staging area",
-@"""c:\Program Files\7-Zip\7z.exe"" x "+zipName + @" -oc:\steam\stage",
-@" cd c:\steam\sdk\tools\ContentBuilder",
-@"set /p steamuser=""Enter steam user:""",
-@"builder\steamcmd.exe +login %steamuser% +run_app_build_http ..\scripts\app_build_962460.vdf +quit",
-@"echo All done!",
-@"goto :ok",
-@":err",
-@"color 4f",
-@"goto :done",
-@":ok",
-@"color 2f",
-@":done",
-@"pause"
+            @"@echo off",
+            @"color",
+            @"echo Verifying Steam SDK...",
+            @"if not exist c:\steam\sdk\tools\ContentBuilder (",
+            @"    echo Failed. Steam SDK must be installed at c:\steam",
+            @"    goto :err",
+            @")",
+            @"echo OK. Found SDK at c:\steam",
+            @"echo Looking for zipped game...",
+            @"if not exist " + zipName + " (",
+            @"    echo Failed. Did not locate zip: " + zipName,
+            @"    goto :err",
+            @")",
+            @"echo OK. Found game at " + zipName,
+            @"echo Removing old stage area",
+            @"rmdir /s /q c:\steam\stage",
+            @"echo Extracting build to staging area",
+            @"""c:\Program Files\7-Zip\7z.exe"" x " + zipName + @" -oc:\steam\stage",
+            @" cd c:\steam\sdk\tools\ContentBuilder",
+            @"set /p steamuser=""Enter steam user:""",
+            @"builder\steamcmd.exe +login %steamuser% +run_app_build_http ..\scripts\app_build_962460.vdf +quit",
+            @"echo All done!",
+            @"goto :ok",
+            @":err",
+            @"color 4f",
+            @"goto :done",
+            @":ok",
+            @"color 2f",
+            @":done",
+            @"pause"
         };
         var steamBatName = "steam_upload_" + buildName + ".bat";
         File.WriteAllLines(buildPath + "/../" + steamBatName, steamBat);
@@ -548,8 +555,8 @@ public class BuildTools
         // Build boot.cfg
         var bootCfg = new string[]
         {
-           "game.modename assault",
-           "serve level_01"
+            "game.modename assault",
+            "serve level_01"
         };
         File.WriteAllLines(buildPath + "/" + Game.k_BootConfigFilename, bootCfg);
         Debug.Log("  " + Game.k_BootConfigFilename);

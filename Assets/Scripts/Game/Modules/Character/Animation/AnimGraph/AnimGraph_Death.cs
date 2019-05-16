@@ -12,9 +12,9 @@ public class AnimGraph_Death : AnimGraphAsset
     public override IAnimGraphInstance Instatiate(EntityManager entityManager, Entity owner, PlayableGraph graph,
         Entity animStateOwner)
     {
-        return new Instance(graph, this); 
+        return new Instance(graph, this);
     }
-    
+
     class Instance : IAnimGraphInstance
     {
         public Instance(PlayableGraph graph, AnimGraph_Death settings)
@@ -22,7 +22,7 @@ public class AnimGraph_Death : AnimGraphAsset
             m_settings = settings;
             m_Mixer = AnimationMixerPlayable.Create(graph);
             m_NumAnims = 0;
-        
+
             foreach (var animClip in m_settings.anims)
             {
                 if (animClip != null)
@@ -35,7 +35,7 @@ public class AnimGraph_Death : AnimGraphAsset
                     m_Mixer.SetInputWeight(port, 0f);
                     m_NumAnims++;
                 }
-            }   
+            }
         }
 
         public void Shutdown()
@@ -55,20 +55,20 @@ public class AnimGraph_Death : AnimGraphAsset
         public void ApplyPresentationState(GameTime time, float deltaTime)
         {
             Profiler.BeginSample("Death.Apply");
-            
+
             if (!m_Started)
             {
                 m_Started = true;
 
-                var oldState = Random.state;        
-                Random.InitState((int)Time.time);
+                var oldState = Random.state;
+                Random.InitState((int) Time.time);
                 var currentAnim = Random.Range(0, m_NumAnims);
                 Random.state = oldState;
-        
+
                 m_Mixer.SetInputWeight(currentAnim, 1f);
                 m_Mixer.GetInput(currentAnim).Play();
             }
-            
+
             Profiler.EndSample();
         }
 

@@ -13,7 +13,7 @@ public class AnimGraph_AnimatorController : AnimGraphAsset
         var animState = new Instance(entityManager, owner, graph, animStateOwner, this);
         return animState;
     }
-    
+
     class Instance : IAnimGraphInstance
     {
         public Instance(EntityManager entityManager, Entity owner, PlayableGraph graph, Entity animStateOwner, AnimGraph_AnimatorController settings)

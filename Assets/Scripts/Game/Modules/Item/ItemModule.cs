@@ -6,11 +6,11 @@ public class ItemModule
     List<ScriptBehaviourManager> m_handleSpawnSystems = new List<ScriptBehaviourManager>();
     List<ScriptBehaviourManager> m_systems = new List<ScriptBehaviourManager>();
     GameWorld m_world;
-    
+
     public ItemModule(GameWorld world)
     {
         m_world = world;
-        
+
         // TODO (mogensh) make server version without all this client stuff
         m_systems.Add(world.GetECSWorld().CreateManager<RobotWeaponClientProjectileSpawnHandler>(world));
         m_systems.Add(world.GetECSWorld().CreateManager<TerraformerWeaponClientProjectileSpawnHandler>(world));
@@ -34,7 +34,7 @@ public class ItemModule
     }
 
     public void LateUpdate()
-    {        
+    {
         foreach (var system in m_systems)
             system.Update();
     }

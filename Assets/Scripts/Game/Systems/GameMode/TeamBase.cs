@@ -26,6 +26,7 @@ public class TeamBase : MonoBehaviour
             Gizmos.color = new Color(0.5f, 1.0f, 1.5f, 0.8f);
             Gizmos.DrawCube(boxCollider.center, -boxCollider.size);
         }
+
         Gizmos.color = new Color(0.5f, 1.0f, 0.5f, 0.1f);
         Gizmos.DrawCube(boxCollider.center, boxCollider.size);
     }

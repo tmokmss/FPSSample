@@ -9,12 +9,14 @@ public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
 {
     ComponentGroup ProjectileGroup;
 
-    public CreateProjectileMovementCollisionQueries(GameWorld world) : base(world) { }
+    public CreateProjectileMovementCollisionQueries(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
         base.OnCreateManager();
-        ProjectileGroup = GetComponentGroup(typeof(UpdateProjectileFlag), typeof(ProjectileData), 
+        ProjectileGroup = GetComponentGroup(typeof(UpdateProjectileFlag), typeof(ProjectileData),
             ComponentType.Subtractive<DespawningEntity>());
     }
 
@@ -37,7 +39,7 @@ public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
             var totalMoveDist = totalMoveDuration * projectileData.settings.velocity;
 
             var dir = Vector3.Normalize(projectileData.endPos - projectileData.startPos);
-            var newPosition = (Vector3)projectileData.startPos + dir * totalMoveDist;
+            var newPosition = (Vector3) projectileData.startPos + dir * totalMoveDist;
             var moveDist = math.distance(projectileData.position, newPosition);
 
             var collisionMask = ~(1U << projectileData.teamId);
@@ -53,7 +55,7 @@ public class CreateProjectileMovementCollisionQueries : BaseComponentSystem
                 mask = collisionMask,
                 ExcludeOwner = projectileData.projectileOwner,
             });
-            PostUpdateCommands.SetComponent(entity,projectileData);
+            PostUpdateCommands.SetComponent(entity, projectileData);
         }
     }
 }
@@ -63,34 +65,36 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
 {
     ComponentGroup ProjectileGroup;
 
-    public HandleProjectileMovementCollisionQuery(GameWorld world) : base(world) { }
+    public HandleProjectileMovementCollisionQuery(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
         base.OnCreateManager();
-        ProjectileGroup = GetComponentGroup(typeof(UpdateProjectileFlag), typeof(ProjectileData), 
+        ProjectileGroup = GetComponentGroup(typeof(UpdateProjectileFlag), typeof(ProjectileData),
             ComponentType.Subtractive<DespawningEntity>());
     }
-    
+
     protected override void OnUpdate()
     {
         var entityArray = ProjectileGroup.GetEntityArray();
         var projectileDataArray = ProjectileGroup.GetComponentDataArray<ProjectileData>();
-        var queryReciever = World.GetExistingManager<RaySphereQueryReciever>();    
+        var queryReciever = World.GetExistingManager<RaySphereQueryReciever>();
         for (var i = 0; i < projectileDataArray.Length; i++)
         {
             var projectileData = projectileDataArray[i];
-            
+
             if (projectileData.impactTick > 0)
                 continue;
-            
+
             RaySphereQueryReciever.Query query;
             RaySphereQueryReciever.QueryResult queryResult;
             queryReciever.GetResult(projectileData.rayQueryId, out query, out queryResult);
-            
+
             var projectileVec = projectileData.endPos - projectileData.startPos;
             var projectileDir = Vector3.Normalize(projectileVec);
-            var newPosition = (Vector3)projectileData.position + projectileDir * query.distance;
+            var newPosition = (Vector3) projectileData.position + projectileDir * query.distance;
 
             var impact = queryResult.hit == 1;
             if (impact)
@@ -111,7 +115,8 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
                         if (EntityManager.HasComponent<DamageEvent>(queryResult.hitCollisionOwner))
                         {
                             var damageEventBuffer = EntityManager.GetBuffer<DamageEvent>(queryResult.hitCollisionOwner);
-                            DamageEvent.AddEvent(damageEventBuffer, damageInstigator, projectileData.settings.impactDamage, projectileDir, projectileData.settings.impactImpulse);
+                            DamageEvent.AddEvent(damageEventBuffer, damageInstigator, projectileData.settings.impactDamage, projectileDir,
+                                projectileData.settings.impactImpulse);
                         }
                     }
                 }
@@ -121,7 +126,8 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
                     if (damageInstigator != Entity.Null)
                     {
                         var collisionMask = ~(1 << projectileData.teamId);
-                        SplashDamageRequest.Create(PostUpdateCommands, query.hitCollisionTestTick, damageInstigator, queryResult.hitPoint, collisionMask, projectileData.settings.splashDamage);
+                        SplashDamageRequest.Create(PostUpdateCommands, query.hitCollisionTestTick, damageInstigator, queryResult.hitPoint,
+                            collisionMask, projectileData.settings.splashDamage);
                     }
                 }
 
@@ -136,7 +142,7 @@ public class HandleProjectileMovementCollisionQuery : BaseComponentSystem
             }
 
             projectileData.position = newPosition;
-            PostUpdateCommands.SetComponent(entityArray[i],projectileData);
+            PostUpdateCommands.SetComponent(entityArray[i], projectileData);
         }
     }
 }
@@ -147,14 +153,16 @@ public class DespawnProjectiles : BaseComponentSystem
 {
     ComponentGroup ProjectileGroup;
 
-    public DespawnProjectiles(GameWorld world) : base(world) { }
+    public DespawnProjectiles(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
         base.OnCreateManager();
         ProjectileGroup = GetComponentGroup(typeof(ProjectileData));
     }
-    
+
     protected override void OnUpdate()
     {
         var time = m_world.worldTime;
@@ -163,13 +171,14 @@ public class DespawnProjectiles : BaseComponentSystem
         for (var i = 0; i < projectileDataArray.Length; i++)
         {
             var projectileData = projectileDataArray[i];
-            
+
             if (projectileData.impactTick > 0)
             {
                 if (m_world.worldTime.DurationSinceTick(projectileData.impactTick) > 1.0f)
                 {
-                    PostUpdateCommands.AddComponent(entityArray[i],new DespawningEntity());
+                    PostUpdateCommands.AddComponent(entityArray[i], new DespawningEntity());
                 }
+
                 continue;
             }
 
@@ -177,11 +186,8 @@ public class DespawnProjectiles : BaseComponentSystem
             var toOld = age > projectileData.maxAge;
             if (toOld)
             {
-                PostUpdateCommands.AddComponent(entityArray[i],new DespawningEntity());
+                PostUpdateCommands.AddComponent(entityArray[i], new DespawningEntity());
             }
         }
     }
 }
-
-
-

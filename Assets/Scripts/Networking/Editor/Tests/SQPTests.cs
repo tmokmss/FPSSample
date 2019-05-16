@@ -2,9 +2,7 @@
 using System.Threading;
 using System.Net;
 using NUnit.Framework;
-
 using System.Net.Sockets;
-
 using UnityEngine;
 using SQP;
 using System.Text;
@@ -44,13 +42,13 @@ namespace TransportTests
             var rcv = new ChallangeRequest();
             rcv.FromStream(reader, ref context);
 
-            Assert.AreEqual((byte)SQPMessageType.ChallangeRequest, rcv.Header.Type);
+            Assert.AreEqual((byte) SQPMessageType.ChallangeRequest, rcv.Header.Type);
         }
 
         [Test]
         public void SQP_SerializeChallangeResponse_NoError()
         {
-            var id = (uint)1337;
+            var id = (uint) 1337;
             var snd = new ChallangeResponse();
 
             snd.Header.ChallangeId = id;
@@ -63,15 +61,15 @@ namespace TransportTests
             context = default(DataStreamReader.Context);
             rcv.FromStream(reader, ref context);
 
-            Assert.AreEqual((byte)SQPMessageType.ChallangeResponse, rcv.Header.Type);
-            Assert.AreEqual(id, (uint)rcv.Header.ChallangeId);
+            Assert.AreEqual((byte) SQPMessageType.ChallangeResponse, rcv.Header.Type);
+            Assert.AreEqual(id, (uint) rcv.Header.ChallangeId);
         }
 
         [Test]
         public void SQP_SerializeQueryRequest_NoError()
         {
-            var id = (uint)1337;
-            var chunk = (byte)31;
+            var id = (uint) 1337;
+            var chunk = (byte) 31;
 
             var snd = new QueryRequest();
 
@@ -85,18 +83,18 @@ namespace TransportTests
             context = default(DataStreamReader.Context);
             rcv.FromStream(reader, ref context);
 
-            Assert.AreEqual((byte)SQPMessageType.QueryRequest, rcv.Header.Type);
-            Assert.AreEqual(id, (uint)rcv.Header.ChallangeId);
+            Assert.AreEqual((byte) SQPMessageType.QueryRequest, rcv.Header.Type);
+            Assert.AreEqual(id, (uint) rcv.Header.ChallangeId);
             Assert.AreEqual(chunk, rcv.RequestedChunks);
         }
 
         [Test]
         public void SQP_SerializeQueryResponseHeader_NoError()
         {
-            var id = (uint)1337;
-            var version = (ushort)12345;
-            var packet = (byte)3;
-            var last = (byte)9;
+            var id = (uint) 1337;
+            var version = (ushort) 12345;
+            var packet = (byte) 3;
+            var last = (byte) 9;
 
             var snd = new QueryResponseHeader();
 
@@ -112,8 +110,8 @@ namespace TransportTests
             context = default(DataStreamReader.Context);
             rcv.FromStream(reader, ref context);
 
-            Assert.AreEqual((byte)SQPMessageType.QueryResponse, rcv.Header.Type);
-            Assert.AreEqual(id, (uint)rcv.Header.ChallangeId);
+            Assert.AreEqual((byte) SQPMessageType.QueryResponse, rcv.Header.Type);
+            Assert.AreEqual(id, (uint) rcv.Header.ChallangeId);
             Assert.AreEqual(version, rcv.Version);
             Assert.AreEqual(packet, rcv.CurrentPacket);
             Assert.AreEqual(last, rcv.LastPacket);
@@ -124,8 +122,10 @@ namespace TransportTests
         {
             var encoding = new UTF8Encoding();
             var sendShort = "banana";
-            var sendLong = "thisisalongstringrepeatedoverthisisalongstringrepeatedoverthisisalongstringrepeatedoverandoverthisisalongstringrepeatedoverandoverthisisalongstringrepeatedoverandoverthisisalongstringrepeatedoverandoverthisisalongstringrepeatedoverandoverthisisalongstringrepeatedoverandover";
-            var sendUTF = "ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ";
+            var sendLong =
+                "thisisalongstringrepeatedoverthisisalongstringrepeatedoverthisisalongstringrepeatedoverandoverthisisalongstringrepeatedoverandoverthisisalongstringrepeatedoverandoverthisisalongstringrepeatedoverandoverthisisalongstringrepeatedoverandoverthisisalongstringrepeatedoverandover";
+            var sendUTF =
+                "ᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗᚠᛇᚻ᛫ᛒᛦᚦ᛫ᚠᚱᚩᚠᚢᚱ᛫ᚠᛁᚱᚪ᛫ᚷᛖᚻᚹᛦᛚᚳᚢᛗ";
 
             writer.WriteString(sendShort, encoding);
             writer.WriteString(sendLong, encoding);
@@ -150,9 +150,9 @@ namespace TransportTests
         [Test]
         public void SQP_SerializeServerInfo_NoError()
         {
-            var current = (ushort)34;
-            var max = (ushort)35;
-            var port = (ushort)35001;
+            var current = (ushort) 34;
+            var max = (ushort) 35;
+            var port = (ushort) 35001;
             var build = "2018.3";
 
             var header = new QueryResponseHeader();
@@ -179,15 +179,15 @@ namespace TransportTests
             context = default(DataStreamReader.Context);
             rcv.FromStream(reader, ref context);
 
-            Assert.AreEqual((byte)SQPMessageType.QueryResponse, rcv.QueryHeader.Header.Type);
-            Assert.AreEqual((uint)header.Header.ChallangeId, (uint)rcv.QueryHeader.Header.ChallangeId);
+            Assert.AreEqual((byte) SQPMessageType.QueryResponse, rcv.QueryHeader.Header.Type);
+            Assert.AreEqual((uint) header.Header.ChallangeId, (uint) rcv.QueryHeader.Header.ChallangeId);
             Assert.AreEqual(header.Version, rcv.QueryHeader.Version);
             Assert.AreEqual(header.CurrentPacket, rcv.QueryHeader.CurrentPacket);
             Assert.AreEqual(header.LastPacket, rcv.QueryHeader.LastPacket);
 
-            Assert.AreEqual(current, (ushort)rcv.ServerInfoData.CurrentPlayers);
-            Assert.AreEqual(max, (ushort)rcv.ServerInfoData.MaxPlayers);
-            Assert.AreEqual(port, (ushort)rcv.ServerInfoData.Port);
+            Assert.AreEqual(current, (ushort) rcv.ServerInfoData.CurrentPlayers);
+            Assert.AreEqual(max, (ushort) rcv.ServerInfoData.MaxPlayers);
+            Assert.AreEqual(port, (ushort) rcv.ServerInfoData.Port);
 
             Assert.AreEqual(build, rcv.ServerInfoData.BuildId);
         }
@@ -220,6 +220,7 @@ namespace TransportTests
                 server.Update();
                 client.Update();
             }
+
             Assert.Less(iterations, 1000);
 
             Assert.AreEqual(handle.m_State, SQPClient.SQPClientState.Idle);
@@ -251,7 +252,7 @@ namespace TransportTests
             server.ServerInfoData = sid;
 
             var start = NetworkUtils.stopwatch.ElapsedMilliseconds;
-            while(true)
+            while (true)
             {
                 server.Update();
                 /*
@@ -264,7 +265,6 @@ namespace TransportTests
 
                 if (NetworkUtils.stopwatch.ElapsedMilliseconds - start > 1000)
                     Debug.Log("Listening");
-                
             }
         }
     }

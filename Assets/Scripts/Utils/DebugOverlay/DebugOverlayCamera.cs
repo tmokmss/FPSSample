@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class DebugOverlayCamera : MonoBehaviour
 {
-
     void OnPostRender()
     {
         Line3DBuffer line3DBuffer = DebugOverlay.GetLine3DBuffer();

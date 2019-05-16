@@ -3,7 +3,7 @@ using System.Net;
 
 namespace UnityEngine.Ucg.Matchmaking
 {
-    public class Matchmaker 
+    public class Matchmaker
     {
         /// <summary>
         /// The hostname[:port]/{projectid} of your matchmaking server
@@ -14,6 +14,7 @@ namespace UnityEngine.Ucg.Matchmaking
         private MatchmakingRequest request;
 
         public delegate void SuccessCallback(Assignment assignment);
+
         public delegate void ErrorCallback(string error);
 
         public SuccessCallback successCallback;
@@ -92,7 +93,8 @@ namespace UnityEngine.Ucg.Matchmaking
         /// <param name="playerProps">Custom player properties relevant to the matchmaking function</param>
         /// <param name="groupProps">Custom group properties relevant to the matchmaking function</param>
         /// <returns></returns>
-        private static MatchmakingRequest CreateMatchmakingRequest(string playerId, MatchmakingPlayerProperties playerProps, MatchmakingGroupProperties groupProps)
+        private static MatchmakingRequest CreateMatchmakingRequest(string playerId, MatchmakingPlayerProperties playerProps,
+            MatchmakingGroupProperties groupProps)
         {
             // TODO: WORKAROUND: Currently matchmaker handles IDs as UUIDs, not player names, and will only ever generate 1 match assignment for each UUID
             //   Therefore, we'll append the current time in Ticks as an attempt at creating a UUID
@@ -113,7 +115,6 @@ namespace UnityEngine.Ucg.Matchmaking
 
             return request;
         }
-
 
 
         void GetAssignment()

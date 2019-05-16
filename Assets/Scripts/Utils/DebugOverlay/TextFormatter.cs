@@ -41,9 +41,10 @@ public class Converter : IConverter<int>, IConverter<float>, IConverter<string>,
             neg = true;
             value = -value;
         }
+
         int v1 = Mathf.FloorToInt(value);
-        float fractMult = (int)Mathf.Pow(10.0f, formatSpec.fractWidth);
-        int v2 = Mathf.FloorToInt(value * fractMult) % (int)(fractMult);
+        float fractMult = (int) Mathf.Pow(10.0f, formatSpec.fractWidth);
+        int v2 = Mathf.FloorToInt(value * fractMult) % (int) (fractMult);
         ConvertInt(ref dst, end, neg ? -v1 : v1, intWidth, formatSpec.numberWidth, formatSpec.leadingZero);
         if (dst < end)
             *dst++ = '.';
@@ -80,7 +81,7 @@ public class Converter : IConverter<int>, IConverter<float>, IConverter<string>,
             *dst++ = ' ';
 
         for (int i = 0, l = value.length; i < l && dst < end; i++)
-            *dst++ = value.buf[i+value.start];
+            *dst++ = value.buf[i + value.start];
 
         while (rpadding-- > 0 && dst < end)
             *dst++ = ' ';
@@ -106,8 +107,7 @@ public class Converter : IConverter<int>, IConverter<float>, IConverter<string>,
         {
             numberWidth++;
             v /= 10;
-        }
-        while (v != 0);
+        } while (v != 0);
 
         if (numberWidth < integerWidth)
             intpaddingWidth = integerWidth - numberWidth;
@@ -124,10 +124,9 @@ public class Converter : IConverter<int>, IConverter<float>, IConverter<string>,
         // Write out number
         do
         {
-            *--d = (char)('0' + (value % 10));
+            *--d = (char) ('0' + (value % 10));
             value /= 10;
-        }
-        while (value != 0);
+        } while (value != 0);
 
         // Format width padding
         while (intpaddingWidth-- > 0)
@@ -169,7 +168,9 @@ public struct CharBufView
 /// </summary>
 public static class StringFormatter
 {
-    private class NoArg { };
+    private class NoArg
+    {
+    };
 
     public static int Write(ref char[] dst, int destIdx, string format)
     {
@@ -201,7 +202,7 @@ public static class StringFormatter
         return Write<T0, T1, T2, T3, T4, NoArg>(ref dst, destIdx, format, arg0, arg1, arg2, arg3, arg4, null);
     }
 
-    public static int Write<T0,T1,T2,T3,T4,T5>(ref char[] dst, int destIdx, string format, T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
+    public static int Write<T0, T1, T2, T3, T4, T5>(ref char[] dst, int destIdx, string format, T0 arg0, T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5)
     {
         int written = 0;
         unsafe
@@ -277,32 +278,32 @@ public static class StringFormatter
 
                         if (argNum == 0)
                         {
-                            ((IConverter<T0>)Converter.instance).Convert(ref dest, end, arg0, s);
+                            ((IConverter<T0>) Converter.instance).Convert(ref dest, end, arg0, s);
                         }
 
                         if (argNum == 1)
                         {
-                            ((IConverter<T1>)Converter.instance).Convert(ref dest, end, arg1, s);
+                            ((IConverter<T1>) Converter.instance).Convert(ref dest, end, arg1, s);
                         }
 
                         if (argNum == 2)
                         {
-                            ((IConverter<T2>)Converter.instance).Convert(ref dest, end, arg2, s);
+                            ((IConverter<T2>) Converter.instance).Convert(ref dest, end, arg2, s);
                         }
 
                         if (argNum == 3)
                         {
-                            ((IConverter<T3>)Converter.instance).Convert(ref dest, end, arg3, s);
+                            ((IConverter<T3>) Converter.instance).Convert(ref dest, end, arg3, s);
                         }
 
                         if (argNum == 4)
                         {
-                            ((IConverter<T4>)Converter.instance).Convert(ref dest, end, arg4, s);
+                            ((IConverter<T4>) Converter.instance).Convert(ref dest, end, arg4, s);
                         }
 
                         if (argNum == 5)
                         {
-                            ((IConverter<T5>)Converter.instance).Convert(ref dest, end, arg5, s);
+                            ((IConverter<T5>) Converter.instance).Convert(ref dest, end, arg5, s);
                         }
                     }
                     else
@@ -310,7 +311,8 @@ public static class StringFormatter
                         *dest++ = *src++;
                     }
                 }
-                written = (int)(dest - d + destIdx);
+
+                written = (int) (dest - d + destIdx);
             }
         }
 
@@ -326,12 +328,14 @@ public static class StringFormatter
             neg = true;
             p++;
         }
+
         while (*p >= '0' && *p <= '9')
         {
             res *= 10;
             res += (*p - '0');
             p++;
         }
+
         return neg ? -res : res;
     }
 
@@ -343,6 +347,7 @@ public static class StringFormatter
             res++;
             p++;
         }
+
         return res;
     }
 }

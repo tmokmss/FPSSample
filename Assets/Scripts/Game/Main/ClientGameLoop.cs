@@ -6,7 +6,6 @@ using UnityEngine.Ucg.Matchmaking;
 
 public class ClientGameWorld
 {
-    
     public bool PredictionEnabled = true;
 
     public float frameTimeScale = 1.0f;
@@ -24,20 +23,21 @@ public class ClientGameWorld
 
     public ReplicatedEntityModuleClient ReplicatedEntityModule
     {
-        get { return m_ReplicatedEntityModule;  }
+        get { return m_ReplicatedEntityModule; }
     }
-    
 
-    public ClientGameWorld(GameWorld world, NetworkClient networkClient, NetworkStatisticsClient networkStatistics, BundledResourceManager resourceSystem)
+
+    public ClientGameWorld(GameWorld world, NetworkClient networkClient, NetworkStatisticsClient networkStatistics,
+        BundledResourceManager resourceSystem)
     {
-        m_NetworkClient = networkClient;          
+        m_NetworkClient = networkClient;
         m_NetworkStatistics = networkStatistics;
 
         m_GameWorld = world;
-        
+
         m_CharacterModule = new CharacterModuleClient(m_GameWorld, resourceSystem);
         m_ProjectileModule = new ProjectileModuleClient(m_GameWorld, resourceSystem);
-        m_HitCollisionModule = new HitCollisionModule(m_GameWorld,1, 1);
+        m_HitCollisionModule = new HitCollisionModule(m_GameWorld, 1, 1);
         m_PlayerModule = new PlayerModuleClient(m_GameWorld);
         m_SpectatorCamModule = new SpectatorCamModuleClient(m_GameWorld);
         m_EffectModule = new EffectModuleClient(m_GameWorld, resourceSystem);
@@ -48,29 +48,29 @@ public class ClientGameWorld
         m_GameModeSystem = m_GameWorld.GetECSWorld().CreateManager<GameModeSystemClient>(m_GameWorld);
 
         m_ClientFrontendUpdate = m_GameWorld.GetECSWorld().CreateManager<ClientFrontendUpdate>(m_GameWorld);
-        
+
         m_DestructiblePropSystemClient = m_GameWorld.GetECSWorld().CreateManager<DestructiblePropSystemClient>(m_GameWorld);
-        
+
         m_ApplyGrenadePresentation = m_GameWorld.GetECSWorld().CreateManager<ApplyGrenadePresentation>(m_GameWorld);
-        
+
         m_UpdatePresentationOwners = m_GameWorld.GetECSWorld().CreateManager<UpdatePresentationOwners>(
             m_GameWorld, resourceSystem);
         m_HandlePresentationOwnerDespawn = m_GameWorld.GetECSWorld().CreateManager<HandlePresentationOwnerDesawn>(m_GameWorld);
-        
+
         m_moverUpdate = m_GameWorld.GetECSWorld().CreateManager<MoverUpdate>(m_GameWorld);
-        
+
         m_TeleporterSystemClient = m_GameWorld.GetECSWorld().CreateManager<TeleporterSystemClient>(m_GameWorld);
-            
+
         m_SpinSystem = m_GameWorld.GetECSWorld().CreateManager<SpinSystem>(m_GameWorld);
-        
+
         m_HandleNamePlateOwnerSpawn = m_GameWorld.GetECSWorld().CreateManager<HandleNamePlateSpawn>(m_GameWorld);
         m_HandleNamePlateOwnerDespawn = m_GameWorld.GetECSWorld().CreateManager<HandleNamePlateDespawn>(m_GameWorld);
         m_UpdateNamePlates = m_GameWorld.GetECSWorld().CreateManager<UpdateNamePlates>(m_GameWorld);
-        
+
         m_GameModeSystem.SetLocalPlayerId(m_NetworkClient.clientId);
-    
+
         m_TwistSystem = new TwistSystem(m_GameWorld);
-        m_FanSystem = new FanSystem(m_GameWorld);   
+        m_FanSystem = new FanSystem(m_GameWorld);
         m_TranslateScaleSystem = new TranslateScaleSystem(m_GameWorld);
     }
 
@@ -87,14 +87,14 @@ public class ClientGameWorld
 
         m_GameWorld.GetECSWorld().DestroyManager(m_GameModeSystem);
         m_GameWorld.GetECSWorld().DestroyManager(m_DestructiblePropSystemClient);
-        
+
         m_GameWorld.GetECSWorld().DestroyManager(m_ApplyGrenadePresentation);
-        
+
         m_GameWorld.GetECSWorld().DestroyManager(m_UpdatePresentationOwners);
         m_GameWorld.GetECSWorld().DestroyManager(m_HandlePresentationOwnerDespawn);
-        
+
         m_GameWorld.GetECSWorld().DestroyManager(m_moverUpdate);
-        
+
         m_GameWorld.GetECSWorld().DestroyManager(m_TeleporterSystemClient);
         m_GameWorld.GetECSWorld().DestroyManager(m_SpinSystem);
         m_GameWorld.GetECSWorld().DestroyManager(m_HandleNamePlateOwnerSpawn);
@@ -102,13 +102,13 @@ public class ClientGameWorld
         m_GameWorld.GetECSWorld().DestroyManager(m_UpdateNamePlates);
 
         m_ragdollSystem.Shutdown();
-        
+
         m_TwistSystem.ShutDown();
         m_FanSystem.ShutDown();
         m_TranslateScaleSystem.ShutDown();
     }
 
-   
+
     // This is called at the actual client frame rate, so may be faster or slower than tickrate.
     public void Update(float frameDuration)
     {
@@ -121,15 +121,15 @@ public class ClientGameWorld
         m_PlayerModule.ResolveReferenceFromLocalPlayerToPlayer();
         m_PlayerModule.HandleCommandReset();
         m_ReplicatedEntityModule.UpdateControlledEntityFlags();
-        
-        
+
+
         // Handle spawn requests
-        m_ProjectileModule.HandleProjectileRequests();   
-        m_UpdatePresentationOwners.Update(); 
+        m_ProjectileModule.HandleProjectileRequests();
+        m_UpdatePresentationOwners.Update();
 
         // Handle spawning  
         m_CharacterModule.HandleSpawns();
-        m_ProjectileModule.HandleProjectileSpawn();    
+        m_ProjectileModule.HandleProjectileSpawn();
         m_HitCollisionModule.HandleSpawning();
         m_HandleNamePlateOwnerSpawn.Update();
         m_ragdollSystem.HandleSpawning();
@@ -138,11 +138,11 @@ public class ClientGameWorld
         m_TranslateScaleSystem.HandleSpawning();
         m_PlayerModule.HandleSpawn();
         m_ItemModule.HandleSpawn();
-        
+
         // Handle controlled entity changed
         m_PlayerModule.HandleControlledEntityChanged();
         m_CharacterModule.HandleControlledEntityChanged();
-        
+
         // Update movement of scene objects. Projectiles and grenades can also start update as they use collision data from last frame
         m_SpinSystem.Update();
         m_moverUpdate.Update();
@@ -151,56 +151,58 @@ public class ClientGameWorld
 
         // Prediction
         m_GameWorld.worldTime = m_PredictedTime;
-        m_ProjectileModule.StartPredictedMovement();       
-        
+        m_ProjectileModule.StartPredictedMovement();
+
         if (IsPredictionAllowed())
         {
             // ROLLBACK. All predicted entities (with the ServerEntity component) are rolled back to last server state 
             m_GameWorld.worldTime.SetTime(m_NetworkClient.serverTime, m_PredictedTime.tickInterval);
             PredictionRollback();
 
-            
+
             // PREDICT PREVIOUS TICKS. Replay every tick *after* the last tick we have from server up to the last stored command we have
             for (var tick = m_NetworkClient.serverTime + 1; tick < m_PredictedTime.tick; tick++)
             {
                 m_GameWorld.worldTime.SetTime(tick, m_PredictedTime.tickInterval);
                 m_PlayerModule.RetrieveCommand(m_GameWorld.worldTime.tick);
                 PredictionUpdate();
-#if UNITY_EDITOR                 
+#if UNITY_EDITOR
                 // We only want to store "full" tick to we use m_PredictedTime.tick-1 (as current can be fraction of tick)
-                m_ReplicatedEntityModule.StorePredictedState(tick, m_PredictedTime.tick-1);
-#endif                
+                m_ReplicatedEntityModule.StorePredictedState(tick, m_PredictedTime.tick - 1);
+#endif
             }
 
             // PREDICT CURRENT TICK. Update current tick using duration of current tick
             m_GameWorld.worldTime = m_PredictedTime;
             m_PlayerModule.RetrieveCommand(m_GameWorld.worldTime.tick);
             // Dont update systems with close to zero time. 
-            if (m_GameWorld.worldTime.tickDuration > 0.008f) 
+            if (m_GameWorld.worldTime.tickDuration > 0.008f)
             {
                 PredictionUpdate();
             }
+
 //#if UNITY_EDITOR                 
 //            m_ReplicatedEntityModule.StorePredictedState(m_PredictedTime.tick, m_PredictedTime.tick);
 //#endif                
         }
-        
+
         m_ProjectileModule.FinalizePredictedMovement();
 
-        m_GameModeSystem.Update();    
-                         
+        m_GameModeSystem.Update();
+
         // Update Presentation
         m_GameWorld.worldTime = m_PredictedTime;
         m_CharacterModule.UpdatePresentation();
         m_DestructiblePropSystemClient.Update();
         m_TeleporterSystemClient.Update();
 
-       
+
         m_GameWorld.worldTime = m_RenderTime;
 
         // Handle despawns
-        m_HandlePresentationOwnerDespawn.Update(); 
-        m_CharacterModule.HandleDepawns(); // TODO (mogensh) this destroys presentations and needs to be done first so its picked up. We need better way of handling destruction ordering
+        m_HandlePresentationOwnerDespawn.Update();
+        m_CharacterModule
+            .HandleDepawns(); // TODO (mogensh) this destroys presentations and needs to be done first so its picked up. We need better way of handling destruction ordering
         m_ProjectileModule.HandleProjectileDespawn();
         m_HandleNamePlateOwnerDespawn.Update();
         m_TwistSystem.HandleDespawning();
@@ -208,20 +210,19 @@ public class ClientGameWorld
         m_ragdollSystem.HandleDespawning();
         m_HitCollisionModule.HandleDespawn();
         m_TranslateScaleSystem.HandleDepawning();
-        m_GameWorld.ProcessDespawns();  
-        
+        m_GameWorld.ProcessDespawns();
+
 #if UNITY_EDITOR
 
         if (m_GameWorld.GetEntityManager().Exists(m_localPlayer.controlledEntity) &&
             m_GameWorld.GetEntityManager().HasComponent<UserCommandComponentData>(m_localPlayer.controlledEntity))
         {
             var userCommand = m_GameWorld.GetEntityManager().GetComponentData<UserCommandComponentData>(m_localPlayer.controlledEntity);
-            m_ReplicatedEntityModule.FinalizedStateHistory(m_PredictedTime.tick-1, m_NetworkClient.serverTime, ref userCommand.command);
+            m_ReplicatedEntityModule.FinalizedStateHistory(m_PredictedTime.tick - 1, m_NetworkClient.serverTime, ref userCommand.command);
         }
-#endif                
-        
+#endif
     }
-    
+
     public void LateUpdate(ChatSystemClient chatSystem, float frameDuration)
     {
         m_GameWorld.worldTime = m_RenderTime;
@@ -233,7 +234,7 @@ public class ClientGameWorld
         var twistSystemHandle = m_TwistSystem.Schedule();
         m_FanSystem.Schedule(twistSystemHandle);
 
-        var teamId = -1;   
+        var teamId = -1;
         bool showScorePanel = false;
         if (m_localPlayer != null && m_localPlayer.playerState != null && m_localPlayer.playerState.controlledEntity != Entity.Null)
         {
@@ -243,36 +244,37 @@ public class ClientGameWorld
             {
                 var healthState = m_GameWorld.GetEntityManager()
                     .GetComponentData<HealthStateData>(m_localPlayer.playerState.controlledEntity);
-            
+
                 // Only show score board when alive
                 showScorePanel = healthState.health <= 0;
             }
         }
+
         // TODO (petera) fix this hack
         chatSystem.UpdateLocalTeamIndex(teamId);
 
-        
+
         m_ItemModule.LateUpdate();
 
 
         m_CharacterModule.CameraUpdate();
         m_PlayerModule.CameraUpdate();
-        
+
         m_CharacterModule.LateUpdate();
-        
+
         m_GameWorld.worldTime = m_RenderTime;
         m_ProjectileModule.UpdateClientProjectilesNonPredicted();
-        
+
         m_GameWorld.worldTime = m_PredictedTime;
         m_ProjectileModule.UpdateClientProjectilesPredicted();
-        
+
         m_ApplyGrenadePresentation.Update();
-        
+
         m_EffectModule.ClientUpdate();
-        
+
         m_UpdateNamePlates.Update();
-        
-        if(Game.game.clientFrontend != null)
+
+        if (Game.game.clientFrontend != null)
         {
             m_ClientFrontendUpdate.Update();
             Game.game.clientFrontend.SetShowScorePanel(showScorePanel);
@@ -280,7 +282,6 @@ public class ClientGameWorld
 
         m_TranslateScaleSystem.Complete();
         m_FanSystem.Complete();
-        
     }
 
     bool IsPredictionAllowed()
@@ -290,8 +291,8 @@ public class ClientGameWorld
             GameDebug.Log("No predict! No player state.");
             return false;
         }
-        
-        if(!m_PlayerModule.IsControllingEntity)
+
+        if (!m_PlayerModule.IsControllingEntity)
         {
             GameDebug.Log("No predict! No controlled entity.");
             return false;
@@ -317,13 +318,12 @@ public class ClientGameWorld
         int firstCommandTick;
         int lastCommandTick;
         m_PlayerModule.GetBufferedCommandsTick(out firstCommandTick, out lastCommandTick);
-        
+
         return string.Format("Last server:{0} predicted:{1} buffer:{2}->{3} time since snap:{4}  rtt avr:{5}",
             m_NetworkClient.serverTime, m_PredictedTime.tick,
             firstCommandTick, lastCommandTick,
-            m_NetworkClient.timeSinceSnapshot,m_NetworkStatistics.rtt.average); 
+            m_NetworkClient.timeSinceSnapshot, m_NetworkStatistics.rtt.average);
     }
-
 
 
     public LocalPlayer RegisterLocalPlayer(int playerId)
@@ -332,7 +332,7 @@ public class ClientGameWorld
         m_localPlayer = m_PlayerModule.RegisterLocalPlayer(playerId, m_NetworkClient);
         return m_localPlayer;
     }
-    
+
     public ISnapshotConsumer GetSnapshotConsumer()
     {
         return m_ReplicatedEntityModule;
@@ -348,13 +348,12 @@ public class ClientGameWorld
         m_SpectatorCamModule.Update();
 
         m_CharacterModule.AbilityRequestUpdate();
-        
+
         m_CharacterModule.MovementStart();
         m_CharacterModule.MovementResolve();
-        
+
         m_CharacterModule.AbilityStart();
         m_CharacterModule.AbilityResolve();
-        
     }
 
     void HandleTime(float frameDuration)
@@ -382,8 +381,10 @@ public class ClientGameWorld
         m_PredictedTime.AddDuration(deltaPredictedTime);
 
         // Adjust time to be synchronized with server
-        int preferredBufferedCommandCount = 2;      
-        int preferredTick = m_NetworkClient.serverTime + (int)(((m_NetworkClient.timeSinceSnapshot + m_NetworkStatistics.rtt.average) / 1000.0f) * m_GameWorld.worldTime.tickRate) + preferredBufferedCommandCount;
+        int preferredBufferedCommandCount = 2;
+        int preferredTick = m_NetworkClient.serverTime +
+                            (int) (((m_NetworkClient.timeSinceSnapshot + m_NetworkStatistics.rtt.average) / 1000.0f) *
+                                   m_GameWorld.worldTime.tickRate) + preferredBufferedCommandCount;
 
         bool resetTime = false;
         if (!resetTime && m_PredictedTime.tick < preferredTick - 3)
@@ -407,7 +408,6 @@ public class ClientGameWorld
             m_GameWorld.nextTickTime = Game.frameTime;
             m_PredictedTime.tick = preferredTick;
             m_PredictedTime.SetTime(preferredTick, 0);
-
         }
         else
         {
@@ -461,12 +461,12 @@ public class ClientGameWorld
     GameWorld m_GameWorld;
     GameTime m_PredictedTime = new GameTime(60);
     GameTime m_RenderTime = new GameTime(60);
-    
+
     // External systems
     NetworkClient m_NetworkClient;
     NetworkStatisticsClient m_NetworkStatistics;
     ClientFrontendUpdate m_ClientFrontendUpdate;
-    
+
     // Internal systems
     readonly CharacterModuleClient m_CharacterModule;
     readonly ProjectileModuleClient m_ProjectileModule;
@@ -476,15 +476,15 @@ public class ClientGameWorld
     readonly EffectModuleClient m_EffectModule;
     readonly ReplicatedEntityModuleClient m_ReplicatedEntityModule;
     readonly ItemModule m_ItemModule;
-    
+
     readonly RagdollModule m_ragdollSystem;
     readonly GameModeSystemClient m_GameModeSystem;
-    
+
     readonly ApplyGrenadePresentation m_ApplyGrenadePresentation;
-    
+
     readonly HandlePresentationOwnerDesawn m_HandlePresentationOwnerDespawn;
     readonly UpdatePresentationOwners m_UpdatePresentationOwners;
-    
+
     readonly TwistSystem m_TwistSystem;
     readonly FanSystem m_FanSystem;
     readonly TranslateScaleSystem m_TranslateScaleSystem;
@@ -493,25 +493,28 @@ public class ClientGameWorld
     readonly DestructiblePropSystemClient m_DestructiblePropSystemClient;
     readonly HandleNamePlateSpawn m_HandleNamePlateOwnerSpawn;
     readonly HandleNamePlateDespawn m_HandleNamePlateOwnerDespawn;
-    
+
     readonly UpdateNamePlates m_UpdateNamePlates;
     readonly SpinSystem m_SpinSystem;
     readonly TeleporterSystemClient m_TeleporterSystemClient;
-     
+
     LocalPlayer m_localPlayer;
 }
 
 
 public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientCallbacks
 {
-
     // Client vars
-    [ConfigVar(Name ="client.updaterate", DefaultValue = "30000", Description = "Max bytes/sec client wants to receive", Flags = ConfigVar.Flags.ClientInfo)]
+    [ConfigVar(Name = "client.updaterate", DefaultValue = "30000", Description = "Max bytes/sec client wants to receive",
+        Flags = ConfigVar.Flags.ClientInfo)]
     public static ConfigVar clientUpdateRate;
-    [ConfigVar(Name ="client.updateinterval", DefaultValue = "3", Description = "Snapshot sendrate requested by client", Flags = ConfigVar.Flags.ClientInfo)]
+
+    [ConfigVar(Name = "client.updateinterval", DefaultValue = "3", Description = "Snapshot sendrate requested by client",
+        Flags = ConfigVar.Flags.ClientInfo)]
     public static ConfigVar clientUpdateInterval;
 
-    [ConfigVar(Name ="client.playername", DefaultValue = "Noname", Description = "Name of player", Flags = ConfigVar.Flags.ClientInfo | ConfigVar.Flags.Save)]
+    [ConfigVar(Name = "client.playername", DefaultValue = "Noname", Description = "Name of player",
+        Flags = ConfigVar.Flags.ClientInfo | ConfigVar.Flags.Save)]
     public static ConfigVar clientPlayerName;
 
     [ConfigVar(Name = "client.matchmaker", DefaultValue = "0.0.0.0:80", Description = "Address of matchmaker", Flags = ConfigVar.Flags.None)]
@@ -520,16 +523,16 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     public bool Init(string[] args)
     {
         m_StateMachine = new StateMachine<ClientState>();
-        m_StateMachine.Add(ClientState.Browsing,    EnterBrowsingState,     UpdateBrowsingState,    LeaveBrowsingState);
-        m_StateMachine.Add(ClientState.Connecting,  EnterConnectingState,   UpdateConnectingState,  null);
-        m_StateMachine.Add(ClientState.Loading,     EnterLoadingState,      UpdateLoadingState,     null);
-        m_StateMachine.Add(ClientState.Playing,     EnterPlayingState,      UpdatePlayingState,     LeavePlayingState);
+        m_StateMachine.Add(ClientState.Browsing, EnterBrowsingState, UpdateBrowsingState, LeaveBrowsingState);
+        m_StateMachine.Add(ClientState.Connecting, EnterConnectingState, UpdateConnectingState, null);
+        m_StateMachine.Add(ClientState.Loading, EnterLoadingState, UpdateLoadingState, null);
+        m_StateMachine.Add(ClientState.Playing, EnterPlayingState, UpdatePlayingState, LeavePlayingState);
 
-#if UNITY_EDITOR        
+#if UNITY_EDITOR
         Game.game.levelManager.UnloadLevel();
 #endif
         m_GameWorld = new GameWorld("ClientWorld");
-        
+
         m_NetworkTransport = new SocketTransport();
         m_NetworkClient = new NetworkClient(m_NetworkTransport);
 
@@ -544,7 +547,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
         m_requestedPlayerSettings.playerName = clientPlayerName.Value;
         m_requestedPlayerSettings.teamId = -1;
-        
+
         Console.AddCommand("disconnect", CmdDisconnect, "Disconnect from server if connected", this.GetHashCode());
         Console.AddCommand("prediction", CmdTogglePrediction, "Toggle prediction", this.GetHashCode());
         Console.AddCommand("runatserver", CmdRunAtServer, "Run command at server", this.GetHashCode());
@@ -553,7 +556,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         Console.AddCommand("nextteam", CmdNextTeam, "Select next character", this.GetHashCode());
         Console.AddCommand("spectator", CmdSpectator, "Select spectator cam", this.GetHashCode());
         Console.AddCommand("matchmake", CmdMatchmake, "matchmake <hostname[:port]/{projectid}>: Find and join a server", this.GetHashCode());
-        
+
         if (args.Length > 0)
         {
             targetServer = args[0];
@@ -576,7 +579,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
         m_NetworkClient.Shutdown();
         m_NetworkTransport.Shutdown();
-        
+
         m_GameWorld.Shutdown();
     }
 
@@ -584,30 +587,37 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     {
         return m_clientWorld;
     }
-    
-    public void OnConnect(int clientId) { }
-    public void OnDisconnect(int clientId) { }
+
+    public void OnConnect(int clientId)
+    {
+    }
+
+    public void OnDisconnect(int clientId)
+    {
+    }
 
     unsafe public void OnEvent(int clientId, NetworkEvent info)
     {
         Profiler.BeginSample("-ProcessEvent");
-        switch ((GameNetworkEvents.EventType)info.type.typeId)
+        switch ((GameNetworkEvents.EventType) info.type.typeId)
         {
             case GameNetworkEvents.EventType.Chat:
-                fixed(uint* data = info.data)
+                fixed (uint* data = info.data)
                 {
                     var reader = new NetworkReader(data, info.type.schema);
                     m_ChatSystem.ReceiveMessage(reader.ReadString(256));
                 }
+
                 break;
         }
+
         Profiler.EndSample();
     }
 
     public void OnMapUpdate(ref NetworkReader data)
     {
         m_LevelName = data.ReadString();
-        if(m_StateMachine.CurrentState() != ClientState.Loading)
+        if (m_StateMachine.CurrentState() != ClientState.Loading)
             m_StateMachine.SwitchTo(ClientState.Loading);
     }
 
@@ -624,7 +634,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         Profiler.EndSample();
 
         // TODO (petera) change if we have a lobby like setup one day
-        if(m_StateMachine.CurrentState() == ClientState.Playing && Game.game.clientFrontend != null)
+        if (m_StateMachine.CurrentState() == ClientState.Playing && Game.game.clientFrontend != null)
             Game.game.clientFrontend.UpdateChat(m_ChatSystem);
 
         m_NetworkClient.SendData();
@@ -638,13 +648,13 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
             m_playerSettingsUpdated = true;
         }
 
-        if(m_NetworkClient.isConnected && m_playerSettingsUpdated)
+        if (m_NetworkClient.isConnected && m_playerSettingsUpdated)
         {
             m_playerSettingsUpdated = false;
             SendPlayerSettings();
         }
 
-        if(m_clientWorld != null)
+        if (m_clientWorld != null)
             m_NetworkStatistics.Update(m_clientWorld.frameTimeScale, GameTime.GetDuration(m_clientWorld.RenderTime, m_clientWorld.PredictedTime));
 
         Profiler.EndSample();
@@ -658,10 +668,10 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
     void UpdateBrowsingState()
     {
-         if (m_useMatchmaking)
-         {
-             m_matchmaker?.Update();
-         }
+        if (m_useMatchmaking)
+        {
+            m_matchmaker?.Update();
+        }
     }
 
     void LeaveBrowsingState()
@@ -670,11 +680,13 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
     string targetServer = "";
     int connectRetryCount;
+
     void EnterConnectingState()
     {
         GameDebug.Assert(m_ClientState == ClientState.Browsing, "Expected ClientState to be browsing");
         GameDebug.Assert(m_clientWorld == null, "Expected ClientWorld to be null");
-        GameDebug.Assert(m_NetworkClient.connectionState == NetworkClient.ConnectionState.Disconnected, "Expected network connectionState to be disconnected");
+        GameDebug.Assert(m_NetworkClient.connectionState == NetworkClient.ConnectionState.Disconnected,
+            "Expected network connectionState to be disconnected");
 
         m_ClientState = ClientState.Connecting;
         connectRetryCount = 0;
@@ -691,7 +703,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
                 // Do nothing; just wait for either success or failure
                 break;
             case NetworkClient.ConnectionState.Disconnected:
-                if(connectRetryCount < 2)
+                if (connectRetryCount < 2)
                 {
                     connectRetryCount++;
                     m_GameMessage = string.Format("Trying to connect to {0} (attempt #{1})...", targetServer, connectRetryCount);
@@ -705,13 +717,14 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
                     m_NetworkClient.Disconnect();
                     m_StateMachine.SwitchTo(ClientState.Browsing);
                 }
+
                 break;
         }
     }
 
     void EnterLoadingState()
     {
-        if(Game.game.clientFrontend != null)
+        if (Game.game.clientFrontend != null)
             Game.game.clientFrontend.ShowMenu(ClientFrontend.MenuShowing.None);
 
         Console.SetOpen(false);
@@ -720,7 +733,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         GameDebug.Assert(m_NetworkClient.isConnected);
 
         m_requestedPlayerSettings.playerName = clientPlayerName.Value;
-        m_requestedPlayerSettings.characterType = (short)Game.characterType.IntValue;
+        m_requestedPlayerSettings.characterType = (short) Game.characterType.IntValue;
         m_playerSettingsUpdated = true;
 
         m_ClientState = ClientState.Loading;
@@ -731,7 +744,9 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         // Handle disconnects
         if (!m_NetworkClient.isConnected)
         {
-            m_GameMessage = m_DisconnectReason != null ? string.Format("Disconnected from server ({0})", m_DisconnectReason) : "Disconnected from server (lost connection)";
+            m_GameMessage = m_DisconnectReason != null
+                ? string.Format("Disconnected from server ({0})", m_DisconnectReason)
+                : "Disconnected from server (lost connection)";
             m_DisconnectReason = null;
             m_StateMachine.SwitchTo(ClientState.Browsing);
         }
@@ -750,6 +765,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
                 m_NetworkClient.Disconnect();
                 return;
             }
+
             level = Game.game.levelManager.currentLevel;
         }
 
@@ -763,15 +779,15 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         GameDebug.Assert(m_clientWorld == null && Game.game.levelManager.IsCurrentLevelLoaded());
 
         m_GameWorld.RegisterSceneEntities();
-        
-        m_resourceSystem = new BundledResourceManager(m_GameWorld,"BundledResources/Client");
+
+        m_resourceSystem = new BundledResourceManager(m_GameWorld, "BundledResources/Client");
 
         m_clientWorld = new ClientGameWorld(m_GameWorld, m_NetworkClient, m_NetworkStatistics, m_resourceSystem);
         m_clientWorld.PredictionEnabled = m_predictionEnabled;
 
         m_LocalPlayer = m_clientWorld.RegisterLocalPlayer(m_NetworkClient.clientId);
-        
-        m_NetworkClient.QueueEvent((ushort)GameNetworkEvents.EventType.PlayerReady, true, (ref NetworkWriter data) => {});
+
+        m_NetworkClient.QueueEvent((ushort) GameNetworkEvents.EventType.PlayerReady, true, (ref NetworkWriter data) => { });
 
         m_ClientState = ClientState.Playing;
     }
@@ -781,20 +797,20 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         m_resourceSystem.Shutdown();
 
         m_LocalPlayer = null;
-        
+
         m_clientWorld.Shutdown();
         m_clientWorld = null;
 
         // TODO (petera) replace this with a stack of levels or similar thing. For now we just load the menu no matter what
         //Game.game.levelManager.UnloadLevel();
         //Game.game.levelManager.LoadLevel("level_menu");
-        
+
         m_resourceSystem.Shutdown();
 
         m_GameWorld.Shutdown();
         m_GameWorld = new GameWorld("ClientWorld");
 
-        if(Game.game.clientFrontend != null)
+        if (Game.game.clientFrontend != null)
         {
             Game.game.clientFrontend.Clear();
             Game.game.clientFrontend.ShowMenu(ClientFrontend.MenuShowing.None);
@@ -810,7 +826,9 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         // Handle disconnects
         if (!m_NetworkClient.isConnected)
         {
-            m_GameMessage = m_DisconnectReason != null ? string.Format("Disconnected from server ({0})", m_DisconnectReason) : "Disconnected from server (lost connection)";
+            m_GameMessage = m_DisconnectReason != null
+                ? string.Format("Disconnected from server ({0})", m_DisconnectReason)
+                : "Disconnected from server (lost connection)";
             m_StateMachine.SwitchTo(ClientState.Browsing);
             return;
         }
@@ -830,7 +848,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         if (Game.Input.GetKeyUp(KeyCode.T))
             CmdNextTeam(null);
 
-        float frameDuration = m_lastFrameTime != 0 ? (float)(Game.frameTime - m_lastFrameTime) : 0;
+        float frameDuration = m_lastFrameTime != 0 ? (float) (Game.frameTime - m_lastFrameTime) : 0;
         m_lastFrameTime = Game.frameTime;
 
         m_clientWorld.Update(frameDuration);
@@ -854,15 +872,13 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
     public void RemoteConsoleCommand(string command)
     {
-        m_NetworkClient.QueueEvent((ushort)GameNetworkEvents.EventType.RemoteConsoleCmd, true, (ref NetworkWriter writer) =>
-        {
-            writer.WriteString("args", command);
-        });
+        m_NetworkClient.QueueEvent((ushort) GameNetworkEvents.EventType.RemoteConsoleCmd, true,
+            (ref NetworkWriter writer) => { writer.WriteString("args", command); });
     }
 
     public void CmdConnect(string[] args)
     {
-        if(m_StateMachine.CurrentState() == ClientState.Browsing)
+        if (m_StateMachine.CurrentState() == ClientState.Browsing)
         {
             targetServer = args.Length > 0 ? args[0] : "127.0.0.1";
             m_StateMachine.SwitchTo(ClientState.Connecting);
@@ -911,13 +927,12 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
             m_requestedPlayerSettings.characterType = short.Parse(args[0]);
             m_playerSettingsUpdated = true;
         }
-        
-        // Tell server who to respawn
-        RemoteConsoleCommand(string.Format("respawn {0}",m_LocalPlayer.playerState.playerId));
-    }
-    
 
-    
+        // Tell server who to respawn
+        RemoteConsoleCommand(string.Format("respawn {0}", m_LocalPlayer.playerState.playerId));
+    }
+
+
     void CmdNextChar(string[] args)
     {
         if (m_LocalPlayer == null || m_LocalPlayer.playerState == null || m_LocalPlayer.playerState.controlledEntity == Entity.Null)
@@ -929,12 +944,12 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         if (!m_GameWorld.GetEntityManager()
             .HasComponent<Character>(m_LocalPlayer.playerState.controlledEntity))
             return;
-        
+
         var charSetupRegistry = m_resourceSystem.GetResourceRegistry<HeroTypeRegistry>();
         var charSetupCount = charSetupRegistry.entries.Count;
-        
+
         m_requestedPlayerSettings.characterType = m_requestedPlayerSettings.characterType + 1;
-        if (m_requestedPlayerSettings.characterType >= charSetupCount)   
+        if (m_requestedPlayerSettings.characterType >= charSetupCount)
             m_requestedPlayerSettings.characterType = 0;
         m_playerSettingsUpdated = true;
     }
@@ -946,12 +961,12 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
         if (Game.allowCharChange.IntValue != 1)
             return;
-        
+
         var isControllingSpectatorCam = m_GameWorld.GetEntityManager()
             .HasComponent<SpectatorCamData>(m_LocalPlayer.playerState.controlledEntity);
-        
+
         // TODO find better way to identity spectatorcam
-        m_requestedPlayerSettings.characterType = isControllingSpectatorCam ? 0 : 1000;   
+        m_requestedPlayerSettings.characterType = isControllingSpectatorCam ? 0 : 1000;
         m_playerSettingsUpdated = true;
     }
 
@@ -963,7 +978,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         if (Game.allowCharChange.IntValue != 1)
             return;
 
-        m_requestedPlayerSettings.teamId = (short)(m_LocalPlayer.playerState.teamIndex + 1);
+        m_requestedPlayerSettings.teamId = (short) (m_LocalPlayer.playerState.teamIndex + 1);
         if (m_requestedPlayerSettings.teamId > 1)
             m_requestedPlayerSettings.teamId = 0;
         m_playerSettingsUpdated = true;
@@ -999,7 +1014,8 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
         if (m_StateMachine.CurrentState() != ClientState.Browsing)
         {
-            GameDebug.LogError("matchmake: matchmaking can only be started in Browsing state.  Current state is " + m_StateMachine.CurrentState().ToString());
+            GameDebug.LogError("matchmake: matchmaking can only be started in Browsing state.  Current state is " +
+                               m_StateMachine.CurrentState().ToString());
             return;
         }
 
@@ -1017,7 +1033,8 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     {
         if (string.IsNullOrEmpty(assignment.ConnectionString))
         {
-            GameDebug.Log("Matchmaking finished, but did not return a game server.  Ensure your server has been allocated and is running then try again.");
+            GameDebug.Log(
+                "Matchmaking finished, but did not return a game server.  Ensure your server has been allocated and is running then try again.");
             GameDebug.Log($"MM Error: {assignment.AssignmentError ?? "None"}");
         }
         else
@@ -1025,6 +1042,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
             GameDebug.Log($"Matchmaking has found a game! The server is at {assignment.ConnectionString}.  Attempting to connect...");
             Console.EnqueueCommand($"connect {assignment.ConnectionString}");
         }
+
         m_useMatchmaking = false;
         m_matchmaker = null;
     }
@@ -1038,14 +1056,15 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
     void ShowInfoOverlay(float x, float y)
     {
-        if(m_showTickInfo.IntValue == 1)
-            DebugOverlay.Write(x, y++, "Tick:{0} Last server:{1} Predicted:{2}", m_clientWorld.PredictedTime.tick, m_NetworkClient.serverTime, m_clientWorld.PredictedTime.tick - m_NetworkClient.serverTime - 1);
+        if (m_showTickInfo.IntValue == 1)
+            DebugOverlay.Write(x, y++, "Tick:{0} Last server:{1} Predicted:{2}", m_clientWorld.PredictedTime.tick, m_NetworkClient.serverTime,
+                m_clientWorld.PredictedTime.tick - m_NetworkClient.serverTime - 1);
 
-        if(m_showCommandInfo.IntValue == 1)
+        if (m_showCommandInfo.IntValue == 1)
         {
             UserCommand command = UserCommand.defaultCommand;
             bool valid = m_LocalPlayer.commandBuffer.TryGetValue(m_clientWorld.PredictedTime.tick + 1, ref command);
-            if(valid)
+            if (valid)
                 DebugOverlay.Write(x, y++, "Next cmd: PrimaryFire:{0}", command.buttons.IsSet(UserCommand.Button.PrimaryFire));
             valid = m_LocalPlayer.commandBuffer.TryGetValue(m_clientWorld.PredictedTime.tick, ref command);
             if (valid)
@@ -1055,10 +1074,8 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
 
     void SendPlayerSettings()
     {
-        m_NetworkClient.QueueEvent((ushort)GameNetworkEvents.EventType.PlayerSetup, true, (ref NetworkWriter writer) =>
-        {
-            m_requestedPlayerSettings.Serialize(ref writer);
-        });
+        m_NetworkClient.QueueEvent((ushort) GameNetworkEvents.EventType.PlayerSetup, true,
+            (ref NetworkWriter writer) => { m_requestedPlayerSettings.Serialize(ref writer); });
     }
 
     enum ClientState
@@ -1068,6 +1085,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
         Loading,
         Playing,
     }
+
     StateMachine<ClientState> m_StateMachine;
 
     ClientState m_ClientState;
@@ -1077,7 +1095,7 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     SocketTransport m_NetworkTransport;
 
     NetworkClient m_NetworkClient;
-    
+
     LocalPlayer m_LocalPlayer;
     PlayerSettings m_requestedPlayerSettings = new PlayerSettings();
     bool m_playerSettingsUpdated;
@@ -1100,8 +1118,9 @@ public class ClientGameLoop : Game.IGameLoop, INetworkCallbacks, INetworkClientC
     bool m_useMatchmaking = false;
     Matchmaker m_matchmaker;
 
-    [ConfigVar(Name ="client.showtickinfo", DefaultValue = "0", Description = "Show tick info")]
+    [ConfigVar(Name = "client.showtickinfo", DefaultValue = "0", Description = "Show tick info")]
     static ConfigVar m_showTickInfo;
-    [ConfigVar(Name ="client.showcommandinfo", DefaultValue = "0", Description = "Show command info")]
+
+    [ConfigVar(Name = "client.showcommandinfo", DefaultValue = "0", Description = "Show command info")]
     static ConfigVar m_showCommandInfo;
 }

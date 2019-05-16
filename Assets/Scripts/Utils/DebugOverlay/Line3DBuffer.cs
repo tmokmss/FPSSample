@@ -16,6 +16,7 @@ public class Line3DBuffer
         {
             Debug.LogError("Line3DBuffer cant find shader resource");
         }
+
         m_Line3DMaterial = new Material(shader);
     }
 
@@ -69,6 +70,7 @@ public class Line3DBuffer
             System.Array.Copy(m_Line3DInstanceData, newBuf, m_Line3DInstanceData.Length);
             m_Line3DInstanceData = newBuf;
         }
+
         fixed (Line3DInstanceData* d = &m_Line3DInstanceData[m_NumLine3DsUsed])
         {
             d->color = col;
@@ -77,6 +79,7 @@ public class Line3DBuffer
             d->end = end;
             d->end.w = 1.0f;
         }
+
         m_NumLine3DsUsed++;
     }
 

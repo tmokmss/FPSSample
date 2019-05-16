@@ -11,17 +11,21 @@ using UnityEngine.Profiling;
 public class HandleFanSpawns : InitializeComponentGroupSystem<Fan, HandleFanSpawns.Initialized>
 {
     ComponentGroup Group;
-    
-    public struct Initialized : IComponentData {}
-    
-    public HandleFanSpawns(GameWorld world) : base(world) { }
+
+    public struct Initialized : IComponentData
+    {
+    }
+
+    public HandleFanSpawns(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
         base.OnCreateManager();
         Group = GetComponentGroup(typeof(Fan), ComponentType.Subtractive<DespawningEntity>());
     }
-    
+
     protected override void Initialize(ref ComponentGroup group)
     {
         // Get all components of type, not just spawned/de-spawned ones
@@ -35,14 +39,16 @@ public class HandleFanDespawns : DeinitializeComponentGroupSystem<Fan>
 {
     ComponentGroup Group;
 
-    public HandleFanDespawns(GameWorld world) : base(world) { }
+    public HandleFanDespawns(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
         base.OnCreateManager();
         Group = GetComponentGroup(typeof(Fan), ComponentType.Subtractive<DespawningEntity>());
     }
-    
+
     protected override void Deinitialize(ref ComponentGroup group)
     {
         // Get all components of type, not just spawned/de-spawned ones
@@ -50,7 +56,6 @@ public class HandleFanDespawns : DeinitializeComponentGroupSystem<Fan>
         FanSystem.SetupFanComponents(ref componentArray);
     }
 }
-
 
 
 public class FanSystem
@@ -86,18 +91,18 @@ public class FanSystem
     {
         m_HandleFanDespawns.Update();
     }
-    
-    
+
+
     public static void SetupFanComponents(ref ComponentArray<Fan> fanComponents)
     {
         s_SourceJoints.SetTransforms(null);
         s_FanJoints.SetTransforms(null);
-        
+
         for (var i = 0; i < fanComponents.Length; i++)
         {
             foreach (var fanData in fanComponents[i].fanDatas)
             {
-                AddFanJoint(fanData); 
+                AddFanJoint(fanData);
             }
         }
     }
@@ -110,7 +115,7 @@ public class FanSystem
         {
             s_SourceJoints.Add(fanData.driverA);
             s_SourceJoints.Add(fanData.driverB);
-            s_FanJoints.Add(fanData.driven);  
+            s_FanJoints.Add(fanData.driven);
         }
     }
 
@@ -166,8 +171,7 @@ public class FanSystem
     [BurstCompile(CompileSynchronously = true)]
     struct WriteJob : IJobParallelForTransform
     {
-        [ReadOnly]
-        NativeArray<quaternion> m_SourceRotations;
+        [ReadOnly] NativeArray<quaternion> m_SourceRotations;
 
         public WriteJob(NativeArray<quaternion> sourceRotations)
         {
@@ -189,6 +193,6 @@ public class FanSystem
     protected GameWorld m_World;
     readonly HandleFanSpawns m_HandleFanSpawns;
     readonly HandleFanDespawns m_HandleFanDespawns;
-                        
+
     JobHandle m_WriteHandle;
 }

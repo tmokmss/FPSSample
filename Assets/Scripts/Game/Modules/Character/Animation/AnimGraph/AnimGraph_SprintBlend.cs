@@ -10,8 +10,9 @@ public class AnimGraph_SprintBlend : AnimGraphAsset
 {
     public AnimGraphAsset runTemplate;
     public AnimGraphAsset sprintTemplate;
-    [Range(0f, 1f)]
-    public float sprintTransitionSpeed;
+
+    [Range(0f, 1f)] public float sprintTransitionSpeed;
+
     // TODO: (sunek) Check if this is needed or we can do without first update when changing between run and sprint
     [Tooltip("Always reset child controllers on sprint state change")]
     public bool resetControllerOnChange;
@@ -22,7 +23,7 @@ public class AnimGraph_SprintBlend : AnimGraphAsset
         public IGraphState animStateUpdater;
         public int port;
     }
-    
+
     public override IAnimGraphInstance Instatiate(EntityManager entityManager, Entity owner, PlayableGraph graph,
         Entity animStateOwner)
     {
@@ -39,35 +40,39 @@ public class AnimGraph_SprintBlend : AnimGraphAsset
             m_EntityManager = entityManager;
             m_Owner = owner;
             m_AnimStateOwner = animStateOwner;
-       
+
             m_RunController = new AnimationControllerEntry();
             m_RunController.controller = settings.runTemplate.Instatiate(entityManager, owner, graph, animStateOwner);
             m_RunController.animStateUpdater = m_RunController.controller as IGraphState;
             m_RunController.port = 0;
-            
+
             m_SprintController = new AnimationControllerEntry();
             m_SprintController.controller = settings.sprintTemplate.Instatiate(entityManager, owner, graph, animStateOwner);
             m_SprintController.animStateUpdater = m_SprintController.controller as IGraphState;
             m_SprintController.port = 1;
-            
+
             m_RootMixer = AnimationMixerPlayable.Create(graph, 2);
-            
+
             // TODO: Put into function?
             var outputPlayable = Playable.Null;
             var outputPort = 0;
-            
+
             m_RunController.controller.GetPlayableOutput(m_RunController.port, ref outputPlayable, ref outputPort);
             graph.Connect(outputPlayable, outputPort, m_RootMixer, 0);
-            
+
             m_SprintController.controller.GetPlayableOutput(m_SprintController.port, ref outputPlayable, ref outputPort);
             graph.Connect(outputPlayable, outputPort, m_RootMixer, 1);
-            
+
             m_RootMixer.SetInputWeight(0, 1f);
         }
-        
-        public void Shutdown() {}
 
-        public void SetPlayableInput(int portId, Playable playable, int playablePort) { }
+        public void Shutdown()
+        {
+        }
+
+        public void SetPlayableInput(int portId, Playable playable, int playablePort)
+        {
+        }
 
         public void GetPlayableOutput(int portId, ref Playable playable, ref int playablePort)
         {
@@ -79,29 +84,29 @@ public class AnimGraph_SprintBlend : AnimGraphAsset
         {
             Profiler.BeginSample("SprintBlend.Update");
             var animState = m_EntityManager.GetComponentData<CharacterInterpolatedData>(m_AnimStateOwner);
-            if (firstUpdate && animState.previousCharLocoState != CharacterPredictedData.LocoState.Jump && 
-                animState.previousCharLocoState != CharacterPredictedData.LocoState.DoubleJump && 
+            if (firstUpdate && animState.previousCharLocoState != CharacterPredictedData.LocoState.Jump &&
+                animState.previousCharLocoState != CharacterPredictedData.LocoState.DoubleJump &&
                 animState.previousCharLocoState != CharacterPredictedData.LocoState.InAir)
             {
                 animState.sprintWeight = animState.sprinting;
             }
-            
+
             var transitionSpeed = m_Settings.sprintTransitionSpeed * 60 * deltaTime;
             if (animState.sprinting == 1)
-            {    
+            {
                 animState.sprintWeight = math.clamp(animState.sprintWeight + transitionSpeed, 0f, 1f);
             }
             else
             {
-                animState.sprintWeight = math.clamp(animState.sprintWeight - transitionSpeed, 0f, 1f); 
+                animState.sprintWeight = math.clamp(animState.sprintWeight - transitionSpeed, 0f, 1f);
             }
-            
-            m_EntityManager.SetComponentData(m_AnimStateOwner,animState);
-                        
+
+            m_EntityManager.SetComponentData(m_AnimStateOwner, animState);
+
             if (animState.sprinting == 0)
             {
                 var resetController = m_WasSprinting && m_Settings.resetControllerOnChange || firstUpdate;
-                m_RunController.animStateUpdater.UpdatePresentationState(resetController, time, deltaTime);                 
+                m_RunController.animStateUpdater.UpdatePresentationState(resetController, time, deltaTime);
             }
             else
             {
@@ -110,10 +115,10 @@ public class AnimGraph_SprintBlend : AnimGraphAsset
             }
 
             m_WasSprinting = animState.sprinting == 1;
-                        
+
             Profiler.EndSample();
         }
-        
+
         public void ApplyPresentationState(GameTime time, float deltaTime)
         {
             Profiler.BeginSample("SprintBlend.Apply");
@@ -127,12 +132,12 @@ public class AnimGraph_SprintBlend : AnimGraphAsset
             {
                 m_RunController.controller.ApplyPresentationState(time, deltaTime);
             }
-            
+
             if (animState.sprintWeight > 0.0f)
             {
                 m_SprintController.controller.ApplyPresentationState(time, deltaTime);
             }
-            
+
             Profiler.EndSample();
         }
 
@@ -140,11 +145,11 @@ public class AnimGraph_SprintBlend : AnimGraphAsset
         Entity m_Owner;
         Entity m_AnimStateOwner;
         AnimGraph_SprintBlend m_Settings;
-        
-        AnimationMixerPlayable m_RootMixer;        
+
+        AnimationMixerPlayable m_RootMixer;
         AnimationControllerEntry m_RunController;
         AnimationControllerEntry m_SprintController;
-        
+
         bool m_WasSprinting;
     }
 }

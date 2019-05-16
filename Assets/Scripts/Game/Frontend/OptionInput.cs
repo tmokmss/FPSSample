@@ -10,7 +10,7 @@ public class OptionInput : OptionUI
 
     public override void UpdateFromConfigVar()
     {
-        if(!input.isFocused)
+        if (!input.isFocused)
             input.text = configVar.Value;
     }
 

@@ -2,8 +2,8 @@
 using UnityEngine.Playables;
 using UnityEngine;
 
-public class AimVerticalHandler  {
-
+public class AimVerticalHandler
+{
     public AimVerticalHandler(AnimationLayerMixerPlayable mixer, AnimationClip animAimDownToUp)
     {
         // Aim 
@@ -13,7 +13,7 @@ public class AimVerticalHandler  {
         m_aimTimeFactor = animAimDownToUp.length / 180.0f;
 
         m_port = mixer.AddInput(m_animAim, 0);
-        mixer.SetLayerAdditive((uint)m_port, true);
+        mixer.SetLayerAdditive((uint) m_port, true);
         mixer.SetInputWeight(m_port, 1.0f);
     }
 

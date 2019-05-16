@@ -62,14 +62,18 @@ internal class NetworkStatisticsServer
 
         switch (NetworkConfig.netStats.IntValue)
         {
-            case 1: DrawStats(); break;
-            case 2: DrawCounters(); break;
+            case 1:
+                DrawStats();
+                break;
+            case 2:
+                DrawCounters();
+                break;
         }
 
-        if(NetworkConfig.netPrintStats.IntValue > 0)
+        if (NetworkConfig.netPrintStats.IntValue > 0)
         {
             UpdateStats();
-            if(Time.frameCount % NetworkConfig.netPrintStats.IntValue == 0)
+            if (Time.frameCount % NetworkConfig.netPrintStats.IntValue == 0)
             {
                 PrintStats();
             }
@@ -78,11 +82,12 @@ internal class NetworkStatisticsServer
 
     void UpdateStats()
     {
-        foreach(var client in m_NetworkServer.GetConnections())
+        foreach (var client in m_NetworkServer.GetConnections())
             client.Value.counters.UpdateAverages();
     }
 
     double lastStatsTime = 0;
+
     void PrintStats()
     {
         double timePassed = Game.frameTime - lastStatsTime;
@@ -99,21 +104,22 @@ internal class NetworkStatisticsServer
         Console.Write("-------------------");
         int byteOutSum = 0;
         int byteOutCount = 0;
-        foreach(var c in m_NetworkServer.GetConnections())
+        foreach (var c in m_NetworkServer.GetConnections())
         {
             var client = c.Value;
             Console.Write(string.Format("   {0:00} {1,5} {2,5} {3,5} {4,5} {5,5} {6:00.00} {7,5} {8:00.00} {9,5} {10,5}",
                 client.connectionId, client.rtt, client.inSequence, client.inSequenceTime, client.outSequence, client.outSequenceAck,
                 (client.counters.avgPackagesIn.graph.average * Game.serverTickRate.FloatValue),
-                (int)(client.counters.avgBytesIn.graph.average * Game.serverTickRate.FloatValue),
+                (int) (client.counters.avgBytesIn.graph.average * Game.serverTickRate.FloatValue),
                 (client.counters.avgPackagesOut.graph.average * Game.serverTickRate.FloatValue),
-                (int)(client.counters.avgBytesOut.graph.average * Game.serverTickRate.FloatValue),
+                (int) (client.counters.avgBytesOut.graph.average * Game.serverTickRate.FloatValue),
                 client.counters.fragmentedPackagesOut
-                ));
-            byteOutSum += (int)(client.counters.avgBytesOut.graph.average * Game.serverTickRate.FloatValue);
+            ));
+            byteOutSum += (int) (client.counters.avgBytesOut.graph.average * Game.serverTickRate.FloatValue);
             byteOutCount++;
         }
-        if(byteOutCount > 0)
+
+        if (byteOutCount > 0)
             Console.Write("Avg bytes out: " + (byteOutSum / byteOutCount));
 
         Console.Write("-------------------");
@@ -129,13 +135,14 @@ internal class NetworkStatisticsServer
         m_NetworkServer.statsSnapshotData = 0;
         m_NetworkServer.statsSentUpdates = 0;
         m_NetworkServer.statsProcessedOutgoing = 0;
-        m_NetworkServer.statsSentOutgoing= 0;
+        m_NetworkServer.statsSentOutgoing = 0;
         Console.Write("-------------------");
     }
 
 
     float[] snapsPerFrame = new float[64];
     int totalSnapshotsLastFrame = 0;
+
     void DrawStats()
     {
         int y = 2;
@@ -150,10 +157,11 @@ internal class NetworkStatisticsServer
 
 
         int totalSnapshots = 0;
-        foreach(var c in m_NetworkServer.GetConnections())
+        foreach (var c in m_NetworkServer.GetConnections())
         {
             totalSnapshots += c.Value.counters.snapshotsOut;
         }
+
         snapsPerFrame[Time.frameCount % snapsPerFrame.Length] = (totalSnapshots - totalSnapshotsLastFrame);
         totalSnapshotsLastFrame = totalSnapshots;
         DebugOverlay.DrawHist(2, 10, 60, 5, snapsPerFrame, Time.frameCount % snapsPerFrame.Length, new Color(0.5f, 0.5f, 1.0f));
@@ -288,7 +296,3 @@ internal class NetworkStatisticsServer
     Aggregator m_EventsOut = new Aggregator();
     */
 }
-
-
-
-

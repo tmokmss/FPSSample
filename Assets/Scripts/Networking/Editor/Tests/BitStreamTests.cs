@@ -16,9 +16,10 @@ namespace NetcodeTests
             var random = new Random(1032);
             for (int i = 0; i < 1024; ++i)
             {
-                values[i] = (uint)random.Next(int.MaxValue);
+                values[i] = (uint) random.Next(int.MaxValue);
                 output.WriteUIntPacked(values[i]);
             }
+
             output.Flush();
 
             var input = new BitInputStream(buffer);
@@ -39,9 +40,10 @@ namespace NetcodeTests
             var random = new Random(1032);
             for (int i = 0; i < 1024; ++i)
             {
-                values[i] = (uint)random.Next(255);
+                values[i] = (uint) random.Next(255);
                 output.WriteUIntPacked(values[i]);
             }
+
             output.Flush();
 
             var input = new BitInputStream(buffer);
@@ -67,6 +69,7 @@ namespace NetcodeTests
                 output.WriteIntDelta(values[i], previous);
                 previous = values[i];
             }
+
             output.Flush();
 
             var input = new BitInputStream(buffer);
@@ -95,8 +98,8 @@ namespace NetcodeTests
                 var output = new BitOutputStream(buffer);
                 for (int i = 0; i < 1024; ++i)
                 {
-                    output.WriteBits((uint)numbers[i], numbers[i]);
-                    if(i % 3 == 0)
+                    output.WriteBits((uint) numbers[i], numbers[i]);
+                    if (i % 3 == 0)
                         output.Align();
                 }
 
@@ -104,7 +107,7 @@ namespace NetcodeTests
                 for (int i = 0; i < 1024; ++i)
                 {
                     var value = input.ReadBits(numbers[i]);
-                    Assert.AreEqual((uint)numbers[i], value);
+                    Assert.AreEqual((uint) numbers[i], value);
                     if (i % 3 == 0)
                         input.Align();
                 }
@@ -132,7 +135,7 @@ namespace NetcodeTests
                 var output = new BitOutputStream(buffer);
                 for (int i = 0; i < 1024; ++i)
                 {
-                    output.WriteBits((uint)numbers[i], numbers[i]);
+                    output.WriteBits((uint) numbers[i], numbers[i]);
                     if (i % 3 == 0)
                         output.WriteBytes(payload, 0, numbers[i]);
                 }
@@ -141,7 +144,7 @@ namespace NetcodeTests
                 for (int i = 0; i < 1024; ++i)
                 {
                     var value = input.ReadBits(numbers[i]);
-                    Assert.AreEqual((uint)numbers[i], value);
+                    Assert.AreEqual((uint) numbers[i], value);
                     if (i % 3 == 0)
                     {
                         input.ReadBytes(payloadCompare, 0, numbers[i]);

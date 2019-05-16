@@ -18,13 +18,33 @@ public interface IGameMode
 
 public class NullGameMode : IGameMode
 {
-    public void Initialize(GameWorld world, GameModeSystemServer gameModeSystemServer) { }
-    public void OnPlayerJoin(PlayerState teamMember) { }
-    public void OnPlayerKilled(PlayerState victim, PlayerState killer) { }
-    public void OnPlayerRespawn(PlayerState player, ref Vector3 position, ref Quaternion rotation) { }
-    public void Restart() { }
-    public void Shutdown() { }
-    public void Update() { }
+    public void Initialize(GameWorld world, GameModeSystemServer gameModeSystemServer)
+    {
+    }
+
+    public void OnPlayerJoin(PlayerState teamMember)
+    {
+    }
+
+    public void OnPlayerKilled(PlayerState victim, PlayerState killer)
+    {
+    }
+
+    public void OnPlayerRespawn(PlayerState player, ref Vector3 position, ref Quaternion rotation)
+    {
+    }
+
+    public void Restart()
+    {
+    }
+
+    public void Shutdown()
+    {
+    }
+
+    public void Update()
+    {
+    }
 }
 
 public class Team
@@ -38,6 +58,7 @@ public class GameModeSystemServer : ComponentSystem
 {
     [ConfigVar(Name = "game.respawndelay", DefaultValue = "10", Description = "Time from death to respawning")]
     public static ConfigVar respawnDelay;
+
     [ConfigVar(Name = "game.modename", DefaultValue = "assault", Description = "Which gamemode to use")]
     public static ConfigVar modeName;
 
@@ -63,9 +84,8 @@ public class GameModeSystemServer : ComponentSystem
         m_Settings = Resources.Load<GameModeSystemSettings>("GameModeSystemSettings");
 
         // Create game mode state
-        var prefab = (GameObject)resourceSystem.GetSingleAssetResource(m_Settings.gameModePrefab);
+        var prefab = (GameObject) resourceSystem.GetSingleAssetResource(m_Settings.gameModePrefab);
         gameModeState = m_World.Spawn<GameMode>(prefab);
-
     }
 
     public void Restart()
@@ -126,6 +146,7 @@ public class GameModeSystemServer : ComponentSystem
 
     float m_TimerStart;
     ConfigVar m_TimerLength;
+
     public void StartGameTimer(ConfigVar seconds, string message)
     {
         m_TimerStart = Time.time;
@@ -144,6 +165,7 @@ public class GameModeSystemServer : ComponentSystem
     }
 
     char[] _msgBuf = new char[256];
+
     protected override void OnUpdate()
     {
         // Handle change of game mode
@@ -163,6 +185,7 @@ public class GameModeSystemServer : ComponentSystem
                     m_GameMode = new NullGameMode();
                     break;
             }
+
             m_GameMode.Initialize(m_World, this);
             GameDebug.Log("New gamemode : '" + m_GameMode.GetType().ToString() + "'");
             Restart();
@@ -197,7 +220,7 @@ public class GameModeSystemServer : ComponentSystem
             var controlledEntity = player.controlledEntity;
             var playerEntity = playerEntities[i];
 
-            
+
             player.actionString = player.enableCharacterSwitch ? "Press H to change character" : "";
 
             var charControl = playerCharacterControls[i];
@@ -208,7 +231,7 @@ public class GameModeSystemServer : ComponentSystem
                 var position = new Vector3(0.0f, 0.2f, 0.0f);
                 var rotation = Quaternion.identity;
                 GetRandomSpawnTransform(player.teamIndex, ref position, ref rotation);
-                
+
                 m_GameMode.OnPlayerRespawn(player, ref position, ref rotation);
 
                 if (charControl.characterType == -1)
@@ -236,19 +259,23 @@ public class GameModeSystemServer : ComponentSystem
                     charControl.characterType = charControl.requestedCharacterType;
                     if (player.controlledEntity != Entity.Null)
                     {
-
                         // Despawn current controlled entity. New entity will be created later
                         if (EntityManager.HasComponent<Character>(controlledEntity))
                         {
                             var predictedState = EntityManager.GetComponentData<CharacterPredictedData>(controlledEntity);
-                            var rotation = predictedState.velocity.magnitude > 0.01f ? Quaternion.LookRotation(predictedState.velocity.normalized) : Quaternion.identity;
+                            var rotation = predictedState.velocity.magnitude > 0.01f
+                                ? Quaternion.LookRotation(predictedState.velocity.normalized)
+                                : Quaternion.identity;
 
                             CharacterDespawnRequest.Create(PostUpdateCommands, controlledEntity);
-                            CharacterSpawnRequest.Create(PostUpdateCommands, charControl.characterType, predictedState.position, rotation, playerEntity);
+                            CharacterSpawnRequest.Create(PostUpdateCommands, charControl.characterType, predictedState.position, rotation,
+                                playerEntity);
                         }
+
                         player.controlledEntity = Entity.Null;
                     }
                 }
+
                 charControl.requestedCharacterType = -1;
                 continue;
             }
@@ -269,7 +296,8 @@ public class GameModeSystemServer : ComponentSystem
                         {
                             killerPlayer = playerStates[killerIndex];
                             var format = s_KillMessages[Random.Range(0, s_KillMessages.Length)];
-                            var l = StringFormatter.Write(ref _msgBuf, 0, format, killerPlayer.playerName, player.playerName, m_TeamColors[killerPlayer.teamIndex], m_TeamColors[player.teamIndex]);
+                            var l = StringFormatter.Write(ref _msgBuf, 0, format, killerPlayer.playerName, player.playerName,
+                                m_TeamColors[killerPlayer.teamIndex], m_TeamColors[player.teamIndex]);
                             chatSystem.SendChatAnnouncement(new CharBufView(_msgBuf, l));
                         }
                         else
@@ -278,6 +306,7 @@ public class GameModeSystemServer : ComponentSystem
                             var l = StringFormatter.Write(ref _msgBuf, 0, format, player.playerName, m_TeamColors[player.teamIndex]);
                             chatSystem.SendChatAnnouncement(new CharBufView(_msgBuf, l));
                         }
+
                         m_GameMode.OnPlayerKilled(player, killerPlayer);
                     }
 
@@ -360,6 +389,7 @@ public class GameModeSystemServer : ComponentSystem
             if (playerState.controlledEntity == entity)
                 return i;
         }
+
         return -1;
     }
 

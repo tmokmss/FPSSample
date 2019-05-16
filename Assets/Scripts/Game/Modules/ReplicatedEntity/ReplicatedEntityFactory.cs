@@ -6,20 +6,19 @@ using UnityEngine;
 
 public abstract class ReplicatedEntityFactory : ScriptableObject
 {
-    [HideInInspector]
-    public WeakAssetReference guid;
-    
-    public abstract Entity Create(EntityManager entityManager, BundledResourceManager resourceManager, 
+    [HideInInspector] public WeakAssetReference guid;
+
+    public abstract Entity Create(EntityManager entityManager, BundledResourceManager resourceManager,
         GameWorld world);
 
 
 #if UNITY_EDITOR
-            
+
     private void OnValidate()
     {
         UpdateAssetGuid();
     }
-    
+
     public void SetAssetGUID(string guidStr)
     {
         var assetGuid = new WeakAssetReference(guidStr);
@@ -55,5 +54,3 @@ public class ReplicatedEntityFactoryEditor<T> : Editor
 }
 
 #endif
-
-

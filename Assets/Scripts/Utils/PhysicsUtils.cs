@@ -10,7 +10,8 @@ public class PhysicsUtils
             var csc = c as SphereCollider;
 
             var scale = csc.transform.localScale;
-            return c.transform.position + (p - c.transform.position).normalized * csc.radius * Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
+            return c.transform.position + (p - c.transform.position).normalized * csc.radius *
+                   Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
         }
         else if (c is BoxCollider)
         {

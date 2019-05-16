@@ -19,8 +19,8 @@ public class TwistEditor : Editor
         {
             twistScript.GotoBindpose();
         }
+
         GUILayout.EndHorizontal();
         // EditorGUILayout.HelpBox("This is a help box", MessageType.Info);
     }
 }
-

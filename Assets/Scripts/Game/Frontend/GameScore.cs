@@ -22,6 +22,7 @@ public class GameScore : MonoBehaviour
     public RectTransform objectiveProgressFill;
     public TMPro.TextMeshProUGUI attackersCount;
     public TMPro.TextMeshProUGUI defendersCount;
+
     public void SetObjectiveProgress(float progress, int attackers, int defenders, Color defendColor, Color attackColor)
     {
         if (progress < 0.0f)
@@ -39,6 +40,7 @@ public class GameScore : MonoBehaviour
             }
             else
                 attackersCount.text = "";
+
             if (defenders > 0)
             {
                 defendersCount.Format("{0}", defenders);

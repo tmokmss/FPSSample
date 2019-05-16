@@ -16,7 +16,7 @@ public struct BitInputStream
     {
         this = new BitInputStream(buffer);
     }
-    
+
     public int GetBitPosition()
     {
         return m_CurrentByteIdx * 8 - m_CurrentBitIdx;
@@ -57,7 +57,7 @@ public struct BitInputStream
 
         while (m_CurrentBitIdx < 32)
         {
-            m_BitStage |= (UInt64)m_Buffer[m_CurrentByteIdx++] << m_CurrentBitIdx;
+            m_BitStage |= (UInt64) m_Buffer[m_CurrentByteIdx++] << m_CurrentBitIdx;
             m_CurrentBitIdx += 8;
         }
 
@@ -91,10 +91,10 @@ public struct BitInputStream
     uint ReadBitsInternal(int numbits)
     {
         GameDebug.Assert(m_CurrentBitIdx >= numbits);
-        var res = m_BitStage & (((UInt64)1 << numbits) - 1);
+        var res = m_BitStage & (((UInt64) 1 << numbits) - 1);
         m_BitStage >>= numbits;
         m_CurrentBitIdx -= numbits;
-        return (UInt32)res;
+        return (UInt32) res;
     }
 
     byte[] m_Buffer;

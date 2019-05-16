@@ -13,21 +13,22 @@ public class MultiInspector : EditorWindow
     public int columnWidth = 250;
     public List<Object> objects = new List<Object>();
 
-    Dictionary<Type,Type> customEditors = new Dictionary<Type, Type>(50);
-    Dictionary<Object,Editor> editors = new Dictionary<Object, Editor>();
+    Dictionary<Type, Type> customEditors = new Dictionary<Type, Type>(50);
+    Dictionary<Object, Editor> editors = new Dictionary<Object, Editor>();
 
     [MenuItem("FPS Sample/Windows/Multi Inspector")]
     public static void ShowWindow()
     {
         GetWindow<MultiInspector>(false, "Multi Inspector", true);
     }
-    
+
     private void OnDestroy()
     {
         foreach (var editorsValue in editors.Values)
         {
             DestroyImmediate(editorsValue);
         }
+
         editors.Clear();
         EditorApplication.playModeStateChanged -= EditorApplicationOnPlayModeStateChanged;
     }
@@ -35,7 +36,7 @@ public class MultiInspector : EditorWindow
     public MultiInspector()
     {
         FindAllCustomInspectors();
-        
+
         EditorApplication.playModeStateChanged -= EditorApplicationOnPlayModeStateChanged;
         EditorApplication.playModeStateChanged += EditorApplicationOnPlayModeStateChanged;
     }
@@ -45,7 +46,7 @@ public class MultiInspector : EditorWindow
         if (obj == PlayModeStateChange.ExitingEditMode)
         {
             editors.Clear();
-            
+
             // TODO (mogensh) Remove this - but needed atm as we get some errors from custom inspectors when comming back from playmode 
             Clear();
         }
@@ -60,17 +61,17 @@ public class MultiInspector : EditorWindow
     {
         objects.Clear();
     }
-    
+
     public void AddSelection()
     {
         foreach (var o in Selection.objects)
         {
-            if(!objects.Contains(o)) 
+            if (!objects.Contains(o))
                 objects.Add(o);
         }
-        
+
         objects.Sort(Comparison);
-        
+
         Repaint();
     }
 
@@ -80,75 +81,76 @@ public class MultiInspector : EditorWindow
         objects.AddRange(Selection.objects);
 
         objects.Sort(Comparison);
-        
+
         foreach (var editorsValue in editors.Values)
         {
             Editor.DestroyImmediate(editorsValue);
         }
+
         editors.Clear();
         Repaint();
     }
-    
-    
+
+
     void OnGUI()
     {
         objects.RemoveAll(o => o == null);
-        
+
         GUILayout.BeginHorizontal("Box");
-        
+
         if (GUILayout.Button("Add selected"))
         {
             AddSelection();
         }
-        
+
         if (GUILayout.Button("Use selected"))
         {
             UseSelection();
         }
 
         columnWidth = EditorGUILayout.IntField("Column width", columnWidth);
-        
+
         GUILayout.FlexibleSpace();
-        
+
         GUILayout.EndHorizontal();
-        
+
         if (objects == null)
             return;
-        
+
         scrollViewPos = GUILayout.BeginScrollView(scrollViewPos);
-        
+
         GUILayout.BeginHorizontal();
-        
+
         Object removedObject = null;
         foreach (var o in objects)
         {
             if (o == null)
                 continue;
-            
+
             var selected = Selection.objects.Contains(o);
-            
+
             var skin = EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector);
             var selectColor = skin.settings.selectionColor;
-            var objectHeaderStyle = new GUIStyle( GUI.skin.box );
-            
-            var objectHeaderSelectedStyle = new GUIStyle( GUI.skin.box );
+            var objectHeaderStyle = new GUIStyle(GUI.skin.box);
+
+            var objectHeaderSelectedStyle = new GUIStyle(GUI.skin.box);
             objectHeaderSelectedStyle.normal.background = CreateTexture2D(2, 2, selectColor);
-            
-            GUILayout.BeginVertical("Box",GUILayout.MaxWidth(columnWidth),GUILayout.Width(columnWidth),GUILayout.ExpandWidth(false));
-            
+
+            GUILayout.BeginVertical("Box", GUILayout.MaxWidth(columnWidth), GUILayout.Width(columnWidth), GUILayout.ExpandWidth(false));
+
             // Object header
             var objectEditor = GetOrCreateEditor(o);
-            
+
             var headerStyle = selected ? objectHeaderSelectedStyle : objectHeaderStyle;
             var headerRect = EditorGUILayout.BeginHorizontal(headerStyle);
 
             objectEditor.DrawHeader();
-            
+
             if (GUILayout.Button("-"))
             {
                 removedObject = o;
             }
-            
+
             GUILayout.EndHorizontal();
 
             var cev = Event.current;
@@ -162,7 +164,7 @@ public class MultiInspector : EditorWindow
                 {
                     DragAndDrop.PrepareStartDrag();
                     DragAndDrop.StartDrag(o.name);
-                    DragAndDrop.objectReferences = new UnityEngine.Object[] { o };
+                    DragAndDrop.objectReferences = new UnityEngine.Object[] {o};
                     Event.current.Use();
                 }
                 else if (mouseRightClick)
@@ -183,11 +185,12 @@ public class MultiInspector : EditorWindow
                     }
                     else
                         Selection.activeObject = o;
+
                     Event.current.Use();
                 }
             }
 
-            
+
             //gameObjectEditor.DrawDefaultInspector(); 
             //gameObjectEditor.OnInspectorGUI();
 
@@ -198,13 +201,13 @@ public class MultiInspector : EditorWindow
                 foreach (var component in components)
                 {
                     EditorGUIUtility.wideMode = true;
-                    GUILayout.Label( component.GetType().Name,EditorStyles.boldLabel);
+                    GUILayout.Label(component.GetType().Name, EditorStyles.boldLabel);
 
                     var componentEditor = GetOrCreateEditor(component);
                     componentEditor.OnInspectorGUI();
-                    
+
                     EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
-                }    
+                }
             }
             else
             {
@@ -213,7 +216,7 @@ public class MultiInspector : EditorWindow
 
             GUILayout.EndVertical();
         }
-      
+
         GUILayout.EndHorizontal();
 
         GUILayout.EndScrollView();
@@ -234,9 +237,9 @@ public class MultiInspector : EditorWindow
         var isYPrefInst = PrefabUtility.IsPartOfPrefabInstance(y);
         if (isXPrefInst != isYPrefInst)
             return isXPrefInst ? -1 : 1;
-        
-        
-        if(goX == null || goY == null)
+
+
+        if (goX == null || goY == null)
             return x.GetType().Name.CompareTo(y.GetType().Name);
 
         var componentsX = goX.GetComponents<Component>();
@@ -249,8 +252,8 @@ public class MultiInspector : EditorWindow
         {
             var compX = componentsX[i];
             var compY = componentsY[i];
-             if(!compX.GetType().Equals(compY.GetType()))
-                 return x.GetType().Name.CompareTo(y.GetType().Name);
+            if (!compX.GetType().Equals(compY.GetType()))
+                return x.GetType().Name.CompareTo(y.GetType().Name);
         }
 
         return 0;
@@ -263,12 +266,12 @@ public class MultiInspector : EditorWindow
         {
             return gameObjectEditor;
         }
-        
+
         Type customEditorType;
         customEditors.TryGetValue(o.GetType(), out customEditorType);
 
         gameObjectEditor = Editor.CreateEditor(o, customEditorType);
-        editors.Add(o,gameObjectEditor);
+        editors.Add(o, gameObjectEditor);
         return gameObjectEditor;
     }
 
@@ -276,7 +279,7 @@ public class MultiInspector : EditorWindow
     {
         if (customEditors.Count > 0)
             return;
-        
+
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();
         foreach (var assembly in assemblies)
         {
@@ -293,7 +296,7 @@ public class MultiInspector : EditorWindow
                 {
                     if (attribute == null)
                         continue;
-                
+
                     var fieldInfo = customEditorType.GetField("m_InspectedType", BindingFlags.NonPublic | BindingFlags.Instance);
                     var inspectedType = fieldInfo.GetValue(attribute) as System.Type;
                     if (inspectedType == null)
@@ -307,26 +310,25 @@ public class MultiInspector : EditorWindow
 //                    Debug.LogWarning("Type:" + inspectedType + " already has editor:" + customEditors[inspectedType]);
                         continue;
                     }
-                    
-                    if(!customEditors.ContainsKey(inspectedType))
-                        customEditors.Add(inspectedType,type);
-                }                    
+
+                    if (!customEditors.ContainsKey(inspectedType))
+                        customEditors.Add(inspectedType, type);
+                }
             }
         }
     }
-    
-    private Texture2D CreateTexture2D( int width, int height, Color color )
+
+    private Texture2D CreateTexture2D(int width, int height, Color color)
     {
         var pixels = new Color[width * height];
-        for(var i=0;i<pixels.Length;i++)
+        for (var i = 0; i < pixels.Length; i++)
         {
             pixels[i] = color;
         }
-        
-        var result = new Texture2D( width, height );
-        result.SetPixels( pixels );
+
+        var result = new Texture2D(width, height);
+        result.SetPixels(pixels);
         result.Apply();
         return result;
     }
-
 }

@@ -8,11 +8,9 @@ namespace UnityEngine.Ucg.Matchmaking
     public class MatchmakingPlayer
     {
 #pragma warning disable 649
-        [SerializeField]
-        string id;
+        [SerializeField] string id;
 
-        [SerializeField]
-        string properties;
+        [SerializeField] string properties;
 #pragma warning restore 649
         public string Id => id;
 
@@ -32,11 +30,9 @@ namespace UnityEngine.Ucg.Matchmaking
     public class MatchmakingRequest
     {
 #pragma warning disable 649
-        [SerializeField]
-        List<MatchmakingPlayer> players;
+        [SerializeField] List<MatchmakingPlayer> players;
 
-        [SerializeField]
-        string properties;
+        [SerializeField] string properties;
 #pragma warning restore 649
         public List<MatchmakingPlayer> Players
         {
@@ -59,11 +55,9 @@ namespace UnityEngine.Ucg.Matchmaking
 #pragma warning disable 649
     class MatchmakingResult
     {
-        [SerializeField]
-        internal bool success;
+        [SerializeField] internal bool success;
 
-        [SerializeField]
-        internal string error;
+        [SerializeField] internal string error;
     }
 #pragma warning restore 649
 
@@ -71,8 +65,7 @@ namespace UnityEngine.Ucg.Matchmaking
     class AssignmentRequest
     {
 #pragma warning disable 649
-        [SerializeField]
-        string id;
+        [SerializeField] string id;
 #pragma warning restore 649
 
         public string Id => id;
@@ -87,23 +80,20 @@ namespace UnityEngine.Ucg.Matchmaking
     public class Assignment
     {
 #pragma warning disable 649
-        [SerializeField]
-        string connection_string;
+        [SerializeField] string connection_string;
 
-        [SerializeField]
-        string assignment_error;
+        [SerializeField] string assignment_error;
 
-        [SerializeField]
-        List<string> roster;
+        [SerializeField] List<string> roster;
 #pragma warning restore 649
 
         public string ConnectionString => connection_string;
         public string AssignmentError => assignment_error;
+
         public List<string> Roster
         {
             get { return roster; }
             set { roster = value; }
         }
     }
-
 }

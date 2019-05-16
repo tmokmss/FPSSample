@@ -10,6 +10,6 @@ public class ScreenFaderTrack : TrackAsset
 {
     public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
     {
-        return ScriptPlayable<ScreenFaderMixerBehaviour>.Create (graph, inputCount);
+        return ScriptPlayable<ScreenFaderMixerBehaviour>.Create(graph, inputCount);
     }
 }

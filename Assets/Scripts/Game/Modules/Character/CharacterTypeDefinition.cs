@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 
 [CreateAssetMenu(fileName = "CharacterTypeDefinition", menuName = "FPS Sample/Character/TypeDefinition")]

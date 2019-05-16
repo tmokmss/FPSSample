@@ -22,26 +22,25 @@ public class GameMode : MonoBehaviour
     {
         // TODO (mogensh) As we dont have good way of having strings on ECS data components we keep this as monobehavior and only use GameModeData for serialization 
         var goe = GetComponent<GameObjectEntity>();
-        goe.EntityManager.AddComponent(goe.Entity,typeof(GameModeData));
+        goe.EntityManager.AddComponent(goe.Entity, typeof(GameModeData));
     }
 }
-
 
 
 [Serializable]
 public struct GameModeData : IComponentData, IReplicatedComponent
 {
     public int foo;
-    
+
     public static IReplicatedComponentSerializerFactory CreateSerializerFactory()
     {
         return new ReplicatedComponentSerializerFactory<GameModeData>();
-    }    
-    
+    }
+
     public void Serialize(ref SerializeContext context, ref NetworkWriter writer)
     {
         var behaviour = context.entityManager.GetComponentObject<GameMode>(context.entity);
-        
+
         writer.WriteInt32("gameTimerSeconds", behaviour.gameTimerSeconds);
         writer.WriteString("gameTimerMessage", behaviour.gameTimerMessage);
 
@@ -54,7 +53,7 @@ public struct GameModeData : IComponentData, IReplicatedComponent
     public void Deserialize(ref SerializeContext context, ref NetworkReader reader)
     {
         var behaviour = context.entityManager.GetComponentObject<GameMode>(context.entity);
-        
+
         behaviour.gameTimerSeconds = reader.ReadInt32();
         behaviour.gameTimerMessage = reader.ReadString();
 

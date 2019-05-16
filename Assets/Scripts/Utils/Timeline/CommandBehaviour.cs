@@ -20,7 +20,7 @@ public class CommandBehaviour : PlayableBehaviour
     public override void OnBehaviourPlay(Playable playable, FrameData info)
     {
         base.OnBehaviourPlay(playable, info);
-        if(!triggered)
+        if (!triggered)
         {
             triggered = true;
             Console.EnqueueCommandNoHistory(commandAtStart);

@@ -5,7 +5,7 @@ using Boo.Lang.Environments;
 using UnityEditor;
 using UnityEngine;
 
-public class CreateVariants 
+public class CreateVariants
 {
     [MenuItem("Assets/Create/Prefab Variants", false, 210)]
     static void CreateVariantsMenu()
@@ -16,13 +16,13 @@ public class CreateVariants
             if (PrefabUtility.IsPartOfPrefabInstance(go))
                 continue;
 
-            var instance = (GameObject)PrefabUtility.InstantiatePrefab(go);
+            var instance = (GameObject) PrefabUtility.InstantiatePrefab(go);
             var path = AssetDatabase.GetAssetPath(go);
 
-            path = System.IO.Path.ChangeExtension(path,".prefab");
-            
-            PrefabUtility.SaveAsPrefabAsset(instance,path);
-            
+            path = System.IO.Path.ChangeExtension(path, ".prefab");
+
+            PrefabUtility.SaveAsPrefabAsset(instance, path);
+
             GameObject.DestroyImmediate(instance);
 
             var newPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);

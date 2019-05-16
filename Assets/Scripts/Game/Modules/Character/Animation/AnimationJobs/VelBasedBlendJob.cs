@@ -29,7 +29,7 @@ public struct VelBasedBlendJob : IAnimationJob
     NativeArray<float3> m_RotAxisArray;
     NativeArray<float> m_RotDeltaArray;
     NativeArray<float> m_RotDeltaVelArray;
-    
+
     // Scale blend data
     NativeArray<float3> m_StarteScaleArray;
 
@@ -49,13 +49,13 @@ public struct VelBasedBlendJob : IAnimationJob
     public void Setup(Animator animator, Skeleton skeleton, AvatarMask boneMask)
     {
         int numBones;
-        var activeBones = new List<Transform>();        
+        var activeBones = new List<Transform>();
         if (boneMask != null)
         {
             for (var i = 0; i < boneMask.transformCount; i++)
             {
                 if (boneMask.GetTransformActive(i))
-                {   
+                {
                     var tokens = boneMask.GetTransformPath(i).Split('/');
                     var name = tokens[tokens.Length - 1];
                     var skeletonIndex = skeleton.GetBoneIndex(name.GetHashCode());
@@ -65,18 +65,18 @@ public struct VelBasedBlendJob : IAnimationJob
                         activeBones.Add(skeleton.bones[skeletonIndex]);
                     }
                 }
-            }  
-            
+            }
+
             numBones = activeBones.Count;
         }
 
         else
         {
-            numBones = skeleton.bones.Length;   
+            numBones = skeleton.bones.Length;
         }
-        
+
         m_CurrentBufferIndex = -1;
-        
+
         m_Bones = new NativeArray<TransformStreamHandle>(numBones, Allocator.Persistent);
 
         m_OutputPositions = new NativeArray<float3>(numBones * k_OutputBufferCount, Allocator.Persistent);
@@ -89,30 +89,28 @@ public struct VelBasedBlendJob : IAnimationJob
         m_PosDirArray = new NativeArray<float3>(numBones, Allocator.Persistent);
         m_PosDeltaArray = new NativeArray<float>(numBones, Allocator.Persistent);
         m_PosDeltaVelArray = new NativeArray<float>(numBones, Allocator.Persistent);
-        
+
         m_RotAxisArray = new NativeArray<float3>(numBones, Allocator.Persistent);
         m_RotDeltaArray = new NativeArray<float>(numBones, Allocator.Persistent);
-        m_RotDeltaVelArray = new NativeArray<float>(numBones, Allocator.Persistent); 
-        
+        m_RotDeltaVelArray = new NativeArray<float>(numBones, Allocator.Persistent);
+
         m_StarteScaleArray = new NativeArray<float3>(numBones, Allocator.Persistent);
 
         m_FromIkPositions = new NativeArray<float3>(k_NumIkHandles, Allocator.Persistent);
         m_FromIkRotations = new NativeArray<quaternion>(k_NumIkHandles, Allocator.Persistent);
-        
-        
-        
-        for (var i = 0; i < numBones; i ++)
+
+
+        for (var i = 0; i < numBones; i++)
         {
             if (boneMask != null)
             {
-                m_Bones[i] = animator.BindStreamTransform(activeBones[i]);                
+                m_Bones[i] = animator.BindStreamTransform(activeBones[i]);
             }
             else
             {
-                m_Bones[i] = animator.BindStreamTransform(skeleton.bones[i]);                
+                m_Bones[i] = animator.BindStreamTransform(skeleton.bones[i]);
             }
-            
-        }     
+        }
     }
 
     public void Dispose()
@@ -126,15 +124,15 @@ public struct VelBasedBlendJob : IAnimationJob
         m_PosDirArray.Dispose();
         m_PosDeltaArray.Dispose();
         m_PosDeltaVelArray.Dispose();
-        
+
         m_RotAxisArray.Dispose();
         m_RotDeltaArray.Dispose();
-        m_RotDeltaVelArray.Dispose(); 
-        
+        m_RotDeltaVelArray.Dispose();
+
         m_StarteScaleArray.Dispose();
 
         m_FromIkPositions.Dispose();
-        m_FromIkRotations.Dispose();        
+        m_FromIkRotations.Dispose();
     }
 
     public static void Transition(AnimationScriptPlayable jobPlayable, float duration)
@@ -152,29 +150,30 @@ public struct VelBasedBlendJob : IAnimationJob
         jobPlayable.SetJobData(job);
     }
 
-    public void ProcessRootMotion(AnimationStream stream) { }
+    public void ProcessRootMotion(AnimationStream stream)
+    {
+    }
 
-    
+
     const int k_debugBone = 15;
-    
+
     public void ProcessAnimation(AnimationStream stream)
     {
         var invDeltaTime = 1.0f / stream.deltaTime;
-            
+
         // Store from pose
         if (doTransition)
         {
-
             var row = 0;
-            var prevIndexOffset = (m_CurrentBufferIndex + 1) % k_OutputBufferCount; 
+            var prevIndexOffset = (m_CurrentBufferIndex + 1) % k_OutputBufferCount;
             for (var i = 0; i < m_Bones.Length; i++)
             {
                 var lastOutputBufferIndex = row + m_CurrentBufferIndex;
-                var prevOutputBufferIndex  = row + prevIndexOffset;
+                var prevOutputBufferIndex = row + prevIndexOffset;
 
                 // Position
                 {
-                    var currentPos = (float3)m_Bones[i].GetLocalPosition(stream);
+                    var currentPos = (float3) m_Bones[i].GetLocalPosition(stream);
                     var vLast = m_OutputPositions[lastOutputBufferIndex];
                     var vPrev = m_OutputPositions[prevOutputBufferIndex];
 
@@ -184,13 +183,13 @@ public struct VelBasedBlendJob : IAnimationJob
 
                     var vDeltaPrev = vPrev - currentPos;
                     var deltaPrev = math.dot(vDeltaPrev, dir);
-                    
-                    var vel = (delta - deltaPrev)* invDeltaTime;
+
+                    var vel = (delta - deltaPrev) * invDeltaTime;
 
 //                    if(i == k_debugBone)
 //                        Debug.Log("start delta:" + delta + " vel:" + vel);
 
-                    
+
                     // If delta is negative we invert properties to keep delta positive
                     if (delta < 0)
                     {
@@ -204,16 +203,15 @@ public struct VelBasedBlendJob : IAnimationJob
 
 //                    if(i == k_debugBone && vel > 0)
 //                        Debug.Log("   ... vel positive so its clamped to 0");
-                    
-                    vel = vel < 0 ? vel : 0; 
 
-                    
-                    
+                    vel = vel < 0 ? vel : 0;
+
+
                     m_PosDirArray[i] = dir;
                     m_PosDeltaArray[i] = delta;
                     m_PosDeltaVelArray[i] = vel;
                 }
-                
+
                 // Rotation
                 {
                     var currentRot = m_Bones[i].GetLocalRotation(stream);
@@ -221,8 +219,8 @@ public struct VelBasedBlendJob : IAnimationJob
                     var qPrev = m_OutputRotations[prevOutputBufferIndex];
 
                     var qInvCurrentRot = math.inverse(currentRot);
-                    var qDeltaRot = math.mul(qLast,qInvCurrentRot);               
-                    var qDeltaPrevRot = math.mul(qPrev,qInvCurrentRot);
+                    var qDeltaRot = math.mul(qLast, qInvCurrentRot);
+                    var qDeltaPrevRot = math.mul(qPrev, qInvCurrentRot);
 
                     float3 rotAxis;
                     float delta;
@@ -230,18 +228,18 @@ public struct VelBasedBlendJob : IAnimationJob
 
                     // TODO (mogensh) use this !!
                     var prevRot = TwistAroundAxis(qDeltaPrevRot, rotAxis);
-                    
+
                     float3 rotAxis2;
                     float rot2;
                     GetAxisAngle(qDeltaPrevRot, out rotAxis2, out rot2);
 
                     var vel = (delta - rot2) * invDeltaTime;
-                    
+
                     m_RotAxisArray[i] = rotAxis;
                     m_RotDeltaArray[i] = delta;
                     m_RotDeltaVelArray[i] = vel;
                 }
-                
+
                 // Scale
                 m_StarteScaleArray[i] = m_OutputScales[lastOutputBufferIndex];
 
@@ -250,7 +248,7 @@ public struct VelBasedBlendJob : IAnimationJob
 
             for (var i = 0; i < k_NumIkHandles; i++)
             {
-                var index = i * k_OutputBufferCount + m_CurrentBufferIndex;   
+                var index = i * k_OutputBufferCount + m_CurrentBufferIndex;
                 m_FromIkPositions[i] = m_OutputIkPositions[index];
                 m_FromIkRotations[i] = m_OutputIkRotations[index];
             }
@@ -268,7 +266,7 @@ public struct VelBasedBlendJob : IAnimationJob
         if (inTransition)
         {
             var transitionTime = transitionDuration - transitionTimeRemaining;
-            
+
             var factor = transitionTimeRemaining / transitionDuration;
             for (var i = 0; i < m_Bones.Length; i++)
             {
@@ -276,40 +274,40 @@ public struct VelBasedBlendJob : IAnimationJob
                 {
                     var startDelta = m_PosDeltaArray[i];
                     var deltaVel = m_PosDeltaVelArray[i];
-                    
+
 //                    var delta = startDelta + deltaVel * transitionTime;
 
-                    var delta = Approach(startDelta, deltaVel, transitionDuration, transitionTime);        
-                        
+                    var delta = Approach(startDelta, deltaVel, transitionDuration, transitionTime);
+
 //                    if(i == k_debugBone)
 //                        Debug.Log("startDelta:" + startDelta + " deltaVel:" + deltaVel + " time:" + transitionTime + " delta:" + delta);
-                    
+
                     var dir = m_PosDirArray[i];
-                    var vDelta = delta * dir;                     
-                    var streamPos = (float3)m_Bones[i].GetLocalPosition(stream);
-                        
+                    var vDelta = delta * dir;
+                    var streamPos = (float3) m_Bones[i].GetLocalPosition(stream);
+
                     var pos = streamPos + vDelta;
-                    m_Bones[i].SetLocalPosition(stream,pos);
+                    m_Bones[i].SetLocalPosition(stream, pos);
                 }
-                
+
                 // Rotation
                 {
                     var startDelta = m_RotDeltaArray[i];
                     var deltaVel = m_RotDeltaVelArray[i];
-                   // var delta = startDelta + deltaVel * transitionTime;
+                    // var delta = startDelta + deltaVel * transitionTime;
                     var delta = Approach(startDelta, deltaVel, transitionDuration, transitionTime);
 
                     var rotAxis = m_RotAxisArray[i];
                     var qDeltaRot = quaternion.AxisAngle(rotAxis, delta);
                     var qStreamRot = m_Bones[i].GetLocalRotation(stream);
-                
-                    var qRot = qDeltaRot * qStreamRot;            
-                   
-                    
-                    m_Bones[i].SetLocalRotation(stream,qStreamRot);
+
+                    var qRot = qDeltaRot * qStreamRot;
+
+
+                    m_Bones[i].SetLocalRotation(stream, qStreamRot);
                 }
-                
-                
+
+
                 // Scale
                 m_Bones[i].SetLocalScale(stream, m_Bones[i].GetLocalScale(stream));
             }
@@ -319,12 +317,12 @@ public struct VelBasedBlendJob : IAnimationJob
             {
                 var humanStream = stream.AsHuman();
                 for (var i = 0; i < k_NumIkHandles; i++)
-                {                
-                    var position = math.lerp(humanStream.GetGoalLocalPosition((AvatarIKGoal)i), m_FromIkPositions[i], factor);
-                    humanStream.SetGoalLocalPosition((AvatarIKGoal)i, position);
-                    var rotation = math.slerp(humanStream.GetGoalLocalRotation((AvatarIKGoal)i), m_FromIkRotations[i], factor);
-                    humanStream.SetGoalLocalRotation((AvatarIKGoal)i, rotation);
-                }                
+                {
+                    var position = math.lerp(humanStream.GetGoalLocalPosition((AvatarIKGoal) i), m_FromIkPositions[i], factor);
+                    humanStream.SetGoalLocalPosition((AvatarIKGoal) i, position);
+                    var rotation = math.slerp(humanStream.GetGoalLocalRotation((AvatarIKGoal) i), m_FromIkRotations[i], factor);
+                    humanStream.SetGoalLocalRotation((AvatarIKGoal) i, rotation);
+                }
             }
         }
 
@@ -341,19 +339,19 @@ public struct VelBasedBlendJob : IAnimationJob
     float TwistAroundAxis(quaternion q, float3 axis)
     {
         var a = math.dot(math.normalize(q.value.xyz), axis) / q.value.w;
-        return 2*math.atan(a);
+        return 2 * math.atan(a);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     float Approach(float x, float v, float dur, float t)
     {
         //dur = math.min(dur, -5 * x / v);
-        
+
         var dur2 = math.pow(dur, 2);
         var dur3 = math.pow(dur, 3);
         var dur4 = math.pow(dur, 4);
         var dur5 = math.pow(dur, 5);
-        
+
         var a = (-8 * v * dur - 20 * x) / dur2;
         a = a > 0 ? a : 0;
 
@@ -361,14 +359,14 @@ public struct VelBasedBlendJob : IAnimationJob
         var B = (3 * a * dur2 + 16 * v * dur + 30 * x) / 2 * dur4;
         var C = (3 * a * dur2 + 12 * v * dur * 20 * x) / 2 * dur3;
 
-        var result = A * math.pow(t, 5) + B * math.pow(t, 4) + C * math.pow(t, 3) + (a / 2) * math.pow(t, 2) + v * t + x;        
-        
+        var result = A * math.pow(t, 5) + B * math.pow(t, 4) + C * math.pow(t, 3) + (a / 2) * math.pow(t, 2) + v * t + x;
+
         return result;
     }
-    
+
 
     void StoreOutput(AnimationStream stream)
-    {       
+    {
         m_CurrentBufferIndex = (m_CurrentBufferIndex + 1) % k_OutputBufferCount;
 
         {
@@ -388,8 +386,8 @@ public struct VelBasedBlendJob : IAnimationJob
             for (var i = 0; i < k_NumIkHandles; i++)
             {
                 var index = i * k_OutputBufferCount + m_CurrentBufferIndex;
-                m_OutputIkPositions[index] = humanStream.GetGoalLocalPosition((AvatarIKGoal)i);
-                m_OutputIkRotations[index] = humanStream.GetGoalLocalRotation((AvatarIKGoal)i);
+                m_OutputIkPositions[index] = humanStream.GetGoalLocalPosition((AvatarIKGoal) i);
+                m_OutputIkRotations[index] = humanStream.GetGoalLocalRotation((AvatarIKGoal) i);
             }
         }
 

@@ -26,18 +26,18 @@ public class WeakAssetReferenceDrawer : PropertyDrawer
             guidStr = reference.GetGuidStr();
             var path = AssetDatabase.GUIDToAssetPath(guidStr);
 
-            if(assetType == null)
+            if (assetType == null)
                 assetType = AssetDatabase.GetMainAssetTypeAtPath(path);
-            
-            obj =  AssetDatabase.LoadAssetAtPath(path,assetType);
+
+            obj = AssetDatabase.LoadAssetAtPath(path, assetType);
         }
 
-        pos = EditorGUI.PrefixLabel(pos, GUIUtility.GetControlID(FocusType.Passive), new GUIContent(label.text+"("+guidStr+")"));
+        pos = EditorGUI.PrefixLabel(pos, GUIUtility.GetControlID(FocusType.Passive), new GUIContent(label.text + "(" + guidStr + ")"));
         Object newObj = EditorGUI.ObjectField(pos, obj, assetType, false);
 
-        if(newObj != obj)
+        if (newObj != obj)
         {
-            var newRef = new WeakAssetReference();            
+            var newRef = new WeakAssetReference();
             if (newObj != null)
             {
                 var path = AssetDatabase.GetAssetPath(newObj);
@@ -67,11 +67,11 @@ public class WeakBaseDrawer : PropertyDrawer
 
         string path = AssetDatabase.GUIDToAssetPath(guid.stringValue);
 
-        Object obj =  AssetDatabase.LoadAssetAtPath(path,assetType);
+        Object obj = AssetDatabase.LoadAssetAtPath(path, assetType);
 
         pos = EditorGUI.PrefixLabel(pos, GUIUtility.GetControlID(FocusType.Passive), label);
-        Object newObj = EditorGUI.ObjectField(pos, obj, assetType, false);            
-        if(newObj != obj)
+        Object newObj = EditorGUI.ObjectField(pos, obj, assetType, false);
+        if (newObj != obj)
         {
             if (newObj != null)
             {
@@ -82,6 +82,7 @@ public class WeakBaseDrawer : PropertyDrawer
             {
                 guid.stringValue = "";
             }
+
             guid.serializedObject.ApplyModifiedProperties();
         }
     }

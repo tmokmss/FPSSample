@@ -18,11 +18,12 @@ public class HUDGoal : MonoBehaviour
 
     public void FrameUpdate(LocalPlayer localPlayer)
     {
-        if(!localPlayer.playerState.displayGoal)
+        if (!localPlayer.playerState.displayGoal)
         {
             goalIndicator.SetActive(false);
             return;
         }
+
         goalIndicator.SetActive(true);
         var goalPosition = localPlayer.playerState.goalPosition;
 
@@ -51,7 +52,7 @@ public class HUDGoal : MonoBehaviour
         inner.x = Mathf.Clamp(sp.x, -0.3f, 0.3f);
         inner.y = Mathf.Clamp(sp.y, -0.2f, 0.3f);
 
-        if (dot < 0.0f || (sp-inner).magnitude > 0.15f)
+        if (dot < 0.0f || (sp - inner).magnitude > 0.15f)
         {
             // If outside center area of screen, show arrow pointing in direction of goal
             var d = sp.normalized;
@@ -66,15 +67,15 @@ public class HUDGoal : MonoBehaviour
             goalArrow.enabled = false;
         }
 
-        sp.x = (sp.x + 0.5f ) * Screen.width;
-        sp.y = (sp.y + 0.5f ) * Screen.height;
+        sp.x = (sp.x + 0.5f) * Screen.width;
+        sp.y = (sp.y + 0.5f) * Screen.height;
 
         goalIndicator.transform.position = sp;
         var la = goalArrow.transform.localEulerAngles;
         la.z = arrowDirection;
         goalArrow.transform.localEulerAngles = la;
-        goalArrow.SetRGB(Game.game.gameColors[(int)localPlayer.playerState.goalDefendersColor]);
-        goalCenter.SetRGB(Game.game.gameColors[(int)localPlayer.playerState.goalDefendersColor]);
+        goalArrow.SetRGB(Game.game.gameColors[(int) localPlayer.playerState.goalDefendersColor]);
+        goalCenter.SetRGB(Game.game.gameColors[(int) localPlayer.playerState.goalDefendersColor]);
         goalProgress.fillAmount = localPlayer.playerState.goalCompletion;
     }
 }

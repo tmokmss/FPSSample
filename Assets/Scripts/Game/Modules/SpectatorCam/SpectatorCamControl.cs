@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 using UnityEngine;
 
-public class SpectatorCamControl : MonoBehaviour 
+public class SpectatorCamControl : MonoBehaviour
 {
 }
 
@@ -17,9 +17,10 @@ public class UpdateSpectatorCamControl : BaseComponentSystem
 
 
     ComponentGroup Group;
-    
+
     public UpdateSpectatorCamControl(GameWorld world) : base(world)
-    {}
+    {
+    }
 
     protected override void OnCreateManager()
     {
@@ -31,11 +32,11 @@ public class UpdateSpectatorCamControl : BaseComponentSystem
     {
         var localPlayerArray = Group.GetComponentArray<LocalPlayer>();
         var cameraSettingsArray = Group.GetComponentArray<PlayerCameraSettings>();
-        
+
         for (var i = 0; i < localPlayerArray.Length; i++)
         {
             var controlledEntity = localPlayerArray[i].controlledEntity;
-            
+
             if (controlledEntity == Entity.Null || !EntityManager.HasComponent<SpectatorCamData>(controlledEntity))
                 continue;
 
@@ -44,6 +45,6 @@ public class UpdateSpectatorCamControl : BaseComponentSystem
             cameraSettings.isEnabled = true;
             cameraSettings.position = spectatorCam.position;
             cameraSettings.rotation = spectatorCam.rotation;
-        }            
+        }
     }
 }

@@ -9,14 +9,16 @@ namespace TusClient
     public class TusHTTPRequest
     {
         public delegate void UploadingEvent(long bytesTransferred, long bytesTotal);
+
         public event UploadingEvent Uploading;
 
         public delegate void DownloadingEvent(long bytesTransferred, long bytesTotal);
+
         public event DownloadingEvent Downloading;
 
         public Uri URL { get; set; }
         public string Method { get; set; }
-        public Dictionary<string,string> Headers { get; set; }
+        public Dictionary<string, string> Headers { get; set; }
         public byte[] BodyBytes { get; set; }
 
         public CancellationToken cancelToken;
@@ -26,7 +28,7 @@ namespace TusClient
             get { return System.Text.Encoding.UTF8.GetString(this.BodyBytes); }
             set { BodyBytes = System.Text.Encoding.UTF8.GetBytes(value); }
         }
-        
+
 
         public TusHTTPRequest(string u)
         {
@@ -36,7 +38,7 @@ namespace TusClient
             this.BodyBytes = new byte[0];
         }
 
-        public void AddHeader(string k,string v)
+        public void AddHeader(string k, string v)
         {
             this.Headers[k] = v;
         }
@@ -52,12 +54,17 @@ namespace TusClient
             if (Downloading != null)
                 Downloading(bytesTransferred, bytesTotal);
         }
-
     }
+
     public class TusHTTPResponse
     {
         public byte[] ResponseBytes { get; set; }
-        public string ResponseString { get { return System.Text.Encoding.UTF8.GetString(this.ResponseBytes); } }
+
+        public string ResponseString
+        {
+            get { return System.Text.Encoding.UTF8.GetString(this.ResponseBytes); }
+        }
+
         public HttpStatusCode StatusCode { get; set; }
         public Dictionary<string, string> Headers { get; set; }
 
@@ -65,25 +72,22 @@ namespace TusClient
         {
             this.Headers = new Dictionary<string, string>();
         }
-
     }
 
     public class TusHTTPClient
     {
-
         public IWebProxy Proxy { get; set; }
-        
+
 
         public TusHTTPResponse PerformRequest(TusHTTPRequest req)
         {
-
             try
             {
                 var instream = new MemoryStream(req.BodyBytes);
 
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(req.URL);
+                HttpWebRequest request = (HttpWebRequest) HttpWebRequest.Create(req.URL);
                 request.AutomaticDecompression = DecompressionMethods.GZip;
-                
+
                 request.Timeout = System.Threading.Timeout.Infinite;
                 request.ReadWriteTimeout = System.Threading.Timeout.Infinite;
                 request.Method = req.Method;
@@ -113,7 +117,7 @@ namespace TusClient
                 int byteswritten = 0;
                 long totalbyteswritten = 0;
 
-                contentlength = (long)instream.Length;
+                contentlength = (long) instream.Length;
                 request.AllowWriteStreamBuffering = false;
                 request.ContentLength = instream.Length;
 
@@ -152,18 +156,16 @@ namespace TusClient
 
                             req.cancelToken.ThrowIfCancellationRequested();
                         }
-
-
                     }
                 }
 
                 req.FireDownloading(0, 0);
 
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                HttpWebResponse response = (HttpWebResponse) request.GetResponse();
 
 
                 contentlength = 0;
-                contentlength = (long)response.ContentLength;
+                contentlength = (long) response.ContentLength;
                 //contentlength=0 for gzipped responses due to .net bug
 
                 buffer = new byte[16 * 1024];
@@ -199,7 +201,6 @@ namespace TusClient
                 }
 
                 return resp;
-
             }
             catch (OperationCanceledException cancelEx)
             {
@@ -217,13 +218,13 @@ namespace TusClient
 
     public class TusException : WebException
     {
-
         public string ResponseContent { get; set; }
         public HttpStatusCode statuscode { get; set; }
         public string statusdescription { get; set; }
 
 
         public WebException OriginalException;
+
         public TusException(TusException ex, string msg)
             : base(string.Format("{0}{1}", msg, ex.Message), ex, ex.Status, ex.Response)
         {
@@ -233,23 +234,20 @@ namespace TusClient
             this.statuscode = ex.statuscode;
             this.statusdescription = ex.statusdescription;
             this.ResponseContent = ex.ResponseContent;
-
-
         }
 
         public TusException(OperationCanceledException ex)
             : base(ex.Message, ex, WebExceptionStatus.RequestCanceled, null)
         {
-            this.OriginalException = null;           
+            this.OriginalException = null;
         }
 
         public TusException(WebException ex, string msg = "")
             : base(string.Format("{0}{1}", msg, ex.Message), ex, ex.Status, ex.Response)
         {
-
             this.OriginalException = ex;
 
-            HttpWebResponse webresp = (HttpWebResponse)ex.Response;
+            HttpWebResponse webresp = (HttpWebResponse) ex.Response;
 
 
             if (webresp != null)
@@ -265,8 +263,6 @@ namespace TusClient
 
                 this.ResponseContent = resp;
             }
-           
-
         }
 
         public string FullMessage
@@ -278,11 +274,13 @@ namespace TusClient
                 {
                     bits.Add(string.Format("URL:{0}", this.Response.ResponseUri));
                 }
+
                 bits.Add(this.Message);
                 if (this.statuscode != HttpStatusCode.OK)
                 {
                     bits.Add(string.Format("{0}:{1}", this.statuscode, this.statusdescription));
                 }
+
                 if (!string.IsNullOrEmpty(this.ResponseContent))
                 {
                     bits.Add(this.ResponseContent);
@@ -291,8 +289,5 @@ namespace TusClient
                 return string.Join(Environment.NewLine, bits.ToArray());
             }
         }
-
     }
 }
-
-

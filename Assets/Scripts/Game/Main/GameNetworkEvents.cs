@@ -1,5 +1,4 @@
-﻿
-static class GameNetworkEvents
+﻿static class GameNetworkEvents
 {
     public enum EventType
     {

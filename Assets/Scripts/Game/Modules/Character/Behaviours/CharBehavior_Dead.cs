@@ -2,19 +2,19 @@
 using Unity.Entities;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Dead",menuName = "FPS Sample/Abilities/Dead")]
+[CreateAssetMenu(fileName = "Dead", menuName = "FPS Sample/Abilities/Dead")]
 public class CharBehavior_Dead : CharBehaviorFactory
 {
     public struct InternalState : IComponentData
     {
         public int foo;
     }
-    
+
     public override Entity Create(EntityManager entityManager, List<Entity> entities)
     {
         var entity = CreateCharBehavior(entityManager);
         entities.Add(entity);
-		
+
         // Ability components
         entityManager.AddComponentData(entity, new InternalState());
 
@@ -24,15 +24,15 @@ public class CharBehavior_Dead : CharBehaviorFactory
 
 
 [DisableAutoCreation]
-class Dead_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
+class Dead_RequestActive : BaseComponentDataSystem<CharBehaviour, AbilityControl,
     CharBehavior_Dead.InternalState>
 {
     public Dead_RequestActive(GameWorld world) : base(world)
     {
-        ExtraComponentRequirements = new ComponentType[] { typeof(ServerEntity) } ;
+        ExtraComponentRequirements = new ComponentType[] {typeof(ServerEntity)};
     }
 
-    protected override void Update(Entity entity, CharBehaviour charAbility, AbilityControl abilityCtrl, 
+    protected override void Update(Entity entity, CharBehaviour charAbility, AbilityControl abilityCtrl,
         CharBehavior_Dead.InternalState internalState)
     {
         if (abilityCtrl.behaviorState == AbilityControl.State.Active || abilityCtrl.behaviorState == AbilityControl.State.Cooldown)
@@ -44,7 +44,7 @@ class Dead_RequestActive : BaseComponentDataSystem<CharBehaviour,AbilityControl,
             if (healthState.health <= 0)
             {
                 abilityCtrl.behaviorState = AbilityControl.State.RequestActive;
-                EntityManager.SetComponentData(entity, abilityCtrl);			
+                EntityManager.SetComponentData(entity, abilityCtrl);
             }
         }
     }
@@ -56,10 +56,10 @@ class Dead_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, CharB
 {
     public Dead_Update(GameWorld world) : base(world)
     {
-        ExtraComponentRequirements = new ComponentType[] { typeof(ServerEntity) } ;
+        ExtraComponentRequirements = new ComponentType[] {typeof(ServerEntity)};
     }
 
-    protected override void Update(Entity abilityEntity, CharBehaviour charAbility, AbilityControl abilityCtrl, 
+    protected override void Update(Entity abilityEntity, CharBehaviour charAbility, AbilityControl abilityCtrl,
         CharBehavior_Dead.InternalState internalState)
     {
         if (abilityCtrl.active == 0)
@@ -68,7 +68,7 @@ class Dead_Update : BaseComponentDataSystem<CharBehaviour, AbilityControl, CharB
         if (abilityCtrl.behaviorState != AbilityControl.State.Active)
         {
             abilityCtrl.behaviorState = AbilityControl.State.Active;
-            EntityManager.SetComponentData(abilityEntity,abilityCtrl);
+            EntityManager.SetComponentData(abilityEntity, abilityCtrl);
 
             var charPredictedState = EntityManager.GetComponentData<CharacterPredictedData>(charAbility.character);
             charPredictedState.cameraProfile = CameraProfile.ThirdPerson;

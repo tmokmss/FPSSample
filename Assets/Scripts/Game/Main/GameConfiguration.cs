@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 
 [CreateAssetMenu()]
-public class GameConfiguration: ScriptableObject
+public class GameConfiguration : ScriptableObject
 {
-    [Header("Player movement")]
-    public float playerSpeed = 6.0f;
+    [Header("Player movement")] public float playerSpeed = 6.0f;
     public float playerSprintSpeed = 6.0f;
     public float playerAcceleration = 30.0f;
     public float playerFriction = 6.0f;

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Threading;
 
 #if UNITY_STANDALONE_LINUX
-
 using System.IO;
 using System.Runtime.InteropServices;
 

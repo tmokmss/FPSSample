@@ -31,7 +31,7 @@ public class ConfigVar
 
     public static void ResetAllToDefault()
     {
-        foreach(var v in ConfigVars)
+        foreach (var v in ConfigVars)
         {
             v.Value.ResetToDefault();
         }
@@ -54,12 +54,15 @@ public class ConfigVar
                 if ((cvar.flags & Flags.Save) == Flags.Save)
                     st.WriteLine("{0} \"{1}\"", cvar.name, cvar.Value);
             }
+
             DirtyFlags &= ~Flags.Save;
         }
+
         GameDebug.Log("saved: " + filename);
     }
 
     private static Regex validateNameRe = new Regex(@"^[a-z_+-][a-z0-9_+.-]*$");
+
     public static void RegisterConfigVar(ConfigVar cvar)
     {
         if (ConfigVars.ContainsKey(cvar.name))
@@ -67,23 +70,25 @@ public class ConfigVar
             GameDebug.LogError("Trying to register cvar " + cvar.name + " twice");
             return;
         }
+
         if (!validateNameRe.IsMatch(cvar.name))
         {
             GameDebug.LogError("Trying to register cvar with invalid name: " + cvar.name);
             return;
         }
+
         ConfigVars.Add(cvar.name, cvar);
     }
 
     [Flags]
     public enum Flags
     {
-        None = 0x0,       // None
-        Save = 0x1,       // Causes the cvar to be save to settings.cfg
-        Cheat = 0x2,      // Consider this a cheat var. Can only be set if cheats enabled
+        None = 0x0, // None
+        Save = 0x1, // Causes the cvar to be save to settings.cfg
+        Cheat = 0x2, // Consider this a cheat var. Can only be set if cheats enabled
         ServerInfo = 0x4, // These vars are sent to clients when connecting and when changed
         ClientInfo = 0x8, // These vars are sent to server when connecting and when changed
-        User = 0x10,      // User created variable
+        User = 0x10, // User created variable
     }
 
     public ConfigVar(string name, string description, string defaultValue, Flags flags = Flags.None)
@@ -129,7 +134,8 @@ public class ConfigVar
             {
                 if (!_class.IsClass)
                     continue;
-                foreach (var field in _class.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public))
+                foreach (var field in _class.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static |
+                                                       System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public))
                 {
                     if (!field.IsDefined(typeof(ConfigVarAttribute), false))
                         continue;
@@ -138,19 +144,22 @@ public class ConfigVar
                         GameDebug.LogError("Cannot use ConfigVar attribute on non-static fields");
                         continue;
                     }
+
                     if (field.FieldType != typeof(ConfigVar))
                     {
                         GameDebug.LogError("Cannot use ConfigVar attribute on fields not of type ConfigVar");
                         continue;
                     }
+
                     var attr = field.GetCustomAttributes(typeof(ConfigVarAttribute), false)[0] as ConfigVarAttribute;
                     var name = attr.Name != null ? attr.Name : _class.Name.ToLower() + "." + field.Name.ToLower();
                     var cvar = field.GetValue(null) as ConfigVar;
-                    if(cvar != null)
+                    if (cvar != null)
                     {
                         GameDebug.LogError("ConfigVars (" + name + ") should not be initialized from code; just marked with attribute");
                         continue;
                     }
+
                     cvar = new ConfigVar(name, attr.Description, attr.DefaultValue, attr.Flags);
                     cvar.ResetToDefault();
                     RegisterConfigVar(cvar);

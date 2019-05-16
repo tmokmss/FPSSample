@@ -127,11 +127,11 @@ public class BuildWindow : EditorWindow
                 break;
             }
         }
-        if(loadLevelInfos)
+
+        if (loadLevelInfos)
             m_LevelInfos = BuildTools.LoadLevelInfos();
 
-        
-        
+
         m_ScrollPos = GUILayout.BeginScrollView(m_ScrollPos);
 
         GUILayout.Label("Project", EditorStyles.boldLabel);
@@ -171,15 +171,11 @@ public class BuildWindow : EditorWindow
                 UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scene.path, UnityEditor.SceneManagement.OpenSceneMode.Single);
             }
         }
+
         GUILayout.EndHorizontal();
         GUILayout.EndHorizontal();
 
-        
-        
-        
-        
-        
-        
+
         LevelInfo openLevel = null;
         foreach (var levelInfo in m_LevelInfos)
         {
@@ -193,20 +189,24 @@ public class BuildWindow : EditorWindow
                     openLevel = levelInfo;
                 }
             }
+
             if (GUILayout.Button("Serve"))
             {
                 RunBuild("+serve " + levelInfo.name + " -batchmode -nographics");
             }
+
             GUILayout.EndHorizontal();
             GUILayout.EndHorizontal();
         }
+
         GUILayout.EndVertical();
 
         Profiler.EndSample();
 
         if (openLevel != null)
         {
-            UnityEditor.SceneManagement.EditorSceneManager.OpenScene(AssetDatabase.GetAssetPath(openLevel.main_scene), UnityEditor.SceneManagement.OpenSceneMode.Single);
+            UnityEditor.SceneManagement.EditorSceneManager.OpenScene(AssetDatabase.GetAssetPath(openLevel.main_scene),
+                UnityEditor.SceneManagement.OpenSceneMode.Single);
         }
     }
 
@@ -242,6 +242,7 @@ public class BuildWindow : EditorWindow
 
     static bool s_SingleLevelBuilding = false;
     static bool s_ForceBuildBundles = true;
+
     void DrawBuildTools()
     {
         var action = BuildAction.None;
@@ -254,7 +255,7 @@ public class BuildWindow : EditorWindow
 
         GUILayout.BeginHorizontal();
         s_SingleLevelBuilding = EditorGUILayout.Toggle("Single level building", s_SingleLevelBuilding);
-        
+
         // TODO (mogensh) We always force bundle build until we are sure non-forced works         
         // s_ForceBuildBundles = EditorGUILayout.Toggle("Force Build Bundles", s_ForceBuildBundles);
 
@@ -273,6 +274,7 @@ public class BuildWindow : EditorWindow
                     break;
                 }
             }
+
             GUILayout.EndHorizontal();
         }
 
@@ -281,28 +283,34 @@ public class BuildWindow : EditorWindow
         {
             buildBundledLevels = true;
         }
+
         if (GUILayout.Button("Assets" + (s_ForceBuildBundles ? " [force]" : "")))
         {
             buildBundledAssets = true;
         }
+
         if (GUILayout.Button("All" + (s_ForceBuildBundles ? " [force]" : "")))
         {
             buildBundledLevels = true;
             buildBundledAssets = true;
         }
+
         GUILayout.EndHorizontal();
 
-        var buildTarget = EditorUserBuildSettings.activeBuildTarget;    // BuildTarget.StandaloneWindows64
+        var buildTarget = EditorUserBuildSettings.activeBuildTarget; // BuildTarget.StandaloneWindows64
         if (buildBundledLevels || buildBundledAssets)
         {
-            BuildTools.BuildBundles(GetBundlePath(buildTarget), buildTarget, buildBundledAssets, buildBundledLevels, s_ForceBuildBundles, buildOnlyLevels);
+            BuildTools.BuildBundles(GetBundlePath(buildTarget), buildTarget, buildBundledAssets, buildBundledLevels, s_ForceBuildBundles,
+                buildOnlyLevels);
             if (buildTarget == BuildTarget.PS4)
             {
                 // Copy the asset bundles into the PS4 game folder too
                 var bundlePathSrc = GetBundlePath(buildTarget) + "/" + SimpleBundleManager.assetBundleFolder;
-                var bundlePathDst = GetBuildPath(buildTarget) + "/" + GetBuildExeName(buildTarget) + "/Media/StreamingAssets/" + SimpleBundleManager.assetBundleFolder;
+                var bundlePathDst = GetBuildPath(buildTarget) + "/" + GetBuildExeName(buildTarget) + "/Media/StreamingAssets/" +
+                                    SimpleBundleManager.assetBundleFolder;
                 BuildTools.CopyDirectory(bundlePathSrc, bundlePathDst);
             }
+
             GUIUtility.ExitGUI();
         }
 
@@ -331,10 +339,12 @@ public class BuildWindow : EditorWindow
         {
             buildGame = true;
         }
+
         if (GUILayout.Button("Build ONLY scripts"))
         {
             buildOnlyScripts = true;
         }
+
         if (buildGame || buildOnlyScripts)
         {
             StopAll();
@@ -356,11 +366,13 @@ public class BuildWindow : EditorWindow
                 RunBuild("");
             GUIUtility.ExitGUI(); // prevent warnings from gui about unmatched layouts
         }
+
         if (GUILayout.Button("Run"))
         {
             RunBuild(m_RunArguments);
             GUIUtility.ExitGUI(); // prevent warnings from gui about unmatched layouts
         }
+
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
@@ -379,6 +391,7 @@ public class BuildWindow : EditorWindow
                 EditorUtility.DisplayDialog("Folder missing", string.Format("Folder {0} doesn't exist yet", windowsPath), "Ok");
             }
         }
+
         GUILayout.EndHorizontal();
     }
 
@@ -438,6 +451,7 @@ public class BuildWindow : EditorWindow
                     StartEntry(quickstartData.entries[i], levelInfo.name, quickstartData.defaultArguments);
                 }
             }
+
             GUI.backgroundColor = defaultGUIBackgrounColor;
 
             GUI.backgroundColor = Color.red;
@@ -445,6 +459,7 @@ public class BuildWindow : EditorWindow
             {
                 StopAll();
             }
+
             GUI.backgroundColor = defaultGUIBackgrounColor;
         }
         GUILayout.EndHorizontal();
@@ -452,7 +467,7 @@ public class BuildWindow : EditorWindow
         // Settings
         EditorGUI.BeginChangeCheck();
 
-        quickstartData.mode = (QuickstartMode)EditorGUILayout.EnumPopup("Mode", quickstartData.mode);
+        quickstartData.mode = (QuickstartMode) EditorGUILayout.EnumPopup("Mode", quickstartData.mode);
 
         var levelNames = m_LevelInfos.Select(item => item.name).ToArray();
         quickstartData.levelIndex = EditorGUILayout.Popup("Level", quickstartData.levelIndex, levelNames);
@@ -462,7 +477,7 @@ public class BuildWindow : EditorWindow
         quickstartData.headlessServer = EditorGUILayout.Toggle("Headless server", quickstartData.headlessServer);
         GUI.enabled = true;
 
-        quickstartData.editorRole = (EditorRole)EditorGUILayout.EnumPopup("Use Editor as", quickstartData.editorRole);
+        quickstartData.editorRole = (EditorRole) EditorGUILayout.EnumPopup("Use Editor as", quickstartData.editorRole);
 
         quickstartData.defaultArguments = EditorGUILayout.TextField("Default args", quickstartData.defaultArguments);
 
@@ -503,7 +518,8 @@ public class BuildWindow : EditorWindow
 
                     GUILayout.Label(entry.runInEditor ? "Editor" : "S.Alone", GUILayout.Width(50));
 
-                    EditorGUILayout.SelectableLabel(entry.GetArguments(levelInfo.name, quickstartData.defaultArguments), EditorStyles.textField, GUILayout.Height(EditorGUIUtility.singleLineHeight));
+                    EditorGUILayout.SelectableLabel(entry.GetArguments(levelInfo.name, quickstartData.defaultArguments), EditorStyles.textField,
+                        GUILayout.Height(EditorGUIUtility.singleLineHeight));
                 }
                 GUILayout.EndHorizontal();
             }
@@ -577,7 +593,8 @@ public class BuildWindow : EditorWindow
         Debug.Log("Starting " + buildPath + "/" + buildExe + " " + args);
         var process = new System.Diagnostics.Process();
         process.StartInfo.UseShellExecute = args.Contains("-batchmode");
-        process.StartInfo.FileName = Application.dataPath + "/../" + buildPath + "/" + buildExe;    // mogensh: for some reason we now need to specify project path
+        process.StartInfo.FileName =
+            Application.dataPath + "/../" + buildPath + "/" + buildExe; // mogensh: for some reason we now need to specify project path
         process.StartInfo.Arguments = args;
         process.StartInfo.WorkingDirectory = buildPath;
         process.Start();
@@ -626,7 +643,6 @@ public class BuildWindow : EditorWindow
             }
             catch (InvalidOperationException)
             {
-
             }
         }
     }
@@ -640,8 +656,7 @@ public class BuildWindow : EditorWindow
     {
         return Directory.GetLastWriteTime(GetAssetBundleFolder());
     }
-    
-    
+
 
     static DateTime TimeLastBuildGame()
     {
@@ -664,10 +679,11 @@ public class BuildWindowProgress : EditorWindow
     static List<string> logs = new List<string>();
 
     static GUIStyle style;
+
     public static void Open(string heading)
     {
         BuildWindowProgress window = GetWindow<BuildWindowProgress>(false);
-        window.position = new Rect(200, 200, 800, 500);// new Rect(Screen.width / 2, Screen.height / 2, 800, 350);
+        window.position = new Rect(200, 200, 800, 500); // new Rect(Screen.width / 2, Screen.height / 2, 800, 350);
         window.ShowPopup();
         window.heading = heading;
         logs = new List<string>();
@@ -690,6 +706,7 @@ public class BuildWindowProgress : EditorWindow
     Vector2 scroll;
     int lastLogCount = 0;
     string text = "";
+
     void OnGUI()
     {
         if (style == null)
@@ -701,9 +718,11 @@ public class BuildWindowProgress : EditorWindow
                 style.font = f;
                 style.fontSize = 10;
             }
+
             style.richText = true;
         }
-        if(lastLogCount != logs.Count)
+
+        if (lastLogCount != logs.Count)
         {
             scroll = new Vector2(0, 100000);
             if (logs.Count > 1000)
@@ -711,14 +730,11 @@ public class BuildWindowProgress : EditorWindow
             lastLogCount = logs.Count;
             text = string.Join("\n", logs);
         }
+
         EditorGUILayout.LabelField(heading, EditorStyles.boldLabel);
         GUILayout.Space(20);
         scroll = GUILayout.BeginScrollView(scroll);
         GUILayout.Label(text, style);
         GUILayout.EndScrollView();
     }
-    
-
-
 }
-

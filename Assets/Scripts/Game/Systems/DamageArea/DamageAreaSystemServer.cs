@@ -19,7 +19,7 @@ public class DamageAreaSystemServer : ComponentSystem
         base.OnCreateManager();
         Group = GetComponentGroup(typeof(DamageArea));
     }
-    
+
     protected override void OnUpdate()
     {
         var damageAreaArray = Group.GetComponentArray<DamageArea>();
@@ -44,7 +44,7 @@ public class DamageAreaSystemServer : ComponentSystem
                 var healthState = EntityManager.GetComponentData<HealthStateData>(charactersInside[i].hitCollisionOwner);
                 if (healthState.health <= 0)
                     continue;
-                
+
                 if (m_GameWorld.worldTime.tick > charactersInside[i].nextDamageTick)
                 {
                     var damageEventBuffer = EntityManager.GetBuffer<DamageEvent>(charactersInside[i].hitCollisionOwner);
@@ -57,5 +57,6 @@ public class DamageAreaSystemServer : ComponentSystem
             }
         }
     }
+
     GameWorld m_GameWorld;
 }

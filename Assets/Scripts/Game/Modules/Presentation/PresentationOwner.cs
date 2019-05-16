@@ -9,7 +9,7 @@ public struct PresentationOwnerData : IComponentData
     public int variation;
     public int currentVariation;
     public Entity currentVariationEntity;
-    
+
     public PresentationOwnerData(int variation)
     {
         this.variation = variation;
@@ -19,7 +19,8 @@ public struct PresentationOwnerData : IComponentData
 }
 
 public class PresentationOwner : ComponentDataProxy<PresentationOwnerData>
-{}
+{
+}
 
 
 [DisableAutoCreation]
@@ -28,7 +29,7 @@ public class UpdatePresentationOwners : BaseComponentSystem
     ComponentGroup Group;
     readonly PresentationRegistry m_presentationRegistry;
     readonly BundledResourceManager m_resourceManager;
-    
+
     public UpdatePresentationOwners(GameWorld world, BundledResourceManager resourceManager) : base(world)
     {
         m_presentationRegistry = resourceManager.GetResourceRegistry<PresentationRegistry>();
@@ -44,6 +45,7 @@ public class UpdatePresentationOwners : BaseComponentSystem
 
     List<Entity> m_entityBuffer = new List<Entity>(16);
     List<PresentationOwnerData> m_typeDataBuffer = new List<PresentationOwnerData>(16);
+
     protected override void OnUpdate()
     {
         // Add entities that needs change to buffer (as we cant destroy/create while iterating)
@@ -76,9 +78,8 @@ public class UpdatePresentationOwners : BaseComponentSystem
             {
                 continue;
             }
-            
-            
-            
+
+
 //            var registryEntry = m_assetRegistry.GetEntry(replicatedData.assetGuid);
 //
 //            if (registryEntry == null)
@@ -86,24 +87,22 @@ public class UpdatePresentationOwners : BaseComponentSystem
 //            
 //            if (registryEntry.factory == null)
 //                continue;
-            
+
             //var presentation = registryEntry.factory.CreateVariation(EntityManager, m_resourceManager, m_world, entity, 0);
 
             var presentation = m_resourceManager.CreateEntity(presentationGuid);
             GameDebug.Assert(presentation != Entity.Null, "failed to create presentation");
-                
-            
+
+
             typeData.currentVariation = typeData.variation;
             typeData.currentVariationEntity = presentation;
-            EntityManager.SetComponentData(entity,typeData);
+            EntityManager.SetComponentData(entity, typeData);
 
             var presentationEntity = EntityManager.GetComponentObject<PresentationEntity>(presentation);
             presentationEntity.ownerEntity = entity;
-
         }
     }
-} 
-
+}
 
 
 [DisableAutoCreation]
@@ -120,12 +119,11 @@ public class HandlePresentationOwnerDesawn : DeinitializeComponentDataSystem<Pre
             // TODO (mogensh) for now we know presentation is a gameobject. We should support entity with entitygroup
 
             var gameObject = EntityManager.GetComponentObject<Transform>(component.currentVariationEntity).gameObject;
-                
+
             m_world.RequestDespawn(gameObject);
-                
+
             component.currentVariation = -1;
-            EntityManager.SetComponentData(entity,component);
+            EntityManager.SetComponentData(entity, component);
         }
     }
-
 }

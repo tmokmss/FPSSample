@@ -13,7 +13,7 @@ public class AnimationImport : AssetPostprocessor
         if (!modelImporter.assetPath.StartsWith("Assets/Animation/"))
             return;
 
-        
+
         // Our game has a lot of fast movement and for this humanoid will solve a bit better with more keyframes to work with.
         // So we over sample and rely on the on compression to take out unwanted keys 
         modelImporter.humanoidOversampling = ModelImporterHumanoidOversampling.X2;

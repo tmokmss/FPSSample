@@ -25,7 +25,7 @@ public class DestructiblePropPresentation : MonoBehaviour
     public float triggerEffectTimeThreshold = 5.0f;
     public ShatterSettings shatterSettings;
     public GameObject[] collision;
-    
+
     [NonSerialized] public bool triggered;
 
     void OnEnable()
@@ -39,7 +39,7 @@ public class DestructiblePropPresentation : MonoBehaviour
                 var hitColl = coll.GetComponent<HitCollision>();
                 if (hitColl != null)
                     hitColl.owner = goe.Entity;
-            }        
+            }
         }
     }
 }
@@ -47,9 +47,11 @@ public class DestructiblePropPresentation : MonoBehaviour
 [DisableAutoCreation]
 public class DestructiblePropSystemClient : BaseComponentSystem
 {
-    ComponentGroup Group;    
-    
-    public DestructiblePropSystemClient(GameWorld world) : base(world) {}
+    ComponentGroup Group;
+
+    public DestructiblePropSystemClient(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
@@ -65,26 +67,26 @@ public class DestructiblePropSystemClient : BaseComponentSystem
         for (int i = 0; i < presentationArray.Length; i++)
         {
             var presentation = presentationArray[i];
-            
+
             if (presentation.triggered)
                 continue;
 
             var replicatedState = replicatedDataArray[i];
             if (replicatedState.destroyedTick == 0)
                 continue;
-    
+
             foreach (var renderer in presentation.geometryRoot.GetComponentsInChildren<Renderer>())
                 renderer.enabled = false;
-                
+
             presentation.triggered = true;
-            
+
             foreach (var gameObject in presentation.collision)
             {
                 gameObject.SetActive(false);
             }
-            
+
             // Trigger effect if it just happened (otherwise late joiner will se effect when connecting)
-            var time  = m_world.worldTime;
+            var time = m_world.worldTime;
             if (time.DurationSinceTick(replicatedState.destroyedTick) < presentation.triggerEffectTimeThreshold)
             {
                 for (var j = 0; j < presentation.shatterSettings.rigidBodies.Length; j++)
@@ -93,20 +95,20 @@ public class DestructiblePropSystemClient : BaseComponentSystem
                     center.x += UnityEngine.Random.Range(-presentation.shatterSettings.centerRnd, presentation.shatterSettings.centerRnd);
                     center.y += UnityEngine.Random.Range(-presentation.shatterSettings.centerRnd, presentation.shatterSettings.centerRnd);
                     center.z += UnityEngine.Random.Range(-presentation.shatterSettings.centerRnd, presentation.shatterSettings.centerRnd);
-                    
+
                     var rigidBody = presentation.shatterSettings.rigidBodies[j];
                     rigidBody.gameObject.SetActive(true);
                     rigidBody.AddExplosionForce(presentation.shatterSettings.explosionForce, center,
-                        presentation.shatterSettings.explosionRadius, presentation.shatterSettings.upwardsModifier, presentation.shatterSettings.mode);
+                        presentation.shatterSettings.explosionRadius, presentation.shatterSettings.upwardsModifier,
+                        presentation.shatterSettings.mode);
                 }
-    
+
                 if (presentation.destructionEffect != null)
                 {
-                    World.GetExistingManager<HandleSpatialEffectRequests>().Request(presentation.destructionEffect, 
+                    World.GetExistingManager<HandleSpatialEffectRequests>().Request(presentation.destructionEffect,
                         presentation.destructionEffectTransform.position, presentation.destructionEffectTransform.rotation);
                 }
             }
         }
     }
-  
-} 
+}

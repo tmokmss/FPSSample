@@ -4,9 +4,12 @@ using UnityEngine.Profiling;
 
 public class NetworkStatisticsClient
 {
-    public FloatRollingAverage rtt { get { return m_RTT; } }
+    public FloatRollingAverage rtt
+    {
+        get { return m_RTT; }
+    }
 
-    public bool notifyHardCatchup;        // Set to true to record hard catchup for this update
+    public bool notifyHardCatchup; // Set to true to record hard catchup for this update
 
     public NetworkStatisticsClient(NetworkClient networkClient)
     {
@@ -87,10 +90,18 @@ public class NetworkStatisticsClient
 
         switch (NetworkConfig.netStats.IntValue)
         {
-            case 1: DrawCompactStats(); break;
-            case 2: DrawStats(); break;
-            case 3: DrawCounters(); break;
-            case 4: DrawPackageStatistics(); break;
+            case 1:
+                DrawCompactStats();
+                break;
+            case 2:
+                DrawStats();
+                break;
+            case 3:
+                DrawCounters();
+                break;
+            case 4:
+                DrawPackageStatistics();
+                break;
         }
 
         if (NetworkConfig.netPrintStats.IntValue > 0)
@@ -123,12 +134,13 @@ public class NetworkStatisticsClient
     }
 
     float bitheight = 0.01f;
+
     void DrawPackageStatistics()
     {
         float x = DebugOverlay.Width - 20;
         float y = DebugOverlay.Height - 8;
-        float dx = 1.0f;  // bar spacing
-        float w = 1.0f;  // width of bars
+        float dx = 1.0f; // bar spacing
+        float w = 1.0f; // width of bars
         int maxbits = 0;
         var stats = m_NetworkClient.counters.packageContentStats;
         var last = m_NetworkClient.counters.packagesIn;
@@ -137,9 +149,9 @@ public class NetworkStatisticsClient
             var s = stats[i % stats.Length];
             if (s == null)
                 continue;
-            var barx = x + (i-last) * dx;
+            var barx = x + (i - last) * dx;
 
-            for(int j = 0, c = s.Count; j < c; ++j)
+            for (int j = 0, c = s.Count; j < c; ++j)
             {
                 var stat = s[j];
                 DebugOverlay.DrawRect(barx, y - (stat.sectionStart + stat.sectionLength) * bitheight, w, stat.sectionLength * bitheight, stat.color);
@@ -164,8 +176,10 @@ public class NetworkStatisticsClient
     {
         var samplesPerSecond = 1.0f / m_StatsDeltaTime.average;
 
-        DebugOverlay.Write(-50, -4, "pps (in/out): {0} / {1}", m_PackagesIn.graph.average * samplesPerSecond, m_PackagesOut.graph.average * samplesPerSecond);
-        DebugOverlay.Write(-50, -3, "bps (in/out): {0:00.0} / {1:00.0}", m_BytesIn.graph.average * samplesPerSecond, m_BytesOut.graph.average * samplesPerSecond);
+        DebugOverlay.Write(-50, -4, "pps (in/out): {0} / {1}", m_PackagesIn.graph.average * samplesPerSecond,
+            m_PackagesOut.graph.average * samplesPerSecond);
+        DebugOverlay.Write(-50, -3, "bps (in/out): {0:00.0} / {1:00.0}", m_BytesIn.graph.average * samplesPerSecond,
+            m_BytesOut.graph.average * samplesPerSecond);
         var startIndex = m_BytesIn.graph.GetData().HeadIndex;
         DebugOverlay.DrawHist(-50, -2, 20, 2, m_BytesIn.graph.GetData().GetArray(), startIndex, Color.blue, 5.0f);
     }
@@ -192,9 +206,9 @@ public class NetworkStatisticsClient
         y++;
         DebugOverlay.Write(2, y++, "^22F  header/payload/total bps (in):");
         DebugOverlay.Write(2, y++, "^22F   {0:00.0} / {1:00.0} / {2:00.0} ({3})", m_HeaderBitsIn.graph.average / 8.0f * samplesPerSecond,
-                                                                                    (m_BytesIn.graph.average - m_HeaderBitsIn.graph.average / 8.0f) * samplesPerSecond,
-                                                                                    m_BytesIn.graph.average * samplesPerSecond,
-                                                                                    m_NetworkClient.clientConfig.serverUpdateRate);
+            (m_BytesIn.graph.average - m_HeaderBitsIn.graph.average / 8.0f) * samplesPerSecond,
+            m_BytesIn.graph.average * samplesPerSecond,
+            m_NetworkClient.clientConfig.serverUpdateRate);
         DebugOverlay.Write(2, y++, "^F00  bps (out): {0:00.0}", m_BytesOut.graph.average * samplesPerSecond);
         DebugOverlay.Write(2, y++, "  pps (in):  {0:00.0}", m_PackagesIn.graph.average * samplesPerSecond);
         DebugOverlay.Write(2, y++, "  pps (out): {0:00.0}", m_PackagesOut.graph.average * samplesPerSecond);
@@ -202,7 +216,8 @@ public class NetworkStatisticsClient
         DebugOverlay.Write(2, y++, "  pl% (out): {0:00.0}", m_PackageLossPctOut.average);
 
         y++;
-        DebugOverlay.Write(2, y++, "  upd_srate: {0:00.0} ({1})", m_SnapshotsIn.graph.average * samplesPerSecond, m_NetworkClient.clientConfig.serverUpdateInterval);
+        DebugOverlay.Write(2, y++, "  upd_srate: {0:00.0} ({1})", m_SnapshotsIn.graph.average * samplesPerSecond,
+            m_NetworkClient.clientConfig.serverUpdateInterval);
         DebugOverlay.Write(2, y++, "  cmd_srate: {0:00.0} ({1})", m_CommandsOut.graph.average * samplesPerSecond, m_NetworkClient.serverTickRate);
         DebugOverlay.Write(2, y++, "  ev (in):   {0:00.0}", m_EventsIn.graph.average * samplesPerSecond);
         DebugOverlay.Write(2, y++, "  ev (out):  {0:00.0}", m_EventsOut.graph.average * samplesPerSecond);
@@ -265,7 +280,8 @@ public class NetworkStatisticsClient
     NetworkClient m_NetworkClient;
 
     float[][] m_2GraphData = new float[2][];
-    Color[] m_BytesGraphColors = new Color[] { Color.blue, Color.red };
+
+    Color[] m_BytesGraphColors = new Color[] {Color.blue, Color.red};
     //int[][] m_PackageContentStatistics = new int[k_NumPackageContentStats][];
     //int m_PackageContentStatisticsLastSequence;
 

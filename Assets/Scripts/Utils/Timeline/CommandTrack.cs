@@ -10,6 +10,6 @@ public class CommandTrack : TrackAsset
 {
     public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
     {
-        return ScriptPlayable<CommandMixerBehaviour>.Create (graph, inputCount);
+        return ScriptPlayable<CommandMixerBehaviour>.Create(graph, inputCount);
     }
 }

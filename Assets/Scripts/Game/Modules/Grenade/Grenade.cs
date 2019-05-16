@@ -2,19 +2,19 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public class Grenade 
+public class Grenade
 {
     [Serializable]
     public struct Settings : IComponentData
     {
-        public float maxLifetime;               
+        public float maxLifetime;
         public SplashDamageSettings splashDamage;
         public float proximityTriggerDist;
         public float gravity;
         public float bounciness;
-        public float collisionRadius;  
+        public float collisionRadius;
     }
-    
+
     public struct InternalState : IComponentData
     {
         public int active;
@@ -26,13 +26,13 @@ public class Grenade
         public int startTick;
         public int explodeTick;
     }
-    
+
     public struct InterpolatedState : IInterpolatedComponent<InterpolatedState>, IComponentData
     {
         public float3 position;
         public int exploded;
         public int bouncetick;
-        
+
         public static IInterpolatedComponentSerializerFactory CreateSerializerFactory()
         {
             return new InterpolatedComponentSerializerFactory<InterpolatedState>();
@@ -43,7 +43,6 @@ public class Grenade
             writer.WriteVector3("position", position);
             writer.WriteBoolean("exploded", exploded == 1);
             writer.WriteInt32("bouncetick", bouncetick);
-
         }
 
         public void Deserialize(ref SerializeContext context, ref NetworkReader reader)
@@ -62,5 +61,3 @@ public class Grenade
         }
     }
 }
-
-

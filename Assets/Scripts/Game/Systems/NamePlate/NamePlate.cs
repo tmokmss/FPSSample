@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class NamePlate : MonoBehaviour 
+public class NamePlate : MonoBehaviour
 {
     public Transform namePlateRoot;
     public TMPro.TextMeshProUGUI nameText;

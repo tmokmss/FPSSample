@@ -38,7 +38,7 @@
         // Reset the buffer if we receive non consecutive tick
         if (tick - m_Tick != 1)
             m_Size = 1;
-        else if(m_Size < m_Elements.Length)
+        else if (m_Size < m_Elements.Length)
             ++m_Size;
 
         m_Tick = tick;

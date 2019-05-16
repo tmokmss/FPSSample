@@ -37,7 +37,7 @@ namespace NetcodeTests
         [Test]
         public void Sequence_FromUInt16_TestValid()
         {
-            int[] diffs = { 0, 1, -1, -7, 29, -2391, 9430, -13120, 14091 };
+            int[] diffs = {0, 1, -1, -7, 29, -2391, 9430, -13120, 14091};
 
             for (int i = 0; i < 100000; i += 337)
             {
@@ -57,7 +57,7 @@ namespace NetcodeTests
         [Test]
         public void Sequence_FromUInt16_TestInValid()
         {
-            int[] diffs = { 35012, -41092 };
+            int[] diffs = {35012, -41092};
 
             for (int i = 0; i < 100000; i += 337)
             {

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 public class GameStatistics
 {
-
     public int rtt;
 
     private readonly int _no_frames = 128;
@@ -18,7 +17,7 @@ public class GameStatistics
         m_StopWatch.Start();
         m_LastFrameTicks = m_StopWatch.ElapsedTicks;
         m_FrameTimes = new float[_no_frames];
-        m_TicksPerFrame = new float[2][] { new float[_no_frames], new float[_no_frames] };
+        m_TicksPerFrame = new float[2][] {new float[_no_frames], new float[_no_frames]};
 
         m_GraphicsDeviceName = SystemInfo.graphicsDeviceName;
 
@@ -39,9 +38,9 @@ public class GameStatistics
         var names = new List<string>();
         Sampler.GetNames(names);
         string search = args.Length > 0 ? args[0].ToLower() : null;
-        for(var i = 0; i < names.Count; i++)
+        for (var i = 0; i < names.Count; i++)
         {
-            if(search == null || names[i].ToLower().Contains(search))
+            if (search == null || names[i].ToLower().Contains(search))
                 Console.Write(names[i]);
         }
     }
@@ -55,7 +54,7 @@ public class GameStatistics
 
         m_LastFrameTicks = now;
 
-        float d = (float)duration / m_FrequencyMS;
+        float d = (float) duration / m_FrequencyMS;
         m_FrameDurationMS = m_FrameDurationMS * 0.9f + 0.1f * d;
 
         m_FrameTimes[Time.frameCount % m_FrameTimes.Length] = d;
@@ -74,7 +73,7 @@ public class GameStatistics
             m_TicksPerFrame[0][l] = 1000.0f * world.worldTime.tickInterval * ticks;
             m_LastWorldTick = world.worldTime.tick;
             double lastTickTime = world.nextTickTime - world.worldTime.tickInterval;
-            m_TicksPerFrame[1][l] = (float)(1000.0 * (Game.frameTime - lastTickTime));
+            m_TicksPerFrame[1][l] = (float) (1000.0 * (Game.frameTime - lastTickTime));
         }
 
         // get timing & update average accumulators
@@ -96,8 +95,8 @@ public class GameStatistics
                 recordersList[i].avgCount = recordersList[i].accCount * (1.0f / kAverageFrameCount);
                 recordersList[i].accTime = 0.0f;
                 recordersList[i].accCount = 0;
-
             }
+
             frameCount = 0;
         }
     }
@@ -105,10 +104,11 @@ public class GameStatistics
     public void TickLateUpdate()
     {
         SnapTime();
-        if(showCompactStats.IntValue > 0)
+        if (showCompactStats.IntValue > 0)
         {
             DrawCompactStats();
         }
+
         if (showFPS.IntValue > 0)
         {
             RecordTimers();
@@ -133,16 +133,17 @@ public class GameStatistics
 
     RecorderEntry[] recordersList =
     {
-        new RecorderEntry() { name="RenderLoop.Draw" },
-        new RecorderEntry() { name="Shadows.Draw" },
-        new RecorderEntry() { name="RenderLoopNewBatcher.Draw" },
-        new RecorderEntry() { name="ShadowLoopNewBatcher.Draw" },
-        new RecorderEntry() { name="RenderLoopDevice.Idle" },
-        new RecorderEntry() { name="StaticBatchDraw.Count" },
+        new RecorderEntry() {name = "RenderLoop.Draw"},
+        new RecorderEntry() {name = "Shadows.Draw"},
+        new RecorderEntry() {name = "RenderLoopNewBatcher.Draw"},
+        new RecorderEntry() {name = "ShadowLoopNewBatcher.Draw"},
+        new RecorderEntry() {name = "RenderLoopDevice.Idle"},
+        new RecorderEntry() {name = "StaticBatchDraw.Count"},
     };
 
 
     char[] buf = new char[256];
+
     void DrawCompactStats()
     {
         DebugOverlay.AddQuadAbsolute(0, 0, 60, 14, '\0', new Vector4(1.0f, 1.0f, 1.0f, 0.2f));
@@ -182,7 +183,8 @@ public class GameStatistics
 
         int y = 6;
         for (int i = 0; i < recordersList.Length; i++)
-            DebugOverlay.Write(0, y++, "{0:##.##}ms (*{1:##})  ({2:##.##}ms *{3:##})  {4}", recordersList[i].avgTime, recordersList[i].avgCount, recordersList[i].time, recordersList[i].count, recordersList[i].name);
+            DebugOverlay.Write(0, y++, "{0:##.##}ms (*{1:##})  ({2:##.##}ms *{3:##})  {4}", recordersList[i].avgTime, recordersList[i].avgCount,
+                recordersList[i].time, recordersList[i].count, recordersList[i].name);
 
         if (showFPS.IntValue < 3)
             return;
@@ -202,7 +204,7 @@ public class GameStatistics
     }
 
     Color fpsColor = new Color(0.5f, 0.0f, 0.2f);
-    Color[] histColor = new Color[] { Color.green, Color.grey };
+    Color[] histColor = new Color[] {Color.green, Color.grey};
 
     System.Diagnostics.Stopwatch m_StopWatch;
     long m_LastFrameTicks; // Ticks at start of last frame

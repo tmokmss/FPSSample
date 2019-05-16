@@ -11,8 +11,9 @@ public struct GrenadeSpawnRequest : IComponentData
     public Vector3 velocity;
     public Entity owner;
     public int teamId;
-    
-    public static void Create(EntityCommandBuffer commandBuffer, WeakAssetReference assetGuid, Vector3 position, Vector3 velocity, Entity owner, int teamId)
+
+    public static void Create(EntityCommandBuffer commandBuffer, WeakAssetReference assetGuid, Vector3 position, Vector3 velocity, Entity owner,
+        int teamId)
     {
         var data = new GrenadeSpawnRequest();
         data.assetGuid = assetGuid;
@@ -20,7 +21,7 @@ public struct GrenadeSpawnRequest : IComponentData
         data.velocity = velocity;
         data.owner = owner;
         data.teamId = teamId;
-            
+
         commandBuffer.CreateEntity();
         commandBuffer.AddComponent(data);
     }
@@ -38,15 +39,15 @@ public class HandleGrenadeRequest : BaseComponentDataSystem<GrenadeSpawnRequest>
     protected override void Update(Entity entity, GrenadeSpawnRequest request)
     {
         var grenadeEntity = m_resourceManager.CreateEntity(request.assetGuid);
-        
-        var internalState = EntityManager.GetComponentData<Grenade.InternalState>(grenadeEntity);       
+
+        var internalState = EntityManager.GetComponentData<Grenade.InternalState>(grenadeEntity);
         internalState.startTick = m_world.worldTime.tick;
         internalState.owner = request.owner;
         internalState.teamId = request.teamId;
         internalState.velocity = request.velocity;
         internalState.position = request.position;
-        EntityManager.SetComponentData(grenadeEntity,internalState);
-        
+        EntityManager.SetComponentData(grenadeEntity, internalState);
+
         PostUpdateCommands.DestroyEntity(entity);
     }
 }
@@ -55,23 +56,24 @@ public class HandleGrenadeRequest : BaseComponentDataSystem<GrenadeSpawnRequest>
 [DisableAutoCreation]
 public class StartGrenadeMovement : BaseComponentSystem
 {
-    ComponentGroup Group;   
-    
+    ComponentGroup Group;
+
     public StartGrenadeMovement(GameWorld world) : base(world)
-    {}
+    {
+    }
 
     protected override void OnCreateManager()
     {
         base.OnCreateManager();
-        Group = GetComponentGroup(typeof(Grenade.Settings),typeof(Grenade.InternalState));
+        Group = GetComponentGroup(typeof(Grenade.Settings), typeof(Grenade.InternalState));
     }
 
-    protected override void OnUpdate()  
+    protected override void OnUpdate()
     {
         var time = m_world.worldTime;
 
         // Update movements  
-        var entityArray = Group.GetEntityArray();      
+        var entityArray = Group.GetEntityArray();
         var settingsArray = Group.GetComponentDataArray<Grenade.Settings>();
         var internalStateArray = Group.GetComponentDataArray<Grenade.InternalState>();
         for (var i = 0; i < internalStateArray.Length; i++)
@@ -81,20 +83,20 @@ public class StartGrenadeMovement : BaseComponentSystem
             if (internalState.active == 0 || math.length(internalState.velocity) < 0.5f)
                 continue;
 
-            var entity = entityArray[i]; 
+            var entity = entityArray[i];
             var settings = settingsArray[i];
-            
+
             // Crate movement query
             var startPos = internalState.position;
-            var newVelocity = internalState.velocity - new float3(0,1,0) * settings.gravity * time.tickDuration;
+            var newVelocity = internalState.velocity - new float3(0, 1, 0) * settings.gravity * time.tickDuration;
             var deltaPos = newVelocity * time.tickDuration;
 
             internalState.position = startPos + deltaPos;
             internalState.velocity = newVelocity;
-            
-            
+
+
             var collisionMask = ~(1U << internalState.teamId);
-           
+
             // Setup new collision query
             var queryReciever = World.GetExistingManager<RaySphereQueryReciever>();
             internalState.rayQueryId = queryReciever.RegisterQuery(new RaySphereQueryReciever.Query()
@@ -104,11 +106,11 @@ public class StartGrenadeMovement : BaseComponentSystem
                 direction = math.normalize(newVelocity),
                 distance = math.length(deltaPos) + settings.collisionRadius,
                 radius = settings.proximityTriggerDist,
-                mask = collisionMask, 
+                mask = collisionMask,
                 ExcludeOwner = time.DurationSinceTick(internalState.startTick) < 0.2f ? internalState.owner : Entity.Null,
             });
-            
-            EntityManager.SetComponentData(entity,internalState);
+
+            EntityManager.SetComponentData(entity, internalState);
         }
     }
 }
@@ -116,21 +118,23 @@ public class StartGrenadeMovement : BaseComponentSystem
 [DisableAutoCreation]
 public class FinalizeGrenadeMovement : BaseComponentSystem
 {
-    ComponentGroup Group;   
-    
-    public FinalizeGrenadeMovement(GameWorld world) : base(world) {}
+    ComponentGroup Group;
+
+    public FinalizeGrenadeMovement(GameWorld world) : base(world)
+    {
+    }
 
     protected override void OnCreateManager()
     {
         base.OnCreateManager();
-        Group = GetComponentGroup(typeof(Grenade.Settings),typeof(Grenade.InternalState), 
+        Group = GetComponentGroup(typeof(Grenade.Settings), typeof(Grenade.InternalState),
             typeof(Grenade.InterpolatedState));
     }
 
     protected override void OnUpdate()
     {
         Profiler.BeginSample("FinalizeGrenadeMovement");
-        
+
         var time = m_world.worldTime;
         var queryReciever = World.GetExistingManager<RaySphereQueryReciever>();
 
@@ -143,28 +147,28 @@ public class FinalizeGrenadeMovement : BaseComponentSystem
         {
             var internalState = internalStateArray[i];
             var entity = grenadeEntityArray[i];
-            
+
             if (internalState.active == 0)
             {
                 // Keep grenades around for a short duration so shortlived grenades gets a chance to get replicated 
                 // and explode effect played
-                
-                if(m_world.worldTime.DurationSinceTick(internalState.explodeTick) > 1.0f)
+
+                if (m_world.worldTime.DurationSinceTick(internalState.explodeTick) > 1.0f)
                     m_world.RequestDespawn(PostUpdateCommands, entity);
-                
+
                 continue;
             }
 
             var settings = settingsArray[i];
             var interpolatedState = interpolatedStateArray[i];
-            var hitCollisionOwner = Entity.Null;            
+            var hitCollisionOwner = Entity.Null;
             if (internalState.rayQueryId != -1)
             {
                 RaySphereQueryReciever.Query query;
                 RaySphereQueryReciever.QueryResult queryResult;
                 queryReciever.GetResult(internalState.rayQueryId, out query, out queryResult);
                 internalState.rayQueryId = -1;
-                    
+
                 // If grenade hit something that was no hitCollision it is environment and grenade should bounce
                 if (queryResult.hit == 1 && queryResult.hitCollisionOwner == Entity.Null)
                 {
@@ -176,7 +180,7 @@ public class FinalizeGrenadeMovement : BaseComponentSystem
                     moveDir = Vector3.Reflect(moveDir, queryResult.hitNormal);
                     internalState.velocity = moveDir * moveVel * settings.bounciness;
 
-                    if(moveVel > 1.0f)
+                    if (moveVel > 1.0f)
                         interpolatedState.bouncetick = m_world.worldTime.tick;
                 }
 
@@ -187,13 +191,13 @@ public class FinalizeGrenadeMovement : BaseComponentSystem
 
                 hitCollisionOwner = queryResult.hitCollisionOwner;
             }
-            
+
             // Should we explode ?
             var timeout = time.DurationSinceTick(internalState.startTick) > settings.maxLifetime;
             if (timeout || hitCollisionOwner != Entity.Null)
             {
                 internalState.active = 0;
-                internalState.explodeTick = time.tick; 
+                internalState.explodeTick = time.tick;
                 interpolatedState.exploded = 1;
 
                 if (settings.splashDamage.radius > 0)
@@ -204,17 +208,16 @@ public class FinalizeGrenadeMovement : BaseComponentSystem
                         collisionMask, settings.splashDamage);
                 }
             }
-            
+
             interpolatedState.position = internalState.position;
-            
-            DebugDraw.Sphere(interpolatedState.position,settings.collisionRadius,Color.red);
-            
-            
-            EntityManager.SetComponentData(entity,internalState);
-            EntityManager.SetComponentData(entity,interpolatedState);
+
+            DebugDraw.Sphere(interpolatedState.position, settings.collisionRadius, Color.red);
+
+
+            EntityManager.SetComponentData(entity, internalState);
+            EntityManager.SetComponentData(entity, interpolatedState);
         }
-        
+
         Profiler.EndSample();
     }
-    
 }

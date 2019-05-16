@@ -12,8 +12,7 @@ public class DamageArea : MonoBehaviour
     public float hitsPerSecond = 3;
     public float damagePerHit = 25;
 
-    [NonSerialized]
-    public List<CharacterInfo> charactersInside = new List<CharacterInfo>();
+    [NonSerialized] public List<CharacterInfo> charactersInside = new List<CharacterInfo>();
 
     public struct CharacterInfo
     {
@@ -32,7 +31,7 @@ public class DamageArea : MonoBehaviour
         if (hitCollision == null)
             return;
 
-        charactersInside.Add(new CharacterInfo { hitCollisionOwner = hitCollision.owner, nextDamageTick = 0 });
+        charactersInside.Add(new CharacterInfo {hitCollisionOwner = hitCollision.owner, nextDamageTick = 0});
     }
 
     void OnTriggerExit(Collider c)
@@ -40,7 +39,7 @@ public class DamageArea : MonoBehaviour
         var hitCollision = c.gameObject.GetComponent<HitCollision>();
         if (hitCollision == null)
             return;
-        
+
         for (var i = 0; i < charactersInside.Count; i++)
         {
             if (charactersInside[i].hitCollisionOwner == hitCollision.owner)
@@ -63,6 +62,7 @@ public class DamageArea : MonoBehaviour
             Gizmos.color = new Color(1.0f, 1.0f, 0.5f, 0.8f);
             Gizmos.DrawCube(c.center, -c.size);
         }
+
         Gizmos.color = new Color(1.0f, 0.5f, 0.5f, 0.3f);
         Gizmos.DrawCube(c.center, c.size);
     }

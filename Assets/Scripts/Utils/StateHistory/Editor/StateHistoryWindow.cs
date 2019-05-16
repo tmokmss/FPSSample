@@ -6,7 +6,6 @@ using UnityEditor;
 
 public class StateHistoryWindow : EditorWindow
 {
-
     [MenuItem("FPS Sample/Windows/Replicated History")]
     public static void ShowWindow()
     {
@@ -25,10 +24,9 @@ public class StateHistoryWindow : EditorWindow
 //        StateHistorySampler.Capture -= OnCapture;
         EditorApplication.playModeStateChanged -= OnPlaymodeChanged;
         EditorApplication.quitting -= OnQuitting;
-
     }
 
-    void OnQuitting()        
+    void OnQuitting()
     {
         Reset();
     }
@@ -57,11 +55,11 @@ public class StateHistoryWindow : EditorWindow
         GUILayout.BeginHorizontal();
 
         var buttonText = ReplicatedEntityCollection.SampleHistory ? "PAUSE" : "START";
-        if (GUILayout.Button(buttonText)) 
+        if (GUILayout.Button(buttonText))
             ReplicatedEntityCollection.SampleHistory = !ReplicatedEntityCollection.SampleHistory;
 
         m_stopOnMispredict = GUILayout.Toggle(m_stopOnMispredict, "Stop on mispredict");
-        
+
         GUILayout.FlexibleSpace();
 
         GUILayout.EndHorizontal();
@@ -73,17 +71,16 @@ public class StateHistoryWindow : EditorWindow
         if (clientGameLoop == null)
             return;
         var clientGameWorld = clientGameLoop.GetClientGameWorld();
-        if(clientGameWorld == null)
+        if (clientGameWorld == null)
             return;
         ReplicatedEntityModuleClient repEntityModule = clientGameWorld.ReplicatedEntityModule;
-        if(repEntityModule == null)
+        if (repEntityModule == null)
             return;
-                                                  
+
         var sampleCount = repEntityModule.GetSampleCount();
         int entityCount = repEntityModule.GetEntityCount();
-        
 
-        
+
         if (ReplicatedEntityCollection.SampleHistory)
         {
             GUILayout.Label("Sampling ...");
@@ -95,13 +92,13 @@ public class StateHistoryWindow : EditorWindow
                     for (int i = 0; i < sampleCount; i++)
                     {
                         int tick = repEntityModule.GetSampleTick(i);
-        
+
                         var netId = repEntityModule.GetNetIdFromEntityIndex(iEntity);
                         if (netId == -1)
                             continue;
 
-                        var repData = repEntityModule.GetReplicatedDataForNetId(netId);                        
-                        
+                        var repData = repEntityModule.GetReplicatedDataForNetId(netId);
+
                         var sampleIndex = repEntityModule.FindSampleIndexForTick(tick);
                         bool predictionValid = repData.VerifyPrediction(sampleIndex, tick);
                         if (!predictionValid)
@@ -112,13 +109,11 @@ public class StateHistoryWindow : EditorWindow
                     }
                 }
             }
-            
+
             return;
         }
 
-        
-        
-        
+
         int tickWidth = 120;
         int stateWidth = 100;
 
@@ -132,7 +127,7 @@ public class StateHistoryWindow : EditorWindow
                 m_selectedRow--;
                 repaint = true;
             }
-                
+
             if (e.keyCode == KeyCode.DownArrow && m_selectedRow < sampleCount - 1)
             {
                 m_selectedRow++;
@@ -151,7 +146,7 @@ public class StateHistoryWindow : EditorWindow
                 repaint = true;
             }
 
-            if(repaint)
+            if (repaint)
             {
                 Repaint();
                 UpdateInspector();
@@ -164,8 +159,8 @@ public class StateHistoryWindow : EditorWindow
         // Headed
         GUILayout.BeginHorizontal();
         GUILayout.Label("Tick", GUILayout.Width(tickWidth));
-        
-        GUILayout.BeginScrollView(new Vector2(m_statesScrolllPosition.x,0), GUIStyle.none, GUIStyle.none);
+
+        GUILayout.BeginScrollView(new Vector2(m_statesScrolllPosition.x, 0), GUIStyle.none, GUIStyle.none);
         GUILayout.BeginHorizontal();
 
         for (int iEntity = 0; iEntity < entityCount; iEntity++)
@@ -173,22 +168,23 @@ public class StateHistoryWindow : EditorWindow
             var netId = repEntityModule.GetNetIdFromEntityIndex(iEntity);
             if (netId == -1)
                 continue;
-            var repData = repEntityModule.GetReplicatedDataForNetId(netId);                        
+            var repData = repEntityModule.GetReplicatedDataForNetId(netId);
 
 
             GUILayout.BeginVertical(GUILayout.Width(stateWidth));
-            
-            GUILayout.Label("Net id:" + netId, GUILayout.Width(stateWidth));            
-            
+
+            GUILayout.Label("Net id:" + netId, GUILayout.Width(stateWidth));
+
             var entityName = "Entity i:" + repData.entity.Index + " v:" + repData.entity.Version;
             GUILayout.Label(entityName, GUILayout.Width(stateWidth));
             var gameObjectName = repData.gameObject != null ? repData.gameObject.name : "";
             GUILayout.Label(gameObjectName, GUILayout.Width(stateWidth));
             GUILayout.EndVertical();
         }
+
         GUILayout.EndHorizontal();
         GUILayout.EndScrollView();
-        
+
         GUILayout.EndHorizontal();
 
         // State grid
@@ -198,7 +194,7 @@ public class StateHistoryWindow : EditorWindow
 
         // Ticks
 
-        var scroll = GUILayout.BeginScrollView(new Vector2(0,m_statesScrolllPosition.y), GUILayout.Width(tickWidth));
+        var scroll = GUILayout.BeginScrollView(new Vector2(0, m_statesScrolllPosition.y), GUILayout.Width(tickWidth));
         m_statesScrolllPosition.y = scroll.y;
         {
             for (int i = 0; i < sampleCount; i++)
@@ -207,6 +203,7 @@ public class StateHistoryWindow : EditorWindow
                 int lastServerTIck = repEntityModule.GetLastServerTick(i);
                 stringRows[i] = i + " " + tick.ToString() + " P:" + (tick - lastServerTIck);
             }
+
             GUILayout.SelectionGrid(-1, stringRows, 1);
         }
         GUILayout.EndScrollView();
@@ -225,11 +222,11 @@ public class StateHistoryWindow : EditorWindow
             for (int i = 0; i < sampleCount; i++)
             {
                 int tick = repEntityModule.GetSampleTick(i);
-                
+
                 var netId = repEntityModule.GetNetIdFromEntityIndex(iEntity);
                 if (netId == -1)
                     continue;
-                var repData = repEntityModule.GetReplicatedDataForNetId(netId);                 
+                var repData = repEntityModule.GetReplicatedDataForNetId(netId);
 
                 var isPredicted = repEntityModule.IsPredicted(iEntity);
                 var hasState = repData.HasState(tick);
@@ -247,7 +244,7 @@ public class StateHistoryWindow : EditorWindow
             }
 
             int newIndex = GUILayout.SelectionGrid(selectedIndex, stringRows, 1, GUILayout.Width(stateWidth));
-            
+
             if (newIndex != selectedIndex)
             {
                 m_selectedRow = newIndex;
@@ -260,6 +257,7 @@ public class StateHistoryWindow : EditorWindow
                 Repaint();
             }
         }
+
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
         GUILayout.EndScrollView();
@@ -267,17 +265,16 @@ public class StateHistoryWindow : EditorWindow
         GUILayout.EndHorizontal();
 
         GUILayout.EndVertical();
-
     }
 
 
     void UpdateInspector()
     {
         var wnd = GetWindow<StateHistoryInspectorWindow>(false, "State History Inspect", false);
-        wnd.SetResult(m_selectedColumn,m_selectedRow);
+        wnd.SetResult(m_selectedColumn, m_selectedRow);
     }
 
-    int m_selectedColumn; 
+    int m_selectedColumn;
     int m_selectedRow;
     Vector2 m_statesScrolllPosition;
     bool m_stopOnMispredict = false;

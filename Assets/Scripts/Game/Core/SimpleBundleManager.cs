@@ -49,8 +49,7 @@ public class SimpleBundleManager
 
     static Dictionary<string, AssetBundle> m_levelBundles = new Dictionary<string, AssetBundle>();
 
-    [ConfigVar(Name = "res.runtimebundlepath", DefaultValue = "AssetBundles", Description = "Asset bundle folder", Flags = ConfigVar.Flags.ServerInfo)]
+    [ConfigVar(Name = "res.runtimebundlepath", DefaultValue = "AssetBundles", Description = "Asset bundle folder",
+        Flags = ConfigVar.Flags.ServerInfo)]
     public static ConfigVar m_runtimeBundlePath;
-
-
 }

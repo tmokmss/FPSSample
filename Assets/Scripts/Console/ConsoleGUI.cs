@@ -20,7 +20,6 @@ public class ConsoleGUI : MonoBehaviour, IConsoleUI
 
     public void Shutdown()
     {
-
     }
 
     public void OutputString(string s)
@@ -87,7 +86,7 @@ public class ConsoleGUI : MonoBehaviour, IConsoleUI
     {
         // This has to happen here because keys like KeyUp will navigate the caret
         // int the UI event handling which runs between Update and LateUpdate
-        if(m_WantedCaretPosition > -1)
+        if (m_WantedCaretPosition > -1)
         {
             input_field.caretPosition = m_WantedCaretPosition;
             m_WantedCaretPosition = -1;
@@ -120,5 +119,4 @@ public class ConsoleGUI : MonoBehaviour, IConsoleUI
     [SerializeField] Image text_area_background;
     [SerializeField] KeyCode toggle_console_key;
     [SerializeField] Text buildIdText;
-
 }

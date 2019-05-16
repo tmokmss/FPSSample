@@ -52,12 +52,13 @@ public class WindowsUtil
     {
         IntPtr[] winPtrs = WindowsUtil.GetProcessWindows(process.Id);
 
-        for(int i=0;i< winPtrs.Length;i++)
+        for (int i = 0; i < winPtrs.Length; i++)
         {
             bool gotRect = WindowsUtil.GetWindowRect(winPtrs[i], ref rect);
             if (gotRect && (rect.Left != 0 && rect.Top != 0))
                 return true;
         }
+
         return false;
     }
 
@@ -66,7 +67,7 @@ public class WindowsUtil
         System.Diagnostics.Process process = System.Diagnostics.Process.GetCurrentProcess();
         process.Refresh();
 
-        EnumWindows(delegate (System.IntPtr wnd, System.IntPtr param)
+        EnumWindows(delegate(System.IntPtr wnd, System.IntPtr param)
         {
             int id;
             GetWindowThreadProcessId(wnd, out id);

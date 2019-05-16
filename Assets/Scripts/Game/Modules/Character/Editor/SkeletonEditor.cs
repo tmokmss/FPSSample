@@ -12,7 +12,7 @@ public class SkeletonEditor : Editor
         var skeletonComponent = (Skeleton) target;
 
         if (GUILayout.Button("Goto Import Pose"))
-        {   
+        {
             // TODO: Is this safe?
             Undo.RecordObjects(skeletonComponent.bones, "Skeleton Component: Goto Bindpose");
             var result = skeletonComponent.GotoBindpose();

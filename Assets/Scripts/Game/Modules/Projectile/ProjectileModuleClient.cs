@@ -2,36 +2,33 @@
 using Object = UnityEngine.Object;
 
 
-
-
-
-
-
-public class ProjectileModuleClient 
+public class ProjectileModuleClient
 {
     [ConfigVar(Name = "projectile.logclientinfo", DefaultValue = "0", Description = "Show projectilesystem info")]
     public static ConfigVar logInfo;
-    
+
     [ConfigVar(Name = "projectile.drawclientdebug", DefaultValue = "0", Description = "Show projectilesystem debug")]
     public static ConfigVar drawDebug;
-    
-    
+
+
     public ProjectileModuleClient(GameWorld world, BundledResourceManager resourceSystem)
     {
         m_world = world;
-        
+
         if (world.SceneRoot != null)
         {
             m_SystemRoot = new GameObject("ProjectileSystem");
             m_SystemRoot.transform.SetParent(world.SceneRoot.transform);
         }
-        
+
         m_settings = Resources.Load<ProjectileModuleSettings>("ProjectileModuleSettings");
 
         m_clientProjectileFactory = new ClientProjectileFactory(m_world, m_world.GetEntityManager(), m_SystemRoot, resourceSystem);
-        
-        m_handleRequests = m_world.GetECSWorld().CreateManager<HandleClientProjectileRequests>(m_world, resourceSystem, m_SystemRoot, m_clientProjectileFactory);
-        m_handleProjectileSpawn = m_world.GetECSWorld().CreateManager<HandleProjectileSpawn>(m_world, m_SystemRoot, resourceSystem, m_clientProjectileFactory);
+
+        m_handleRequests = m_world.GetECSWorld()
+            .CreateManager<HandleClientProjectileRequests>(m_world, resourceSystem, m_SystemRoot, m_clientProjectileFactory);
+        m_handleProjectileSpawn = m_world.GetECSWorld()
+            .CreateManager<HandleProjectileSpawn>(m_world, m_SystemRoot, resourceSystem, m_clientProjectileFactory);
         m_removeMispredictedProjectiles = m_world.GetECSWorld().CreateManager<RemoveMispredictedProjectiles>(m_world);
         m_despawnClientProjectiles = m_world.GetECSWorld().CreateManager<DespawnClientProjectiles>(m_world, m_clientProjectileFactory);
         m_CreateProjectileMovementQueries = m_world.GetECSWorld().CreateManager<CreateProjectileMovementCollisionQueries>(m_world);
@@ -51,19 +48,19 @@ public class ProjectileModuleClient
         m_world.GetECSWorld().DestroyManager(m_updateClientProjectilesPredicted);
         m_world.GetECSWorld().DestroyManager(m_updateClientProjectilesNonPredicted);
 
-    
-        if(m_SystemRoot != null)
+
+        if (m_SystemRoot != null)
             Object.Destroy(m_SystemRoot);
-        
+
         Resources.UnloadAsset(m_settings);
     }
-        
+
     public void StartPredictedMovement()
     {
         m_CreateProjectileMovementQueries.Update();
     }
 
-    
+
     public void FinalizePredictedMovement()
     {
         m_HandleProjectileMovementQueries.Update();
@@ -80,12 +77,12 @@ public class ProjectileModuleClient
         m_despawnClientProjectiles.Update();
     }
 
-    
+
     public void HandleProjectileRequests()
     {
         m_handleRequests.Update();
     }
-    
+
     public void UpdateClientProjectilesNonPredicted()
     {
         m_updateClientProjectilesNonPredicted.Update();
@@ -101,7 +98,7 @@ public class ProjectileModuleClient
     readonly ProjectileModuleSettings m_settings;
 
     readonly ClientProjectileFactory m_clientProjectileFactory;
-    
+
     readonly HandleClientProjectileRequests m_handleRequests;
     readonly CreateProjectileMovementCollisionQueries m_CreateProjectileMovementQueries;
     readonly HandleProjectileMovementCollisionQuery m_HandleProjectileMovementQueries;

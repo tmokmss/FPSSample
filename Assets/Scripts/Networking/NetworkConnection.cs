@@ -7,36 +7,36 @@ using UnityEngine.Profiling;
 
 public class NetworkConnectionCounters
 {
-    public int bytesIn;                         // The number of user bytes received on this connection
-    public int bytesOut;                        // The number of user bytes sent on this connection
+    public int bytesIn; // The number of user bytes received on this connection
+    public int bytesOut; // The number of user bytes sent on this connection
 
-    public int headerBitsIn;                    // The number of header bytes received on this connection
+    public int headerBitsIn; // The number of header bytes received on this connection
 
-    public int packagesIn;                      // The number of packages received on this connection (including package fragments)
-    public int packagesOut;                     // The number of packages sent on this connection (including package fragments)
+    public int packagesIn; // The number of packages received on this connection (including package fragments)
+    public int packagesOut; // The number of packages sent on this connection (including package fragments)
 
-    public int packagesStaleIn;                 // The number of state packages we received
-    public int packagesDuplicateIn;             // The number of duplicate packages we received
-    public int packagesOutOfOrderIn;            // The number of packages we received out of order
+    public int packagesStaleIn; // The number of state packages we received
+    public int packagesDuplicateIn; // The number of duplicate packages we received
+    public int packagesOutOfOrderIn; // The number of packages we received out of order
 
-    public int packagesLostIn;                  // The number of incoming packages that was lost (i.e. holes in the package sequence)
-    public int packagesLostOut;                 // The number of outgoing packages that wasn't acked (either due to choke or network)
+    public int packagesLostIn; // The number of incoming packages that was lost (i.e. holes in the package sequence)
+    public int packagesLostOut; // The number of outgoing packages that wasn't acked (either due to choke or network)
 
-    public int fragmentedPackagesIn;            // The number of incoming packages that was fragmented
-    public int fragmentedPackagesOut;           // The number of outgoing packages that was fragmented
+    public int fragmentedPackagesIn; // The number of incoming packages that was fragmented
+    public int fragmentedPackagesOut; // The number of outgoing packages that was fragmented
 
-    public int fragmentedPackagesLostIn;        // The number of incoming fragmented packages we couldn't reassemble
-    public int fragmentedPackagesLostOut;       // The number of outgoing fragmented packages that wasn't acked
+    public int fragmentedPackagesLostIn; // The number of incoming fragmented packages we couldn't reassemble
+    public int fragmentedPackagesLostOut; // The number of outgoing fragmented packages that wasn't acked
 
-    public int chokedPackagesOut;               // The number of packages we dropped due to choke
+    public int chokedPackagesOut; // The number of packages we dropped due to choke
 
-    public int eventsIn;                        // The total number of events received
-    public int eventsOut;                       // The total number of events sent
+    public int eventsIn; // The total number of events received
+    public int eventsOut; // The total number of events sent
 
-    public int eventsLostOut;                   // The number of events that was lost
+    public int eventsLostOut; // The number of events that was lost
 
-    public int reliableEventsOut;               // The number of reliable events sent
-    public int reliableEventResendOut;          // The number of reliable events we had to resend
+    public int reliableEventsOut; // The number of reliable events sent
+    public int reliableEventResendOut; // The number of reliable events we had to resend
 
     public Aggregator avgBytesIn = new Aggregator();
     public Aggregator avgBytesOut = new Aggregator();
@@ -82,15 +82,15 @@ public class NetworkConnection<TCounters, TPackageInfo>
 
     public TCounters counters = new TCounters();
 
-    public int rtt;                                 // Round trip time (ping + time lost due to read/send frequencies)
+    public int rtt; // Round trip time (ping + time lost due to read/send frequencies)
 
-    public int inSequence;                          // The highest sequence of packages we have received
-    public ushort inSequenceAckMask;                // The mask describing which of the last packages we have received relative to inSequence
-    public long inSequenceTime;                     // The time the last package was received
+    public int inSequence; // The highest sequence of packages we have received
+    public ushort inSequenceAckMask; // The mask describing which of the last packages we have received relative to inSequence
+    public long inSequenceTime; // The time the last package was received
 
-    public int outSequence = 1;                     // The sequence of the next outgoing package
-    public int outSequenceAck;                      // The highest sequence of packages that have been acked
-    public ushort outSequenceAckMask;               // The mask describing which of the last packaged have been acked related to outSequence
+    public int outSequence = 1; // The sequence of the next outgoing package
+    public int outSequenceAck; // The highest sequence of packages that have been acked
+    public ushort outSequenceAckMask; // The mask describing which of the last packaged have been acked related to outSequence
 
     public NetworkConnection(int connectionId, INetworkTransport transport)
     {
@@ -133,7 +133,7 @@ public class NetworkConnection<TCounters, TPackageInfo>
             // sending messages but potentially it could also happen in extreme cases of congestion or package loss. 
             // We will try to send empty packages with low frequency to see if we can get the connection up and running again
 
-            if(Game.frameTime >= chokedTimeToNextPackage)
+            if (Game.frameTime >= chokedTimeToNextPackage)
             {
                 chokedTimeToNextPackage = Game.frameTime + NetworkConfig.netChokeSendInterval.FloatValue;
 
@@ -154,13 +154,16 @@ public class NetworkConnection<TCounters, TPackageInfo>
                 BeginSendPackage(ref output, out emptyPackage);
                 CompleteSendPackage(emptyPackage, ref output);
             }
+
             return false;
         }
+
         return true;
     }
 
     // Returns the 'wide' packageSequenceNumber (i.e. 32 bit reconstructed from the 16bits sent over wire)
-    protected int ProcessPackageHeader(byte[] packageData, int packageSize, out NetworkMessage content, out byte[] assembledData, out int assembledSize, out int headerSize)
+    protected int ProcessPackageHeader(byte[] packageData, int packageSize, out NetworkMessage content, out byte[] assembledData,
+        out int assembledSize, out int headerSize)
     {
         counters.packagesIn++;
         assembledData = packageData;
@@ -170,16 +173,16 @@ public class NetworkConnection<TCounters, TPackageInfo>
 
         int headerStartInBits = input.GetBitPosition();
 
-        content = (NetworkMessage)input.ReadBits(8);
+        content = (NetworkMessage) input.ReadBits(8);
 
         // TODO: Possible improvement is to ack on individual fragments not just entire message
         if ((content & NetworkMessage.FRAGMENT) != 0)
         {
             // Package fragment
-            var fragmentPackageSequence = Sequence.FromUInt16((ushort)input.ReadBits(16), inSequence);
-            var numFragments = (int)input.ReadBits(8);
-            var fragmentIndex = (int)input.ReadBits(8);
-            var fragmentSize = (int)input.ReadBits(16);
+            var fragmentPackageSequence = Sequence.FromUInt16((ushort) input.ReadBits(16), inSequence);
+            var numFragments = (int) input.ReadBits(8);
+            var fragmentIndex = (int) input.ReadBits(8);
+            var fragmentSize = (int) input.ReadBits(16);
 
             FragmentReassemblyInfo assembly;
             if (!m_FragmentReassembly.TryGetValue(fragmentPackageSequence, out assembly))
@@ -214,7 +217,7 @@ public class NetworkConnection<TCounters, TPackageInfo>
 
             if (assembly.receivedCount < assembly.numFragments)
             {
-                return 0;   // Not fully assembled
+                return 0; // Not fully assembled
             }
 
             // Continue processing package as we have now reassembled the package
@@ -222,12 +225,12 @@ public class NetworkConnection<TCounters, TPackageInfo>
             assembledSize = fragmentIndex * NetworkConfig.packageFragmentSize + fragmentSize;
             input.Initialize(assembledData);
             headerStartInBits = 0;
-            content = (NetworkMessage)input.ReadBits(8);
+            content = (NetworkMessage) input.ReadBits(8);
         }
 
-        var inSequenceNew = Sequence.FromUInt16((ushort)input.ReadBits(16), inSequence);
-        var outSequenceAckNew = Sequence.FromUInt16((ushort)input.ReadBits(16), outSequenceAck);
-        var outSequenceAckMaskNew = (ushort)input.ReadBits(16);
+        var inSequenceNew = Sequence.FromUInt16((ushort) input.ReadBits(16), inSequence);
+        var outSequenceAckNew = Sequence.FromUInt16((ushort) input.ReadBits(16), outSequenceAck);
+        var outSequenceAckMaskNew = (ushort) input.ReadBits(16);
 
         if (inSequenceNew > inSequence)
         {
@@ -235,7 +238,7 @@ public class NetworkConnection<TCounters, TPackageInfo>
             // means the package (inSequenceNew-15 and before) will be considered lost (either it will never come or we will 
             // reject it as being stale if we get it at a later point in time)
             var distance = inSequenceNew - inSequence;
-            for (var i = 0; i < Math.Min(distance, 15); ++i)    // TODO : Fix this contant
+            for (var i = 0; i < Math.Min(distance, 15); ++i) // TODO : Fix this contant
             {
                 if ((inSequenceAckMask & 1 << (15 - i)) == 0)
                     counters.packagesLostIn++;
@@ -284,7 +287,7 @@ public class NetworkConnection<TCounters, TPackageInfo>
 
             // Accept the package out of order
             counters.packagesOutOfOrderIn++;
-            inSequenceAckMask |= (ushort)ackBit;
+            inSequenceAckMask |= (ushort) ackBit;
         }
         else
         {
@@ -295,12 +298,12 @@ public class NetworkConnection<TCounters, TPackageInfo>
 
         if (inSequenceNew % 3 == 0)
         {
-            var timeOnServer = (ushort)input.ReadBits(8);
+            var timeOnServer = (ushort) input.ReadBits(8);
             TPackageInfo info;
             if (outstandingPackages.TryGetValue(outSequenceAckNew, out info))
             {
                 var now = NetworkUtils.stopwatch.ElapsedMilliseconds;
-                rtt = (int)(now - info.sentTime - timeOnServer);
+                rtt = (int) (now - info.sentTime - timeOnServer);
             }
         }
 
@@ -364,9 +367,10 @@ public class NetworkConnection<TCounters, TPackageInfo>
 
     protected void BeginSendPackage(ref BitOutputStream output, out TPackageInfo info)
     {
-        GameDebug.Assert(outstandingPackages.Available(outSequence), "NetworkConnection.BeginSendPackage : package info not available for sequence : {0}", outSequence);
+        GameDebug.Assert(outstandingPackages.Available(outSequence),
+            "NetworkConnection.BeginSendPackage : package info not available for sequence : {0}", outSequence);
 
-        output.WriteBits(0, 8);                                 // Package content flags (will set later as we add messages)
+        output.WriteBits(0, 8); // Package content flags (will set later as we add messages)
         output.WriteBits(Sequence.ToUInt16(outSequence), 16);
         output.WriteBits(Sequence.ToUInt16(inSequence), 16);
         output.WriteBits(inSequenceAckMask, 16);
@@ -380,7 +384,7 @@ public class NetworkConnection<TCounters, TPackageInfo>
         {
             var now = NetworkUtils.stopwatch.ElapsedMilliseconds;
             // TOULF Is 255 enough? 
-            var timeOnServer = (byte)Math.Min(now - inSequenceTime, 255);
+            var timeOnServer = (byte) Math.Min(now - inSequenceTime, 255);
             output.WriteBits(timeOnServer, 8);
         }
 
@@ -389,7 +393,7 @@ public class NetworkConnection<TCounters, TPackageInfo>
 
     protected void AddMessageContentFlag(NetworkMessage message)
     {
-        m_PackageBuffer[0] |= (byte)message;
+        m_PackageBuffer[0] |= (byte) message;
     }
 
     protected int CompleteSendPackage(TPackageInfo info, ref BitOutputStream output)
@@ -397,15 +401,15 @@ public class NetworkConnection<TCounters, TPackageInfo>
         Profiler.BeginSample("NetworkConnection.CompleteSendPackage()");
 
         info.sentTime = NetworkUtils.stopwatch.ElapsedMilliseconds;
-        info.content = (NetworkMessage)m_PackageBuffer[0];
+        info.content = (NetworkMessage) m_PackageBuffer[0];
         int packageSize = output.Flush();
 
-        GameDebug.Assert(packageSize < NetworkConfig.maxPackageSize,"packageSize < NetworkConfig.maxPackageSize");
+        GameDebug.Assert(packageSize < NetworkConfig.maxPackageSize, "packageSize < NetworkConfig.maxPackageSize");
 
         if (debugSendStreamWriter != null)
         {
             debugSendStreamWriter.Write(m_PackageBuffer, 0, packageSize);
-            debugSendStreamWriter.Write((UInt32)0xedededed);
+            debugSendStreamWriter.Write((UInt32) 0xedededed);
         }
 
         if (packageSize > NetworkConfig.packageFragmentSize)
@@ -424,11 +428,11 @@ public class NetworkConnection<TCounters, TPackageInfo>
                 var fragmentSize = i < numFragments - 1 ? NetworkConfig.packageFragmentSize : lastFragmentSize;
 
                 var fragmentOutput = new BitOutputStream(m_FragmentBuffer);
-                fragmentOutput.WriteBits((uint)NetworkMessage.FRAGMENT, 8); // Package fragment identifier
+                fragmentOutput.WriteBits((uint) NetworkMessage.FRAGMENT, 8); // Package fragment identifier
                 fragmentOutput.WriteBits(Sequence.ToUInt16(outSequence), 16);
-                fragmentOutput.WriteBits((uint)numFragments, 8);
-                fragmentOutput.WriteBits((uint)i, 8);
-                fragmentOutput.WriteBits((uint)fragmentSize, 16);
+                fragmentOutput.WriteBits((uint) numFragments, 8);
+                fragmentOutput.WriteBits((uint) i, 8);
+                fragmentOutput.WriteBits((uint) fragmentSize, 16);
                 fragmentOutput.WriteBytes(m_PackageBuffer, i * NetworkConfig.packageFragmentSize, fragmentSize);
                 int fragmentPackageSize = fragmentOutput.Flush();
 
@@ -436,6 +440,7 @@ public class NetworkConnection<TCounters, TPackageInfo>
                 counters.packagesOut++;
                 counters.bytesOut += fragmentPackageSize;
             }
+
             counters.fragmentedPackagesOut++;
         }
         else
@@ -473,13 +478,15 @@ public class NetworkConnection<TCounters, TPackageInfo>
                 {
                     // Re-add dropped reliable events to outgoing events
                     counters.reliableEventResendOut++;
-                    GameDebug.Log("Resending lost reliable event: " + ((GameNetworkEvents.EventType)eventInfo.type.typeId) + ":" +eventInfo.sequence);
+                    GameDebug.Log(
+                        "Resending lost reliable event: " + ((GameNetworkEvents.EventType) eventInfo.type.typeId) + ":" + eventInfo.sequence);
                     eventsOut.Add(eventInfo);
                 }
                 else
                     eventInfo.Release();
             }
         }
+
         info.events.Clear();
     }
 
@@ -491,7 +498,8 @@ public class NetworkConnection<TCounters, TPackageInfo>
         info.AddRef();
     }
 
-    public void ReadEvents<TInputStream>(ref TInputStream input, INetworkCallbacks networkConsumer) where TInputStream : NetworkCompression.IInputStream
+    public void ReadEvents<TInputStream>(ref TInputStream input, INetworkCallbacks networkConsumer)
+        where TInputStream : NetworkCompression.IInputStream
     {
         //input.SetStatsType(NetworkCompressionReader.Type.Event);
         var numEvents = NetworkEvent.ReadEvents(eventTypesIn, connectionId, ref input, networkConsumer);
@@ -532,7 +540,7 @@ public class NetworkConnection<TCounters, TPackageInfo>
     SequenceBuffer<FragmentReassemblyInfo> m_FragmentReassembly = new SequenceBuffer<FragmentReassemblyInfo>(8, () => new FragmentReassemblyInfo());
 
     byte[] m_FragmentBuffer = new byte[2048];
-    public byte[] m_PackageBuffer = new byte[1024 * 64];    //TODO: fix this
+    public byte[] m_PackageBuffer = new byte[1024 * 64]; //TODO: fix this
 
     // Events
     Dictionary<ushort, NetworkEventType> eventTypesIn = new Dictionary<ushort, NetworkEventType>();

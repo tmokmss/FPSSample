@@ -59,27 +59,34 @@ namespace NetworkCompression
                 for (int i = 0; i < alphabetSize; i++)
                     tmpSymbolLengths[i] = symbolLengths[context, i];
 
-                NetworkCompressionUtils.GenerateHuffmanCodes(symbolCodes, 0, tmpSymbolLengths, 0, alphabetSize, NetworkCompressionConstants.k_MaxHuffmanSymbolLength);
-                NetworkCompressionUtils.GenerateHuffmanDecodeTable(tmpSymbolDecodeTable, 0, tmpSymbolLengths, symbolCodes, alphabetSize, NetworkCompressionConstants.k_MaxHuffmanSymbolLength);
+                NetworkCompressionUtils.GenerateHuffmanCodes(symbolCodes, 0, tmpSymbolLengths, 0, alphabetSize,
+                    NetworkCompressionConstants.k_MaxHuffmanSymbolLength);
+                NetworkCompressionUtils.GenerateHuffmanDecodeTable(tmpSymbolDecodeTable, 0, tmpSymbolLengths, symbolCodes, alphabetSize,
+                    NetworkCompressionConstants.k_MaxHuffmanSymbolLength);
                 for (int i = 0; i < alphabetSize; i++)
                 {
-                    encodeTable[context, i] = (ushort)((symbolCodes[i] << 8) | symbolLengths[context, i]);
+                    encodeTable[context, i] = (ushort) ((symbolCodes[i] << 8) | symbolLengths[context, i]);
                 }
+
                 for (int i = 0; i < (1 << NetworkCompressionConstants.k_MaxHuffmanSymbolLength); i++)
                 {
                     decodeTable[context, i] = tmpSymbolDecodeTable[i];
                 }
             }
+
             this.modelData = modelData;
         }
 
         public byte[] modelData;
-        public ushort[,] encodeTable;      // (code << 8) | length
-        public ushort[,] decodeTable;      // (symbol << 8) | length
+        public ushort[,] encodeTable; // (code << 8) | length
+        public ushort[,] decodeTable; // (symbol << 8) | length
 
-        private static byte[] m_DefaultModelData = new byte[] { 16, // 16 symbols
-                                                         2, 3, 3, 3,   4, 4, 4, 5,     5, 5, 6, 6,     6, 6, 6, 6,
-                                                         0, 0 };  // no additional models / contexts
+        private static byte[] m_DefaultModelData = new byte[]
+        {
+            16, // 16 symbols
+            2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 6, 6, 6,
+            0, 0
+        }; // no additional models / contexts
 
         public static NetworkCompressionModel DefaultModel = new NetworkCompressionModel(null);
     }

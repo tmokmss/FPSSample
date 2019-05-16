@@ -2,7 +2,7 @@
 using UnityEngine;
 using Unity.Entities;
 
-public class EffectModuleClient      
+public class EffectModuleClient
 {
     public EffectModuleClient(GameWorld world, BundledResourceManager resourceSystem)
     {
@@ -28,7 +28,7 @@ public class EffectModuleClient
         m_VFXSystem.Update();
     }
 
-    
+
     readonly GameWorld m_GameWorld;
     readonly BundledResourceManager m_resourceSystem;
 

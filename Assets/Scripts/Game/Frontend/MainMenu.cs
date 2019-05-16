@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class MainMenu : MonoBehaviour 
+public class MainMenu : MonoBehaviour
 {
     [System.Serializable]
     public struct UIBinding
@@ -34,13 +34,15 @@ public class MainMenu : MonoBehaviour
     {
         var active = menuShowing != ClientFrontend.MenuShowing.None;
         gameObject.SetActive(active);
-        if(active)
+        if (active)
         {
-            foreach(var a in GetComponentsInChildren<MenuButton>(true))
+            foreach (var a in GetComponentsInChildren<MenuButton>(true))
             {
-                var enabled = (a.ingameOption && menuShowing == ClientFrontend.MenuShowing.Ingame) || (a.mainmenuOption && menuShowing == ClientFrontend.MenuShowing.Main);
+                var enabled = (a.ingameOption && menuShowing == ClientFrontend.MenuShowing.Ingame) ||
+                              (a.mainmenuOption && menuShowing == ClientFrontend.MenuShowing.Main);
                 a.gameObject.SetActive(enabled);
             }
+
             // Close any open menu
             ShowSubMenu(null);
         }
@@ -77,10 +79,10 @@ public class MainMenu : MonoBehaviour
 
     public void UpdateMenus()
     {
-        if(joinMenu.gameObject.activeInHierarchy)
+        if (joinMenu.gameObject.activeInHierarchy)
             joinMenu.UpdateMenu();
 
-        if(optionMenu.gameObject.activeInHierarchy)
+        if (optionMenu.gameObject.activeInHierarchy)
             optionMenu.UpdateMenu();
     }
 
@@ -93,7 +95,7 @@ public class MainMenu : MonoBehaviour
     public void ShowSubMenu(GameObject ShowMenu)
     {
         activeSubmenuNumber = 0;
-        for(int i = 0; i < uiBinding.menus.Length; i++)
+        for (int i = 0; i < uiBinding.menus.Length; i++)
         {
             var menu = uiBinding.menus[i];
             if (menu == ShowMenu)
@@ -127,7 +129,7 @@ public class MainMenu : MonoBehaviour
         var maxplayers = uiBinding.maxplayers.options[uiBinding.maxplayers.value].text;
 
         var dedicated = uiBinding.decidatedServer.isOn;
-        if(dedicated)
+        if (dedicated)
         {
             var process = new System.Diagnostics.Process();
             if (Application.isEditor)
@@ -178,5 +180,4 @@ public class MainMenu : MonoBehaviour
 
     static readonly string k_AutoBuildPath = "AutoBuild";
     static readonly string k_AutoBuildExe = "AutoBuild.exe";
-
 }

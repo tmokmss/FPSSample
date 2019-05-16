@@ -57,9 +57,11 @@ public static class UITextExtensionMethods
                     break;
                 }
             }
+
             if (!diff)
                 return;
         }
+
         me.text = new string(text, 0, length);
     }
 
@@ -77,9 +79,11 @@ public static class UITextExtensionMethods
                     break;
                 }
             }
+
             if (!diff)
                 return;
         }
+
         me.text = new string(text, 0, length);
     }
 

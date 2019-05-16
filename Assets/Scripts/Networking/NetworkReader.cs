@@ -22,25 +22,25 @@ unsafe public struct NetworkReader
     public byte ReadByte()
     {
         ValidateSchema(NetworkSchema.FieldType.UInt, 8, true);
-        return (byte)m_Input[m_Position++];
+        return (byte) m_Input[m_Position++];
     }
 
     public short ReadInt16()
     {
         ValidateSchema(NetworkSchema.FieldType.Int, 16, true);
-        return (short)m_Input[m_Position++];
+        return (short) m_Input[m_Position++];
     }
 
     public ushort ReadUInt16()
     {
         ValidateSchema(NetworkSchema.FieldType.UInt, 16, true);
-        return (ushort)m_Input[m_Position++];
+        return (ushort) m_Input[m_Position++];
     }
 
     public int ReadInt32()
     {
         ValidateSchema(NetworkSchema.FieldType.Int, 32, true);
-        return (int)m_Input[m_Position++];
+        return (int) m_Input[m_Position++];
     }
 
     public uint ReadUInt32()
@@ -59,7 +59,7 @@ unsafe public struct NetworkReader
     {
         GameDebug.Assert(m_Schema != null, "Schema required for reading quantizied values");
         ValidateSchema(NetworkSchema.FieldType.Float, 32, true);
-        return (int)m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
+        return (int) m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
     }
 
     public string ReadString(int maxLength = 64)
@@ -68,16 +68,16 @@ unsafe public struct NetworkReader
 
         uint count = m_Input[m_Position++];
         GameDebug.Assert(count <= maxLength);
-        byte* data = (byte*)(m_Input + m_Position);
+        byte* data = (byte*) (m_Input + m_Position);
 
         m_Position += maxLength / 4;
 
         if (count == 0)
             return "";
 
-        fixed(char* dest = s_CharBuffer)
+        fixed (char* dest = s_CharBuffer)
         {
-            var numChars = NetworkConfig.encoding.GetChars(data, (int)count, dest, s_CharBuffer.Length);
+            var numChars = NetworkConfig.encoding.GetChars(data, (int) count, dest, s_CharBuffer.Length);
             return new string(s_CharBuffer, 0, numChars);
         }
     }
@@ -98,8 +98,8 @@ unsafe public struct NetworkReader
         ValidateSchema(NetworkSchema.FieldType.Vector2, 32, true);
 
         Vector2 result;
-        result.x = (int)m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
-        result.y = (int)m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
+        result.x = (int) m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
+        result.y = (int) m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
         return result;
     }
 
@@ -120,9 +120,9 @@ unsafe public struct NetworkReader
         ValidateSchema(NetworkSchema.FieldType.Vector3, 32, true);
 
         Vector3 result;
-        result.x = (int)m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
-        result.y = (int)m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
-        result.z = (int)m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
+        result.x = (int) m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
+        result.y = (int) m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
+        result.z = (int) m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
         return result;
     }
 
@@ -144,10 +144,10 @@ unsafe public struct NetworkReader
         ValidateSchema(NetworkSchema.FieldType.Quaternion, 32, true);
 
         Quaternion result;
-        result.x = (int)m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
-        result.y = (int)m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
-        result.z = (int)m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
-        result.w = (int)m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
+        result.x = (int) m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
+        result.y = (int) m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
+        result.z = (int) m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
+        result.w = (int) m_Input[m_Position++] * NetworkConfig.decoderPrecisionScales[m_CurrentField.precision];
         return result;
     }
 
@@ -155,11 +155,11 @@ unsafe public struct NetworkReader
     {
         ValidateSchema(NetworkSchema.FieldType.ByteArray, 0, false, maxLength);
         uint count = m_Input[m_Position++];
-        byte* src= (byte*)(m_Input+m_Position);
+        byte* src = (byte*) (m_Input + m_Position);
         for (int i = 0; i < count; ++i)
             value[i] = *src++;
         m_Position += maxLength / 4;
-        return (int)count;
+        return (int) count;
     }
 
     void ValidateSchema(NetworkSchema.FieldType type, int bits, bool delta, int arraySize = 0)
@@ -168,7 +168,8 @@ unsafe public struct NetworkReader
             return;
 
         m_CurrentField = m_Schema.fields[m_NextFieldIndex];
-        GameDebug.Assert(type == m_CurrentField.fieldType,"Property:{0} has unexpected field type:{1} Expected:{2}", m_CurrentField.name, type, m_CurrentField.fieldType);
+        GameDebug.Assert(type == m_CurrentField.fieldType, "Property:{0} has unexpected field type:{1} Expected:{2}", m_CurrentField.name, type,
+            m_CurrentField.fieldType);
         GameDebug.Assert(bits == m_CurrentField.bits);
         GameDebug.Assert(arraySize == m_CurrentField.arraySize);
 

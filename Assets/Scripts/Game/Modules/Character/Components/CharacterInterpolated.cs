@@ -10,7 +10,7 @@ public struct CharacterInterpolatedData : IInterpolatedComponent<CharacterInterp
     public float rotation;
     public float aimYaw;
     public float aimPitch;
-    public float moveYaw;                                       // Global rotation 0->360 deg
+    public float moveYaw; // Global rotation 0->360 deg
 
     public CharacterPredictedData.LocoState charLocoState;
     public int charLocoTick;
@@ -20,18 +20,18 @@ public struct CharacterInterpolatedData : IInterpolatedComponent<CharacterInterp
     public float damageDirection;
     public int sprinting;
     public float sprintWeight;
-    
+
     // Custom properties for Animation states
     public CharacterPredictedData.LocoState previousCharLocoState;
-    public int lastGroundMoveTick; 
-    public float moveAngleLocal;                                // Movement rotation realtive to character forward -180->180 deg clockwise
+    public int lastGroundMoveTick;
+    public float moveAngleLocal; // Movement rotation realtive to character forward -180->180 deg clockwise
     public float shootPoseWeight;
     public Vector2 locomotionVector;
-    public float locomotionPhase;        
+    public float locomotionPhase;
     public float banking;
     public float landAnticWeight;
     public float turnStartAngle;
-    public short turnDirection;                                 // -1 TurnLeft, 0 Idle, 1 TurnRight
+    public short turnDirection; // -1 TurnLeft, 0 Idle, 1 TurnRight
     public float squashTime;
     public float squashWeight;
     public float inAirTime;
@@ -40,12 +40,12 @@ public struct CharacterInterpolatedData : IInterpolatedComponent<CharacterInterp
     public Vector2 footIkOffset;
     public Vector3 footIkNormalLeft;
     public Vector3 footIkNormaRight;
-    
+
     public static IInterpolatedComponentSerializerFactory CreateSerializerFactory()
     {
         return new InterpolatedComponentSerializerFactory<CharacterInterpolatedData>();
     }
-    
+
     public void Serialize(ref SerializeContext context, ref NetworkWriter writer)
     {
         writer.WriteVector3Q("position", position, 2);
@@ -54,22 +54,22 @@ public struct CharacterInterpolatedData : IInterpolatedComponent<CharacterInterp
         writer.WriteFloatQ("aimPitch", aimPitch, 0);
         writer.WriteFloatQ("moveYaw", moveYaw, 0);
 
-        writer.WriteInt32("charLocoState", (int)charLocoState);
+        writer.WriteInt32("charLocoState", (int) charLocoState);
         writer.WriteInt32("charLocoTick", charLocoTick);
-        writer.WriteInt32("characterAction", (int)charAction);
+        writer.WriteInt32("characterAction", (int) charAction);
         writer.WriteInt32("characterActionTick", charActionTick);
         writer.WriteBoolean("sprinting", sprinting == 1);
         writer.WriteFloatQ("sprintWeight", sprintWeight, 2);
         writer.WriteInt32("damageTick", damageTick);
-        writer.WriteFloatQ("damageDirection", damageDirection,1);
-        
+        writer.WriteFloatQ("damageDirection", damageDirection, 1);
+
         writer.WriteFloatQ("moveAngleLocal", moveAngleLocal, 0);
         writer.WriteFloatQ("shootPoseWeight", shootPoseWeight);
         writer.WriteVector2Q("locomotionVector", locomotionVector);
         writer.WriteFloatQ("locomotionPhase", locomotionPhase);
         writer.WriteFloatQ("banking", banking);
         writer.WriteFloatQ("landAnticWeight", landAnticWeight, 2);
-        writer.WriteFloatQ("turnStartAngle", turnStartAngle,0);
+        writer.WriteFloatQ("turnStartAngle", turnStartAngle, 0);
         writer.WriteInt16("turnDirection", turnDirection);
         writer.WriteFloatQ("squashTime", squashTime, 2);
         writer.WriteFloatQ("squashWeight", squashWeight, 2);
@@ -89,13 +89,13 @@ public struct CharacterInterpolatedData : IInterpolatedComponent<CharacterInterp
         aimPitch = reader.ReadFloatQ();
         moveYaw = reader.ReadFloatQ();
 
-        charLocoState = (CharacterPredictedData.LocoState)reader.ReadInt32();
+        charLocoState = (CharacterPredictedData.LocoState) reader.ReadInt32();
         charLocoTick = reader.ReadInt32();
-        charAction = (CharacterPredictedData.Action)reader.ReadInt32();
+        charAction = (CharacterPredictedData.Action) reader.ReadInt32();
         charActionTick = reader.ReadInt32();
         sprinting = reader.ReadBoolean() ? 1 : 0;
         sprintWeight = reader.ReadFloatQ();
-        
+
         damageTick = reader.ReadInt32();
         damageDirection = reader.ReadFloatQ();
 
@@ -131,8 +131,8 @@ public struct CharacterInterpolatedData : IInterpolatedComponent<CharacterInterp
         charAction = prevState.charAction;
         charActionTick = prevState.charActionTick;
         sprinting = prevState.sprinting;
-        sprintWeight =  Mathf.Lerp(prevState.sprintWeight, nextState.sprintWeight, f);
-        
+        sprintWeight = Mathf.Lerp(prevState.sprintWeight, nextState.sprintWeight, f);
+
         damageTick = prevState.damageTick;
         damageDirection = prevState.damageDirection;
 
@@ -181,4 +181,5 @@ public struct CharacterInterpolatedData : IInterpolatedComponent<CharacterInterp
 }
 
 public class CharacterInterpolated : ComponentDataProxy<CharacterInterpolatedData>
-{}
+{
+}

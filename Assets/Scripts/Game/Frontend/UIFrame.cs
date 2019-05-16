@@ -37,7 +37,7 @@ public class UIFrame : MaskableGraphic
         var vUL = (new Vector3(0 - rectTransform.pivot.x * w + offset, h - rectTransform.pivot.y * h - offset));
 
         var vMid = new Vector3((vLL.x + vLR.x) * 0.5f, (vLL.y + vUL.y) * 0.5f, 0);
-        var vdLL  = Snap(vLL) - vMid;
+        var vdLL = Snap(vLL) - vMid;
         var vdLR = new Vector3(-vdLL.x, vdLL.y);
         var vdUR = new Vector3(-vdLL.x, -vdLL.y);
         var vdUL = new Vector3(vdLL.x, -vdLL.y);
@@ -59,17 +59,17 @@ public class UIFrame : MaskableGraphic
         var vURi = vMid + vdURi;
         var vULi = vMid + vdULi;
 
-        vh.AddVert(vLL, color, Vector2.zero); 
-        vh.AddVert(vLR, color, Vector2.zero); 
-        vh.AddVert(vLRi, color, Vector2.zero); 
+        vh.AddVert(vLL, color, Vector2.zero);
+        vh.AddVert(vLR, color, Vector2.zero);
+        vh.AddVert(vLRi, color, Vector2.zero);
         vh.AddVert(vLLi, color, Vector2.zero);
 
         vh.AddTriangle(0, 2, 1);
         vh.AddTriangle(0, 3, 2);
 
-        vh.AddVert(vUL, color, Vector2.zero); 
-        vh.AddVert(vUR, color, Vector2.zero); 
-        vh.AddVert(vURi, color, Vector2.zero); 
+        vh.AddVert(vUL, color, Vector2.zero);
+        vh.AddVert(vUR, color, Vector2.zero);
+        vh.AddVert(vURi, color, Vector2.zero);
         vh.AddVert(vULi, color, Vector2.zero);
 
         vh.AddTriangle(4, 6, 5);

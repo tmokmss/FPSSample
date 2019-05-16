@@ -11,10 +11,8 @@ public struct BlendSpaceNode
     public AnimationClip clip;
     public Vector2 position;
     public float speed;
-    [HideInInspector]
-    public float weight;
-    [HideInInspector]
-    public float clipLength;
+    [HideInInspector] public float weight;
+    [HideInInspector] public float clipLength;
 }
 
 public class BlendTree2dSimpleDirectional
@@ -26,9 +24,9 @@ public class BlendTree2dSimpleDirectional
         m_Positions = new Vector2[count];
         m_Clips = new AnimationClipPlayable[count];
         m_Weights = new float[count];
-        
+
         m_Mixer = AnimationMixerPlayable.Create(graph, count);
-        m_Mixer.SetPropagateSetTime(true); 
+        m_Mixer.SetPropagateSetTime(true);
 
         for (var i = 0; i < count; i++)
         {
@@ -46,12 +44,13 @@ public class BlendTree2dSimpleDirectional
     }
 
     public float SetBlendPosition(Vector2 position, bool updateGraph = true)
-    {                    
+    {
         var count = m_Nodes.Count;
         for (var i = 0; i < count; i++)
         {
             m_Positions[i] = m_Nodes[i].position;
         }
+
         CalculateWeights(m_Positions, ref m_Weights, position);
 
         // Store results and calculate blendedClipLength
@@ -71,14 +70,14 @@ public class BlendTree2dSimpleDirectional
         {
             UpdateGraph();
         }
-        
+
         return m_BlendedClipLength;
     }
 
     public void UpdateGraph()
     {
         for (var i = 0; i < m_Clips.Length; i++)
-        {  
+        {
             m_Mixer.SetInputWeight(i, m_Weights[i]);
             m_Clips[i].SetSpeed(m_Nodes[i].clipLength / m_BlendedClipLength);
             m_Clips[i].SetApplyFootIK(footIk);
@@ -92,7 +91,7 @@ public class BlendTree2dSimpleDirectional
             m_Clips[i].SetTime(phase * m_Clips[i].GetAnimationClip().length);
         }
     }
-    
+
     static void CalculateWeights(Vector2[] positionArray, ref float[] weightArray, Vector2 blendParam)
     {
         var count = positionArray.Length;
@@ -102,7 +101,7 @@ public class BlendTree2dSimpleDirectional
         {
             weightArray[i] = 0f;
         }
-        
+
         // Handle fallback
         if (count < 2)
         {
@@ -231,14 +230,14 @@ public class BlendTree2dSimpleDirectional
     {
         return m_Mixer;
     }
-    
+
     AnimationClipPlayable[] m_Clips;
     AnimationMixerPlayable m_Mixer;
     List<BlendSpaceNode> m_Nodes;
     Vector2[] m_Positions;
     float[] m_Weights;
     float m_BlendedClipLength;
-    
+
     public float masterSpeed;
     public bool footIk;
 }

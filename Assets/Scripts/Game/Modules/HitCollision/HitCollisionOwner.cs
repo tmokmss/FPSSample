@@ -14,7 +14,7 @@ public enum HitCollisionFlags
 [Serializable]
 public struct HitCollisionOwnerData : IComponentData
 {
-    [EnumBitField(typeof(HitCollisionFlags))] 
+    [EnumBitField(typeof(HitCollisionFlags))]
     public uint colliderFlags;
 
     public int collisionEnabled;
@@ -33,6 +33,5 @@ public class HitCollisionOwner : ComponentDataProxy<HitCollisionOwnerData>
         {
             goe.EntityManager.AddBuffer<DamageEvent>(goe.Entity);
         }
-        
     }
 }

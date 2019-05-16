@@ -11,16 +11,18 @@ public class ParticleCulling : MonoBehaviour
     void Start()
     {
         m_CullingGroup = new CullingGroup();
-        m_CullingGroup.targetCamera = Camera.main; 
-        m_CullingGroup.SetBoundingSpheres(new BoundingSphere[] { new BoundingSphere(transform.position, cullingRadius) });
+        m_CullingGroup.targetCamera = Camera.main;
+        m_CullingGroup.SetBoundingSpheres(new BoundingSphere[] {new BoundingSphere(transform.position, cullingRadius)});
         m_CullingGroup.SetBoundingSphereCount(1);
         m_CullingGroup.onStateChanged += OnStateChanged;
         render = GetComponent<ParticleSystemRenderer>();
     }
+
     private void Update()
     {
         m_CullingGroup.targetCamera = Camera.main;
     }
+
     void OnStateChanged(CullingGroupEvent sphere)
     {
         if (sphere.isVisible)
@@ -29,14 +31,12 @@ public class ParticleCulling : MonoBehaviour
             target.Play(true);
             render.enabled = true;
             //Debug.Log("ParticlesEnabled");
-
         }
         else
         {
             target.Pause();
             render.enabled = false;
             //Debug.Log("ParticlesDisabled");
-
         }
     }
 

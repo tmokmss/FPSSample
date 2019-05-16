@@ -40,9 +40,20 @@ public class ClientFrontend : MonoBehaviour
 
 
     // Audio for menus. Called from events on the ui elements
-    public void OnHighlight() { Game.SoundSystem.Play(uiHighlightSound); }
-    public void OnSelect() { Game.SoundSystem.Play(uiSelectSound); }
-    public void OnClose() { Game.SoundSystem.Play(uiCloseSound); }
+    public void OnHighlight()
+    {
+        Game.SoundSystem.Play(uiHighlightSound);
+    }
+
+    public void OnSelect()
+    {
+        Game.SoundSystem.Play(uiSelectSound);
+    }
+
+    public void OnClose()
+    {
+        Game.SoundSystem.Play(uiCloseSound);
+    }
 
     void Awake()
     {
@@ -88,7 +99,7 @@ public class ClientFrontend : MonoBehaviour
         }
 
         // Toggle menu if not in editor
-        if(!Application.isEditor && Input.GetKeyUp(KeyCode.Escape))
+        if (!Application.isEditor && Input.GetKeyUp(KeyCode.Escape))
         {
             if (menuShowing == MenuShowing.None)
             {
@@ -172,8 +183,4 @@ class ClientFrontendUpdate : BaseComponentSystem
 
         Game.game.clientFrontend.UpdateIngame(gameMode, localPlayer);
     }
-
 }
-
-
-

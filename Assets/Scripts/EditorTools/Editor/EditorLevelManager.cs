@@ -47,8 +47,8 @@ public class EditorLevelManager
         }
 
         // Store command in playerprefs that will be consumed when playmode starts
-        var count = PlayerPrefs.GetInt("CustomStartupCommandCount",0);
-        PlayerPrefs.SetString(string.Format("CustomStartupCommand{0}",count), args);
+        var count = PlayerPrefs.GetInt("CustomStartupCommandCount", 0);
+        PlayerPrefs.SetString(string.Format("CustomStartupCommand{0}", count), args);
         count++;
         PlayerPrefs.SetInt("CustomStartupCommandCount", count);
         EditorApplication.isPlaying = true;
@@ -58,7 +58,7 @@ public class EditorLevelManager
     {
         if (mode == OpenSceneMode.Single)
         {
-            var path = scene.path;    // Native call and string allocation
+            var path = scene.path; // Native call and string allocation
             if (IsLayeredLevel(path))
             {
                 var layers = GetLevelLayers(path);
@@ -78,12 +78,12 @@ public class EditorLevelManager
         if (mode == PlayModeStateChange.EnteredPlayMode)
         {
             var startCommandCount = PlayerPrefs.GetInt("CustomStartupCommandCount", 0);
-            if(startCommandCount > 0)
+            if (startCommandCount > 0)
             {
                 if (Game.game == null)
                     SceneManager.LoadScene(0);
 
-                for (int i=0;i< startCommandCount;i++)
+                for (int i = 0; i < startCommandCount; i++)
                 {
                     var key = string.Format("CustomStartupCommand{0}", i);
                     var args = PlayerPrefs.GetString(key, "");
@@ -99,13 +99,13 @@ public class EditorLevelManager
                 var info = GetLevelInfoFor(EditorSceneManager.GetSceneAt(0).path);
                 if (info != null)
                 {
-                    switch(info.levelType)
+                    switch (info.levelType)
                     {
                         case LevelInfo.LevelType.Generic:
                             break;
                         case LevelInfo.LevelType.Gameplay:
                             //Console.EnqueueCommandNoHistory("preview");
-                            Game.game.RequestGameLoop( typeof(PreviewGameLoop), new string[0]);
+                            Game.game.RequestGameLoop(typeof(PreviewGameLoop), new string[0]);
                             break;
                         case LevelInfo.LevelType.Menu:
                             Console.SetOpen(false);
@@ -131,14 +131,14 @@ public class EditorLevelManager
 
     public static LevelInfo GetLevelInfoFor(string scenePath)
     {
-        foreach(var levelInfo in BuildTools.LoadLevelInfos())
+        foreach (var levelInfo in BuildTools.LoadLevelInfos())
         {
-            if(AssetDatabase.GetAssetPath(levelInfo.main_scene) == scenePath)
+            if (AssetDatabase.GetAssetPath(levelInfo.main_scene) == scenePath)
             {
                 return levelInfo;
             }
         }
+
         return null;
     }
 }
-

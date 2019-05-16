@@ -71,6 +71,7 @@ namespace NetcodeTests
         }
 
         List<int> dyingEntities = new List<int>();
+
         public void PurgeDespawnedEntitites()
         {
             dyingEntities.Clear();
@@ -79,7 +80,7 @@ namespace NetcodeTests
                 if (entity.Value.despawnTick > 0)
                     dyingEntities.Add(entity.Key);
 
-            foreach(var i in dyingEntities)
+            foreach (var i in dyingEntities)
                 entities.Remove(i);
         }
 
@@ -117,17 +118,17 @@ namespace NetcodeTests
         {
             var typeId = s_EntityTypeToId[typeof(T)];
             var id = networkServer.RegisterEntity(-1, typeId, predictingClientId);
-            return (T)SpawnInternal(id, typeId, predictingClientId);
+            return (T) SpawnInternal(id, typeId, predictingClientId);
         }
 
         TestEntity SpawnInternal(int entityId, ushort typeId, int predictingClientId)
         {
             var type = s_IdToEntityType[typeId];
-            if(entities.ContainsKey(entityId))
+            if (entities.ContainsKey(entityId))
                 Debug.Log("Trying to spawn entity with id that is in use");
             Debug.Assert(!entities.ContainsKey(entityId), "Trying to spawn entity with id that is in use");
 
-            TestEntity entity = (TestEntity)Activator.CreateInstance(type);
+            TestEntity entity = (TestEntity) Activator.CreateInstance(type);
             entity.id = entityId;
             entity.spawnTick = tick;
             entity.typeId = s_EntityTypeToId[type];
@@ -165,10 +166,11 @@ namespace NetcodeTests
 
         public void ProcessEntityDespawns(int serverTime, List<int> despawns)
         {
-            foreach(int id in despawns)
+            foreach (int id in despawns)
             {
                 DespawnEntity(entities[id]);
             }
+
             PurgeDespawnedEntitites();
         }
 
@@ -178,17 +180,19 @@ namespace NetcodeTests
 
         public int WorldTick
         {
-            get
-            {
-                return tick;
-            }
+            get { return tick; }
         }
     }
 
     public class TestGameServer : INetworkCallbacks
     {
         public TestWorld world;
-        public NetworkServer networkServer { get { return m_NetworkServer; } }
+
+        public NetworkServer networkServer
+        {
+            get { return m_NetworkServer; }
+        }
+
         public List<int> clients;
 
         public TestGameServer()
@@ -207,7 +211,7 @@ namespace NetcodeTests
             world = new TestWorld();
 
             // TODO (petera) fix this (see also comments below)
-            foreach(var c in m_NetworkServer.GetConnections())
+            foreach (var c in m_NetworkServer.GetConnections())
             {
                 m_NetworkServer.MapReady(c.Value.connectionId);
             }
@@ -285,9 +289,17 @@ namespace NetcodeTests
             m_NetworkClient.SendData();
         }
 
-        public void OnConnect(int clientId) { }
-        public void OnDisconnect(int clientId) { }
-        public void OnEvent(int clientId, NetworkEvent info) { }
+        public void OnConnect(int clientId)
+        {
+        }
+
+        public void OnDisconnect(int clientId)
+        {
+        }
+
+        public void OnEvent(int clientId, NetworkEvent info)
+        {
+        }
 
         public void OnMapUpdate(ref NetworkReader data)
         {
@@ -299,5 +311,4 @@ namespace NetcodeTests
         public TestTransport m_Transport;
         NetworkClient m_NetworkClient;
     }
-
 }

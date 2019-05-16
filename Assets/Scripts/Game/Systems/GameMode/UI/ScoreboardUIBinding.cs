@@ -12,7 +12,7 @@ public class ScoreboardUIBinding
 
     internal void Clear()
     {
-        foreach(var team in teams)
+        foreach (var team in teams)
         {
             team.name.text = "";
             team.score.text = "";
@@ -30,4 +30,3 @@ public class ScoreboardTeamUIBinding
     public TMPro.TextMeshProUGUI playerScoreTemplate;
     public List<TMPro.TextMeshProUGUI> playerScores = new List<TMPro.TextMeshProUGUI>();
 }
-

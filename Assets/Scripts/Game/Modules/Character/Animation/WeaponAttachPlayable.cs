@@ -6,13 +6,10 @@ using UnityEngine.Animations;
 
 public class WeaponAttachPlayable : PlayableBehaviour
 {
-
     public void Initialize(Transform weaponAttacher, Transform weaponRoot)
     {
         m_weaponAttacher = weaponAttacher;
         m_weaponRoot = weaponRoot;
-
-        
     }
 
     public override void PrepareFrame(Playable playable, FrameData info)
@@ -45,4 +42,3 @@ public class WeaponAttachPlayable : PlayableBehaviour
     Transform m_weaponAttacher;
     Transform m_weaponRoot;
 }
-

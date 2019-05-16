@@ -78,19 +78,24 @@ namespace NetcodeTests
                 m_Test = test;
             }
 
-            public void OnConnect(int clientId) { }
+            public void OnConnect(int clientId)
+            {
+            }
 
-            public void OnDisconnect(int clientId) { }
+            public void OnDisconnect(int clientId)
+            {
+            }
 
             unsafe public void OnEvent(int clientId, NetworkEvent info)
             {
                 var received = new MyEvent();
-                fixed(uint* data = info.data)
+                fixed (uint* data = info.data)
                 {
                     var reader = new NetworkReader(data, info.type.schema);
                     received.Deserialize(ref reader);
                     received.AssertReplicatedCorrectly(m_Test.lastEventSent, false);
                 }
+
                 ++m_Test.eventReceived;
             }
 
@@ -108,19 +113,24 @@ namespace NetcodeTests
                 m_Test = test;
             }
 
-            public void OnConnect(int clientId) { }
+            public void OnConnect(int clientId)
+            {
+            }
 
-            public void OnDisconnect(int clientId) { }
+            public void OnDisconnect(int clientId)
+            {
+            }
 
             unsafe public void OnEvent(int clientId, NetworkEvent info)
             {
                 var received = new MyEvent();
-                fixed(uint* data = info.data)
+                fixed (uint* data = info.data)
                 {
                     var reader = new NetworkReader(data, info.type.schema);
                     received.Deserialize(ref reader);
                     received.AssertReplicatedCorrectly(m_Test.lastEventSent, false);
                 }
+
                 ++m_Test.eventReceived;
             }
 
@@ -137,6 +147,7 @@ namespace NetcodeTests
         public MyEvent lastEventSent;
         public int eventSent;
         public int eventReceived;
+
         [Test]
         public void Events_ClientToServer_SendUnreliable()
         {
@@ -171,7 +182,7 @@ namespace NetcodeTests
 
                 if (eventSent == eventReceived && i < RUNS - 2)
                 {
-                    client.QueueEvent((ushort)EventType.MyEvent, false, (ref NetworkWriter writer) =>
+                    client.QueueEvent((ushort) EventType.MyEvent, false, (ref NetworkWriter writer) =>
                     {
                         lastEventSent = new MyEvent();
                         lastEventSent.Serialize(ref writer);
@@ -181,6 +192,7 @@ namespace NetcodeTests
 
                 client.SendData();
             }
+
             Assert.AreEqual(eventReceived, eventSent);
         }
 
@@ -214,19 +226,21 @@ namespace NetcodeTests
 
                 if (eventSent == eventReceived && i < RUNS - 2)
                 {
-                    server.QueueEvent(1, (ushort)EventType.MyEvent, false, (ref NetworkWriter writer) =>
+                    server.QueueEvent(1, (ushort) EventType.MyEvent, false, (ref NetworkWriter writer) =>
                     {
                         lastEventSent = new MyEvent();
                         lastEventSent.Serialize(ref writer);
                     });
                     ++eventSent;
                 }
+
                 server.SendData();
 
                 client.Update(clientCallbacks, snapshotConsumer);
 
                 client.SendData();
             }
+
             Assert.AreEqual(eventReceived, eventSent);
         }
 
@@ -251,6 +265,7 @@ namespace NetcodeTests
                 clients[i] = new NetworkClient(clientTransports[i]);
                 clients[i].Connect("127.0.0.1:1");
             }
+
             server.InitializeMap((ref NetworkWriter data) => { data.WriteString("name", "TestMap"); });
 
             server.Update(serverCallbacks);
@@ -264,21 +279,23 @@ namespace NetcodeTests
                 server.Update(serverCallbacks);
                 if (eventSent == eventReceived * NUM_CLIENTS && i < RUNS - 2)
                 {
-                    server.QueueEventBroadcast((ushort)EventType.MyEvent, false, (ref NetworkWriter writer) =>
+                    server.QueueEventBroadcast((ushort) EventType.MyEvent, false, (ref NetworkWriter writer) =>
                     {
                         lastEventSent = new MyEvent();
                         lastEventSent.Serialize(ref writer);
                     });
                     ++eventSent;
                 }
+
                 server.SendData();
 
-                foreach(var client in clients)
+                foreach (var client in clients)
                 {
                     client.Update(clientCallbacks, snapshotConsumer);
                     client.SendData();
                 }
             }
+
             Assert.AreEqual(eventSent, eventReceived / NUM_CLIENTS);
         }
 
@@ -314,13 +331,14 @@ namespace NetcodeTests
                 server.Update(serverCallbacks);
                 if (eventSent == eventReceived && i < RUNS - 32)
                 {
-                    server.QueueEvent(1, (ushort)EventType.MyEvent, true, (ref NetworkWriter writer) =>
+                    server.QueueEvent(1, (ushort) EventType.MyEvent, true, (ref NetworkWriter writer) =>
                     {
                         lastEventSent = new MyEvent();
                         lastEventSent.Serialize(ref writer);
                     });
                     ++eventSent;
                 }
+
                 server.SendData();
 
                 if (i % 3 == 0)
@@ -332,6 +350,7 @@ namespace NetcodeTests
 
                 client.SendData();
             }
+
             Assert.AreEqual(eventSent, eventReceived);
         }
     }

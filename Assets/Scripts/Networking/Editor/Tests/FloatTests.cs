@@ -15,7 +15,7 @@ namespace NetcodeTests
             const int RUNS = 10000;
             var samples = new int[RUNS];
             for (int i = 0; i < RUNS; ++i)
-                samples[i] = (int)(random.NextDouble() * random.Next(0, 10000) * 1000);
+                samples[i] = (int) (random.NextDouble() * random.Next(0, 10000) * 1000);
 
             //for (int i = 0; i < RUNS - 1; ++i)
             //{

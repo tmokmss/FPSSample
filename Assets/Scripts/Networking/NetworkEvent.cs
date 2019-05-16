@@ -3,6 +3,7 @@ using UnityEngine;
 using NetworkCompression;
 
 public delegate void NetworkEventGenerator(ref NetworkWriter data);
+
 public delegate void NetworkEventProcessor(ushort typeId, ref NetworkReader data);
 
 
@@ -27,11 +28,11 @@ public class NetworkEvent
 
     public void Release()
     {
-        GameDebug.Assert(m_RefCount > 0, "Trying to release an event that has refcount 0 (seq: {0})",sequence);
+        GameDebug.Assert(m_RefCount > 0, "Trying to release an event that has refcount 0 (seq: {0})", sequence);
         if (--m_RefCount == 0)
         {
             if (NetworkConfig.netDebug.IntValue > 0)
-                GameDebug.Log("Releasing event " + ((GameNetworkEvents.EventType)this.type.typeId) + ":" + this.sequence);
+                GameDebug.Log("Releasing event " + ((GameNetworkEvents.EventType) this.type.typeId) + ":" + this.sequence);
             s_Pool.Release(this);
         }
     }
@@ -48,21 +49,22 @@ public class NetworkEvent
         return result;
     }
 
-    public unsafe static NetworkEvent Serialize(ushort typeId, bool reliable, Dictionary<ushort,NetworkEventType> eventTypes, NetworkEventGenerator generator)
+    public unsafe static NetworkEvent Serialize(ushort typeId, bool reliable, Dictionary<ushort, NetworkEventType> eventTypes,
+        NetworkEventGenerator generator)
     {
         bool generateSchema = false;
         NetworkEventType type;
         if (!eventTypes.TryGetValue(typeId, out type))
         {
             generateSchema = true;
-            type = new NetworkEventType() { typeId = typeId, schema = new NetworkSchema(NetworkConfig.firstEventTypeSchemaId + typeId) };
+            type = new NetworkEventType() {typeId = typeId, schema = new NetworkSchema(NetworkConfig.firstEventTypeSchemaId + typeId)};
             eventTypes.Add(typeId, type);
         }
 
         var result = Create(type, reliable);
         result.sequence = ++s_Sequence;
         if (NetworkConfig.netDebug.IntValue > 0)
-            GameDebug.Log("Serializing event " + ((GameNetworkEvents.EventType)result.type.typeId) + " in seq no: " + result.sequence);
+            GameDebug.Log("Serializing event " + ((GameNetworkEvents.EventType) result.type.typeId) + " in seq no: " + result.sequence);
 
         fixed (uint* data = result.data)
         {
@@ -70,19 +72,21 @@ public class NetworkEvent
             generator(ref writer);
             writer.Flush();
         }
+
         return result;
     }
 
-    public static int ReadEvents<TInputStream>(Dictionary<ushort,NetworkEventType> eventTypesIn, int connectionId, ref TInputStream input, INetworkCallbacks networkConsumer) where TInputStream : NetworkCompression.IInputStream
+    public static int ReadEvents<TInputStream>(Dictionary<ushort, NetworkEventType> eventTypesIn, int connectionId, ref TInputStream input,
+        INetworkCallbacks networkConsumer) where TInputStream : NetworkCompression.IInputStream
     {
         var eventCount = input.ReadPackedUInt(NetworkConfig.eventCountContext);
         for (var eventCounter = 0; eventCounter < eventCount; ++eventCounter)
         {
-            var typeId = (ushort)input.ReadPackedUInt(NetworkConfig.eventTypeIdContext);
+            var typeId = (ushort) input.ReadPackedUInt(NetworkConfig.eventTypeIdContext);
             var schemaIncluded = input.ReadRawBits(1) != 0;
             if (schemaIncluded)
             {
-                var eventType = new NetworkEventType() { typeId = typeId };
+                var eventType = new NetworkEventType() {typeId = typeId};
                 eventType.schema = NetworkSchema.ReadSchema(ref input);
 
                 if (!eventTypesIn.ContainsKey(typeId))
@@ -94,18 +98,20 @@ public class NetworkEvent
             var info = Create(type);
             NetworkSchema.CopyFieldsToBuffer(type.schema, ref input, info.data);
             if (NetworkConfig.netDebug.IntValue > 0)
-                GameDebug.Log("Received event " + ((GameNetworkEvents.EventType)info.type.typeId + ":" + info.sequence));
+                GameDebug.Log("Received event " + ((GameNetworkEvents.EventType) info.type.typeId + ":" + info.sequence));
 
             networkConsumer.OnEvent(connectionId, info);
 
             info.Release();
         }
-        return (int)eventCount;
+
+        return (int) eventCount;
     }
 
-    unsafe public static void WriteEvents<TOutputStream>(List<NetworkEvent> events, List<NetworkEventType> knownEventTypes, ref TOutputStream output) where TOutputStream : NetworkCompression.IOutputStream
+    unsafe public static void WriteEvents<TOutputStream>(List<NetworkEvent> events, List<NetworkEventType> knownEventTypes, ref TOutputStream output)
+        where TOutputStream : NetworkCompression.IOutputStream
     {
-        output.WritePackedUInt((uint)events.Count, NetworkConfig.eventCountContext);
+        output.WritePackedUInt((uint) events.Count, NetworkConfig.eventCountContext);
         foreach (var info in events)
         {
             // Write event schema if the client haven't acked this event type

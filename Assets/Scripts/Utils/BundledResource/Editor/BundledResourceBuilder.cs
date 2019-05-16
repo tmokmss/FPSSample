@@ -33,7 +33,7 @@ public class BundledResourceBuilder
         BuildWindowProgress.Open("Verify Registries");
         TestRegistries();
     }
-    
+
 
     [MenuItem("FPS Sample/Registries/Prepare registries")]
     public static void PrepareRegistriesMenu()
@@ -50,10 +50,11 @@ public class BundledResourceBuilder
             var path = AssetDatabase.GUIDToAssetPath(guid);
             var registry = AssetDatabase.LoadAssetAtPath<RegistryBase>(path);
             registry.PrepareForBuild();
-            
+
             EditorUtility.SetDirty(registry);
             AssetDatabase.SaveAssets();
         }
+
         Debug.Log("Done");
     }
 
@@ -92,11 +93,11 @@ public class BundledResourceBuilder
 
 
                     baseRegistry.GetSingleAssetGUIDs(singleAssetGUIDs, registryRoot.serverBuild);
-                    foreach(var g in singleAssetGUIDs)
+                    foreach (var g in singleAssetGUIDs)
                     {
                         var p = AssetDatabase.GUIDToAssetPath(g);
                         var a = AssetDatabase.LoadAssetAtPath<Object>(p);
-                        if(a != null)
+                        if (a != null)
                         {
                             Debug.Log("     - " + g + " : " + p);
                         }
@@ -109,6 +110,7 @@ public class BundledResourceBuilder
                 }
             }
         }
+
         Debug.Log(ok ? "<color=green>All good!</color>" : "<color=red>Errors found</color>");
         return ok;
     }
@@ -117,7 +119,7 @@ public class BundledResourceBuilder
     {
         Debug.Log("Verifying asset registries ..");
         var ok = TestRegistries();
-        if(!ok)
+        if (!ok)
         {
             Debug.LogError("Asset registries appear broken.... Build failed.");
             return;
@@ -188,19 +190,19 @@ public class BundledResourceBuilder
                 build = new AssetBundleBuild();
                 build.assetBundleName = singleAssetFolder + "/" + singleAssetBundleGUID;
                 build.assetBundleVariant = "";
-                build.assetNames = new string[] { path };
+                build.assetNames = new string[] {path};
 
                 Debug.Log("Creating single asset bundle from asset:" + path + " Bundle name:" + build.assetBundleName);
 
                 builds.Add(build);
                 singleAssetBundlesHandled.Add(singleAssetBundleGUID);
             }
-            
+
 
             // TODO (mogensh) Settle on what buildpipline to use. LegacyBuildPipeline uses SBP internally and is faster.   
 //            LegacyBuildPipeline.BuildAssetBundles(bundlePath, builds.ToArray(), assetBundleOptions, target);
             BuildPipeline.BuildAssetBundles(bundlePath, builds.ToArray(), assetBundleOptions, target);
-            
+
             // Set write time so tools can show time since build
             Directory.SetLastWriteTime(bundlePath, DateTime.Now);
         }

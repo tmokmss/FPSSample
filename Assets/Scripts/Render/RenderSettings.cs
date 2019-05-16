@@ -11,42 +11,63 @@ public static class RenderSettings
 {
     [ConfigVar(Name = "show.quality", DefaultValue = "0", Description = "Show quality setting debug overlay")]
     static ConfigVar showQuality;
+
     [ConfigVar(Name = "r.quality", DefaultValue = "Ultra", Description = "Overall rendering quality", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rQuality;
-    [ConfigVar(Name = "r.vsync", DefaultValue = "1", Description = "Number of v-blanks to wait for each frame. 0 means no sync", Flags = ConfigVar.Flags.Save)]
+
+    [ConfigVar(Name = "r.vsync", DefaultValue = "1", Description = "Number of v-blanks to wait for each frame. 0 means no sync",
+        Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rVSync;
-    [ConfigVar(Name = "r.fullscreen", DefaultValue = "3", Description = "Full screen mode (0: exclusive, 1: full, 3: windowed)", Flags = ConfigVar.Flags.Save)]
+
+    [ConfigVar(Name = "r.fullscreen", DefaultValue = "3", Description = "Full screen mode (0: exclusive, 1: full, 3: windowed)",
+        Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rFullscreen;
+
     [ConfigVar(Name = "r.aamode", DefaultValue = "taa", Description = "AA mode: off, fxaa, smaa, taa", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rAAMode;
+
     [ConfigVar(Name = "r.aaquality", DefaultValue = "high", Description = "AA quality: low, med, high", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rAAQuality;
+
     [ConfigVar(Name = "r.bloom", DefaultValue = "1", Description = "Enable bloom", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rBloom;
+
     [ConfigVar(Name = "r.motionblur", DefaultValue = "1", Description = "Enable motion blur", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rMotionBlur;
+
     [ConfigVar(Name = "r.ssao", DefaultValue = "1", Description = "Enable ssao", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rSSAO;
+
     [ConfigVar(Name = "r.grain", DefaultValue = "1", Description = "Enable grain", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rGrain;
+
     [ConfigVar(Name = "r.ssr", DefaultValue = "1", Description = "Enable screen space reflections", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rSSR;
+
     [ConfigVar(Name = "r.sss", DefaultValue = "1", Description = "Enable subsurface scattering", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rSSS;
+
     [ConfigVar(Name = "r.roughrefraction", DefaultValue = "1", Description = "Enable rough refraction", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rRoughRefraction;
+
     [ConfigVar(Name = "r.distortion", DefaultValue = "1", Description = "Enable distortion", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rDistortion;
+
     [ConfigVar(Name = "r.shadowdistmult", DefaultValue = "1.0", Description = "Shadow distance multiplier", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rShadowDistMult;
+
     [ConfigVar(Name = "r.decaldist", DefaultValue = "200", Description = "Decal draw distance", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rDecalDist;
+
     [ConfigVar(Name = "r.gamma", DefaultValue = "1", Description = "User gamma correction", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rGamma;
+
     [ConfigVar(Name = "r.resolution", DefaultValue = "", Description = "Screen resolution", Flags = ConfigVar.Flags.Save)]
     public static ConfigVar rResolution;
+
     [ConfigVar(Name = "r.latesync", DefaultValue = "1", Description = "Sync with render thread late", Flags = ConfigVar.Flags.None)]
     public static ConfigVar rLateSync;
+
     [ConfigVar(Name = "r.occlusionthreshold", DefaultValue = "50", Description = "Occlusion threshold", Flags = ConfigVar.Flags.None)]
     public static ConfigVar rOcclusionThreshold;
 
@@ -74,9 +95,11 @@ public static class RenderSettings
     {
         if (rLateSync.ChangeCheck())
         {
-            GraphicsDeviceSettings.waitForPresentSyncPoint = rLateSync.IntValue > 0 ? WaitForPresentSyncPoint.EndFrame : WaitForPresentSyncPoint.BeginFrame;
+            GraphicsDeviceSettings.waitForPresentSyncPoint =
+                rLateSync.IntValue > 0 ? WaitForPresentSyncPoint.EndFrame : WaitForPresentSyncPoint.BeginFrame;
         }
-        if(rOcclusionThreshold.ChangeCheck())
+
+        if (rOcclusionThreshold.ChangeCheck())
         {
             HDRenderPipeline.s_OcclusionThreshold = rOcclusionThreshold.FloatValue;
         }
@@ -85,7 +108,7 @@ public static class RenderSettings
         bool updateFrameSettings = false;
 
         if (rResolution.ChangeCheck())
-            CmdResolution(new string[] { rResolution.Value });
+            CmdResolution(new string[] {rResolution.Value});
         else
         {
             if (currentResX != Screen.width || currentResY != Screen.height)
@@ -109,6 +132,7 @@ public static class RenderSettings
                     break;
                 }
             }
+
             if (!set)
             {
                 rQuality.Value = QualitySettings.names[QualitySettings.GetQualityLevel()];
@@ -118,7 +142,7 @@ public static class RenderSettings
         else
         {
             var currentIdx = QualitySettings.GetQualityLevel();
-            if(currentQualityIdx != currentIdx)
+            if (currentQualityIdx != currentIdx)
             {
                 currentQualityIdx = currentIdx;
                 rQuality.Value = QualitySettings.names[currentIdx];
@@ -132,7 +156,7 @@ public static class RenderSettings
             QualitySettings.vSyncCount = rVSync.IntValue;
 
         if (rFullscreen.ChangeCheck())
-            Screen.fullScreenMode = (FullScreenMode)rFullscreen.IntValue;
+            Screen.fullScreenMode = (FullScreenMode) rFullscreen.IntValue;
 
         //        if (rNewPrepareLights.ChangeCheck())
         //            LightLoop.useNewPrepareLights = (rNewPrepareLights.IntValue != 0);
@@ -265,7 +289,6 @@ public static class RenderSettings
             ppl.antialiasingMode = PostProcessLayer.Antialiasing.TemporalAntialiasing;
         else
             GameDebug.Log("Unknown aa mode: " + rAAMode.Value);
-
     }
 
     static void CmdResolution(string[] arguments)
@@ -310,9 +333,10 @@ public static class RenderSettings
             Console.Write(r.width + "x" + r.height + "@" + r.refreshRate);
         }
 
-        Console.Write("Fullscreen-mode: " + (int)Screen.fullScreenMode + "(" + Screen.fullScreenMode.ToString() + ")");
+        Console.Write("Fullscreen-mode: " + (int) Screen.fullScreenMode + "(" + Screen.fullScreenMode.ToString() + ")");
         Console.Write("Current window resolution: " + Screen.width + "x" + Screen.height);
-        Console.Write("Current screen resolution: " + Screen.currentResolution.width + "x" + Screen.currentResolution.height + "@" + Screen.currentResolution.refreshRate);
+        Console.Write("Current screen resolution: " + Screen.currentResolution.width + "x" + Screen.currentResolution.height + "@" +
+                      Screen.currentResolution.refreshRate);
     }
 
     static void CmdQuality(string[] arguments)
@@ -333,6 +357,7 @@ public static class RenderSettings
             Console.Write("Max queued frames: " + QualitySettings.maxQueuedFrames);
             return;
         }
+
         QualitySettings.maxQueuedFrames = int.Parse(arguments[0]);
     }
 
@@ -341,5 +366,4 @@ public static class RenderSettings
         GraphicsSettings.useScriptableRenderPipelineBatching = (args.Length == 1 && args[0] == "1");
         Console.Write("SrpBatching " + (GraphicsSettings.useScriptableRenderPipelineBatching ? "on" : "off"));
     }
-
 }

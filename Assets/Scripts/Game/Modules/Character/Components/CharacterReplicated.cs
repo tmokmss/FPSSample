@@ -11,11 +11,11 @@ public struct CharacterReplicatedData : IComponentData, IReplicatedComponent
     {
         return new ReplicatedComponentSerializerFactory<CharacterReplicatedData>();
     }
-    
+
     public void Serialize(ref SerializeContext context, ref NetworkWriter writer)
     {
-        writer.WriteInt16("heroType",(short)heroTypeIndex);
-        context.refSerializer.SerializeReference(ref writer, "behaviorController",abilityCollection);
+        writer.WriteInt16("heroType", (short) heroTypeIndex);
+        context.refSerializer.SerializeReference(ref writer, "behaviorController", abilityCollection);
     }
 
     public void Deserialize(ref SerializeContext context, ref NetworkReader reader)
@@ -23,7 +23,7 @@ public struct CharacterReplicatedData : IComponentData, IReplicatedComponent
         heroTypeIndex = reader.ReadInt16();
         context.refSerializer.DeserializeReference(ref reader, ref abilityCollection);
     }
-    
+
     public Entity FindAbilityWithComponent(EntityManager entityManager, Type abilityType)
     {
         var buffer = entityManager.GetBuffer<EntityGroupChildren>(abilityCollection);
@@ -34,8 +34,8 @@ public struct CharacterReplicatedData : IComponentData, IReplicatedComponent
                 continue;
             if (entityManager.HasComponent(childEntity, abilityType))
                 return childEntity;
-        }  
-        
+        }
+
         return Entity.Null;
     }
 }

@@ -15,27 +15,29 @@ public struct BitOutputStream
     {
         return m_CurrentByteIdx * 8 + m_CurrentBitIdx;
     }
+
     public void WriteUIntPacked(long value)
     {
         GameDebug.Assert(value >= 0);
 
         int outputBits = 1;
         int numPrefixBits = 0;
-        while (value >= (1L << outputBits))  // RUTODO: Unroll this and merge with bit output. How do we actually verify inlining in C#?
+        while (value >= (1L << outputBits)) // RUTODO: Unroll this and merge with bit output. How do we actually verify inlining in C#?
         {
             value -= (1L << outputBits);
             outputBits += 2;
             numPrefixBits++;
         }
+
         WriteBits(1u << numPrefixBits, numPrefixBits + 1);
 
         if (outputBits > 32)
         {
-            WriteBits((uint)value, 32);
-            WriteBits((uint)(value >> 32), outputBits - 32);
+            WriteBits((uint) value, 32);
+            WriteBits((uint) (value >> 32), outputBits - 32);
         }
         else
-            WriteBits((uint)value, outputBits);
+            WriteBits((uint) value, outputBits);
     }
 
     public void WriteIntDelta(long value, long baseline)
@@ -48,6 +50,7 @@ public struct BitOutputStream
 
         WriteUIntPacked(diff);
     }
+
     public void WriteIntDeltaNonZero(long value, long baseline)
     {
         var diff = value - baseline;
@@ -66,12 +69,12 @@ public struct BitOutputStream
         GameDebug.Assert(numbits > 0 && numbits <= 32);
         GameDebug.Assert((UInt64.MaxValue << numbits & value) == 0);
 
-        m_BitStage |= ((ulong)value << m_CurrentBitIdx);
+        m_BitStage |= ((ulong) value << m_CurrentBitIdx);
         m_CurrentBitIdx += numbits;
 
         while (m_CurrentBitIdx >= 8)
         {
-            m_Buffer[m_CurrentByteIdx++] = (byte)m_BitStage;
+            m_Buffer[m_CurrentByteIdx++] = (byte) m_BitStage;
             m_CurrentBitIdx -= 8;
             m_BitStage >>= 8;
         }

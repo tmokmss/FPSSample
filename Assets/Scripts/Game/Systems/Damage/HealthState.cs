@@ -4,10 +4,10 @@ using UnityEngine;
 using Unity.Entities;
 
 [Serializable]
-public struct HealthStateData : IComponentData, IReplicatedComponent      
+public struct HealthStateData : IComponentData, IReplicatedComponent
 {
     [NonSerialized] public float health;
-    [NonSerialized] public float maxHealth;     
+    [NonSerialized] public float maxHealth;
     [NonSerialized] public int deathTick;
     [NonSerialized] public Entity killedBy;
 
@@ -15,7 +15,7 @@ public struct HealthStateData : IComponentData, IReplicatedComponent
     {
         return new ReplicatedComponentSerializerFactory<HealthStateData>();
     }
-    
+
     public void Serialize(ref SerializeContext context, ref NetworkWriter writer)
     {
         writer.WriteFloat("health", health);
@@ -31,7 +31,7 @@ public struct HealthStateData : IComponentData, IReplicatedComponent
         this.maxHealth = maxHealth;
         health = maxHealth;
     }
-    
+
     public void ApplyDamage(ref DamageEvent damageEvent, int tick)
     {
         if (health <= 0)
@@ -50,5 +50,4 @@ public struct HealthStateData : IComponentData, IReplicatedComponent
 
 public class HealthState : ComponentDataProxy<HealthStateData>
 {
-    
 }

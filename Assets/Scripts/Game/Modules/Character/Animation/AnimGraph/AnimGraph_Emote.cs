@@ -53,8 +53,8 @@ public class AnimGraph_Emote : AnimGraphAsset
             for (var i = 0; i < ports.Length; i++)
             {
                 ports[i] = i;
-            }            
-            
+            }
+
             m_Transition = new SimpleTranstion<AnimationMixerPlayable>(m_mixer, ports);
 
             for (int i = 0; i < settings.emoteData.Length; i++)
@@ -70,7 +70,9 @@ public class AnimGraph_Emote : AnimGraphAsset
             }
         }
 
-        public void Shutdown() { }
+        public void Shutdown()
+        {
+        }
 
         public void SetPlayableInput(int index, Playable playable, int playablePort)
         {
@@ -84,12 +86,14 @@ public class AnimGraph_Emote : AnimGraphAsset
             playablePort = 0;
         }
 
-        public void UpdatePresentationState(bool firstUpdate, GameTime time, float deltaTime) { }
+        public void UpdatePresentationState(bool firstUpdate, GameTime time, float deltaTime)
+        {
+        }
 
         public void ApplyPresentationState(GameTime time, float deltaTime)
         {
             Profiler.BeginSample("Emote.Apply");
-            
+
             // Find ability entity
             if (!m_EntityManager.Exists(ability))
             {
@@ -120,7 +124,7 @@ public class AnimGraph_Emote : AnimGraphAsset
                 return;
             }
 
-            var requestedPort = (int)abilityState.emote;
+            var requestedPort = (int) abilityState.emote;
             if (requestedPort != activePort || abilityState.emoteCount != lastEmoteCount)
             {
                 lastEmoteCount = abilityState.emoteCount;
@@ -136,7 +140,8 @@ public class AnimGraph_Emote : AnimGraphAsset
                 if (!m_settings.emoteData[activePort - 1].keepPlaying)
                 {
                     var clipPlayable = m_mixer.GetInput(activePort);
-                    if (clipPlayable.GetPlayState() == PlayState.Playing && clipPlayable.GetTime() >= clipPlayable.GetDuration() - m_settings.blendTime)
+                    if (clipPlayable.GetPlayState() == PlayState.Playing &&
+                        clipPlayable.GetTime() >= clipPlayable.GetDuration() - m_settings.blendTime)
                     {
                         clipPlayable.Pause();
                         activePort = 0;
@@ -149,7 +154,7 @@ public class AnimGraph_Emote : AnimGraphAsset
             }
 
             m_Transition.Update(activePort, blendVel, Time.deltaTime);
-            
+
             Profiler.EndSample();
         }
 
@@ -160,7 +165,7 @@ public class AnimGraph_Emote : AnimGraphAsset
             var clipPlayable = m_mixer.GetInput(port);
 
             GameDebug.Assert(clipPlayable.IsValid(), "playable in port:{0} is invalid", port);
-            
+
             clipPlayable.SetTime(0);
             clipPlayable.Play();
         }

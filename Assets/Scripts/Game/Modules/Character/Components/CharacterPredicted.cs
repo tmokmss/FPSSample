@@ -35,7 +35,7 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
     }
 
 
-    public int tick;                    // Tick is only for debug purposes
+    public int tick; // Tick is only for debug purposes
     public Vector3 position;
     public Vector3 velocity;
     public LocoState locoState;
@@ -46,10 +46,10 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
     public int sprinting;
 
     public CameraProfile cameraProfile;
-    
+
     public int damageTick;
     public Vector3 damageDirection;
-    public float damageImpulse;                                              
+    public float damageImpulse;
 
     public void SetAction(Action action, int tick)
     {
@@ -62,19 +62,19 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
     {
         return new PredictedComponentSerializerFactory<CharacterPredictedData>();
     }
-    
+
     public void Serialize(ref SerializeContext context, ref NetworkWriter writer)
     {
         writer.WriteInt32("tick", tick);
-        writer.WriteVector3Q("velocity", velocity, 2);                   
-        writer.WriteInt32("action", (int)action); 
-        writer.WriteInt32("actionStartTick", actionStartTick);                            
-        writer.WriteInt32("phase", (int)locoState);
-        writer.WriteInt32("phaseStartTick", locoStartTick);                               
+        writer.WriteVector3Q("velocity", velocity, 2);
+        writer.WriteInt32("action", (int) action);
+        writer.WriteInt32("actionStartTick", actionStartTick);
+        writer.WriteInt32("phase", (int) locoState);
+        writer.WriteInt32("phaseStartTick", locoStartTick);
         writer.WriteVector3Q("position", position, 2);
         writer.WriteInt32("jumpCount", jumpCount);
         writer.WriteBoolean("sprint", sprinting == 1);
-        writer.WriteByte("cameraProfile", (byte)cameraProfile);
+        writer.WriteByte("cameraProfile", (byte) cameraProfile);
         writer.WriteInt32("damageTick", damageTick);
         writer.WriteVector3Q("damageDirection", damageDirection);
     }
@@ -83,14 +83,14 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
     {
         this.tick = reader.ReadInt32();
         velocity = reader.ReadVector3Q();
-        action = (Action)reader.ReadInt32();
+        action = (Action) reader.ReadInt32();
         actionStartTick = reader.ReadInt32();
-        locoState = (LocoState)reader.ReadInt32();
+        locoState = (LocoState) reader.ReadInt32();
         locoStartTick = reader.ReadInt32();
         position = reader.ReadVector3Q();
         jumpCount = reader.ReadInt32();
         sprinting = reader.ReadBoolean() ? 1 : 0;
-        cameraProfile = (CameraProfile)reader.ReadByte();
+        cameraProfile = (CameraProfile) reader.ReadByte();
         damageTick = reader.ReadInt32();
         damageDirection = reader.ReadVector3Q();
     }
@@ -103,7 +103,7 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
 #if UNITY_EDITOR
     public bool VerifyPrediction(ref CharacterPredictedData state)
     {
-        return Vector3.Distance(position, state.position) < 0.1f 
+        return Vector3.Distance(position, state.position) < 0.1f
                && Vector3.Distance(velocity, state.velocity) < 0.1f
                && locoState == state.locoState
                && locoStartTick == state.locoStartTick
@@ -113,7 +113,7 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
                && sprinting == state.sprinting
                && damageTick == state.damageTick;
     }
-    
+
     public override string ToString()
     {
         var strBuilder = new System.Text.StringBuilder();
@@ -129,9 +129,10 @@ public struct CharacterPredictedData : IComponentData, IPredictedComponent<Chara
         strBuilder.AppendLine("damageTick:" + damageTick);
         strBuilder.AppendLine("damageDirection:" + damageDirection);
         return strBuilder.ToString();
-    }        
-#endif    
+    }
+#endif
 }
 
 public class CharacterPredicted : ComponentDataProxy<CharacterPredictedData>
-{}
+{
+}

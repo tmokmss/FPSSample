@@ -18,7 +18,8 @@ public class MenuButton : MonoBehaviour
                 EventSystem eventSystem = gameOjectsWithEventSystems[0].GetComponent<EventSystem>();
                 if (!eventSystem.currentSelectedGameObject)
                 {
-                    Debug.Log(string.Format("Activating {0} as currentSelectedGameObject on first Event System {1}", this.name, gameOjectsWithEventSystems[0].name));
+                    Debug.Log(string.Format("Activating {0} as currentSelectedGameObject on first Event System {1}", this.name,
+                        gameOjectsWithEventSystems[0].name));
                     eventSystem.SetSelectedGameObject(this.gameObject);
                 }
             }

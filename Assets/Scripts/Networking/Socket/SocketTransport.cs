@@ -10,7 +10,8 @@ public class SocketTransport : INetworkTransport
     public SocketTransport(int port = 0, int maxConnections = 16)
     {
         m_IdToConnection = new NativeArray<NetworkConnection>(maxConnections, Allocator.Persistent);
-        m_Socket = new UdpNetworkDriver(new NetworkDataStreamParameter { size = 10 * NetworkConfig.maxPackageSize }, new NetworkConfigParameter { disconnectTimeout = ServerGameLoop.serverDisconnectTimeout.IntValue });
+        m_Socket = new UdpNetworkDriver(new NetworkDataStreamParameter {size = 10 * NetworkConfig.maxPackageSize},
+            new NetworkConfigParameter {disconnectTimeout = ServerGameLoop.serverDisconnectTimeout.IntValue});
         m_Socket.Bind(new IPEndPoint(IPAddress.Any, port));
 
         if (port != 0)
@@ -62,7 +63,7 @@ public class SocketTransport : INetworkTransport
             reader.ReadBytesIntoArray(ref context, ref m_Buffer, reader.Length);
             size = reader.Length;
         }
-        
+
         switch (ev)
         {
             case EventType.Data:

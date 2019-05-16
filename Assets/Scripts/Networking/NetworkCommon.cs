@@ -1,5 +1,4 @@
-﻿
-using Unity.Networking.Transport;
+﻿using Unity.Networking.Transport;
 
 public struct TransportEvent
 {
@@ -9,6 +8,7 @@ public struct TransportEvent
         Connect,
         Disconnect
     }
+
     public Type type;
     public int connectionId;
     public byte[] data;
@@ -40,26 +40,28 @@ public interface INetworkCallbacks
 public enum NetworkMessage
 {
     // Shared messages
-    Events      = 1 << 0,
+    Events = 1 << 0,
 
     // Server -> Client messages
-    ClientInfo  = 1 << 1,
-    MapInfo     = 1 << 2,
-    Snapshot    = 1 << 3,
+    ClientInfo = 1 << 1,
+    MapInfo = 1 << 2,
+    Snapshot = 1 << 3,
 
     // Client -> Server messages
-    ClientConfig  = 1 << 1,
-    Commands    = 1 << 2,
+    ClientConfig = 1 << 1,
+    Commands = 1 << 2,
 
-    FRAGMENT = 1 << 7,   // Special flag used when package has been fragmented into several packages and needs reassembly
+    FRAGMENT = 1 << 7, // Special flag used when package has been fragmented into several packages and needs reassembly
 }
 
 public static class NetworkConfig
 {
     [ConfigVar(Name = "net.stats", DefaultValue = "0", Description = "Show net statistics")]
     public static ConfigVar netStats;
+
     [ConfigVar(Name = "net.printstats", DefaultValue = "0", Description = "Print stats to console every N frame")]
     public static ConfigVar netPrintStats;
+
     [ConfigVar(Name = "net.debug", DefaultValue = "0", Description = "Dump lots of debug info about network")]
     public static ConfigVar netDebug;
 
@@ -69,7 +71,8 @@ public static class NetworkConfig
     [ConfigVar(Name = "server.sqp_port", DefaultValue = "0", Description = "Port used for server query protocol. server.port + 1 if not set")]
     public static ConfigVar serverSQPPort;
 
-    [ConfigVar(Name = "net.chokesendinterval", DefaultValue = "0.3", Description = "If connection is choked, send tiny keep alive packs at this interval")]
+    [ConfigVar(Name = "net.chokesendinterval", DefaultValue = "0.3",
+        Description = "If connection is choked, send tiny keep alive packs at this interval")]
     public static ConfigVar netChokeSendInterval;
 
 
@@ -85,11 +88,11 @@ public static class NetworkConfig
     public const int commandClientBufferSize = 32;
 
     public const int maxFragments = 16;
-    public const int packageFragmentSize = NetworkParameterConstants.MTU - 128;  // 128 is just a random safety distance to MTU
+    public const int packageFragmentSize = NetworkParameterConstants.MTU - 128; // 128 is just a random safety distance to MTU
     public const int maxPackageSize = maxFragments * packageFragmentSize;
 
     // Number of serialized snapshots kept on server. Each server tick generate a snapshot. 
-    public const int snapshotDeltaCacheSize = 128;  // Number of snapshots to cache for deltas
+    public const int snapshotDeltaCacheSize = 128; // Number of snapshots to cache for deltas
 
     // Size of client ack buffers. These buffers are used to keep track of ack'ed baselines
     // from clients. Theoretically the 'right' size is snapshotDeltaCacheSize / (server.tickrate / client.updaterate)
@@ -99,15 +102,15 @@ public static class NetworkConfig
     public const int maxEventDataSize = 512;
     public const int maxCommandDataSize = 128;
     public const int maxEntitySnapshotDataSize = 512;
-    public const int maxWorldSnapshotDataSize = 64*1024; // The entire world snapshot has to fit in this number of bytes
+    public const int maxWorldSnapshotDataSize = 64 * 1024; // The entire world snapshot has to fit in this number of bytes
     public readonly static System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
 
-    public readonly static float[] encoderPrecisionScales = new float[] { 1.0f, 10.0f, 100.0f, 1000.0f };
-    public readonly static float[] decoderPrecisionScales = new float[] { 1.0f, 0.1f, 0.01f, 0.001f };
+    public readonly static float[] encoderPrecisionScales = new float[] {1.0f, 10.0f, 100.0f, 1000.0f};
+    public readonly static float[] decoderPrecisionScales = new float[] {1.0f, 0.1f, 0.01f, 0.001f};
 
 
     // compression
-    public const NetworkCompression.IOStreamType ioStreamType = NetworkCompression.IOStreamType.Huffman;    //TODO: make this dynamic
+    public const NetworkCompression.IOStreamType ioStreamType = NetworkCompression.IOStreamType.Huffman; //TODO: make this dynamic
 
     public const int maxFixedSchemaIds = 2;
     public const int maxEventTypeSchemaIds = 8;

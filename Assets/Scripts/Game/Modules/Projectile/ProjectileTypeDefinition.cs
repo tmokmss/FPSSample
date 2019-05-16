@@ -1,11 +1,12 @@
 ﻿using System;
 using UnityEditor;
 using UnityEngine;
+
 #if UNITY_EDITOR
 #endif
 
 [Serializable]
-public struct ProjectileSettings    
+public struct ProjectileSettings
 {
     public float velocity;
     public float impactDamage;
@@ -17,23 +18,22 @@ public struct ProjectileSettings
 [CreateAssetMenu(fileName = "ProjectileTypeDefinition", menuName = "FPS Sample/Projectile/ProjectileTypeDefinition")]
 public class ProjectileTypeDefinition : ScriptableObject
 {
-    [HideInInspector]
-    public WeakAssetReference guid;  
-    
+    [HideInInspector] public WeakAssetReference guid;
+
     public ProjectileSettings properties;
-        
+
     // Clientprojectile settings.  
     public int clientProjectileBufferSize = 20;
     public WeakAssetReference clientProjectilePrefab;
-    
-    
+
+
 #if UNITY_EDITOR
-            
+
     private void OnValidate()
     {
         UpdateAssetGuid();
     }
-    
+
     public void SetAssetGUID(string guidStr)
     {
         var newRef = new WeakAssetReference(guidStr);

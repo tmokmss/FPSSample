@@ -19,7 +19,7 @@ namespace NetworkCompression
         {
             this = new HuffmanOutputStream(model, buffer, bufferOffset, capture);
         }
-        
+
         public void WriteRawBits(uint value, int numbits)
         {
             WriteRawBitsInternal(value, numbits);
@@ -29,18 +29,18 @@ namespace NetworkCompression
         unsafe public void WriteRawBytes(byte* value, int count)
         {
             for (int i = 0; i < count; i++)
-                WriteRawBits(value[i], 8);  //TODO: only flush every n bytes
+                WriteRawBits(value[i], 8); //TODO: only flush every n bytes
         }
 
         public void WritePackedNibble(uint value, int context)
         {
-            if(value >= 16)
+            if (value >= 16)
                 Debug.Assert(false, "Nibble bigger than 15");
             if (m_Capture != null)
                 m_Capture.AddNibble(context, value);
 
             ushort encodeEntry = m_Model.encodeTable[context, value];
-            WriteRawBitsInternal((uint)(encodeEntry >> 8), encodeEntry & 0xFF);
+            WriteRawBitsInternal((uint) (encodeEntry >> 8), encodeEntry & 0xFF);
             FlushBits();
         }
 
@@ -56,20 +56,20 @@ namespace NetworkCompression
             uint offset = NetworkCompressionConstants.k_BucketOffsets[bucket];
             int bits = NetworkCompressionConstants.k_BucketSizes[bucket];
             ushort encodeEntry = m_Model.encodeTable[context, bucket];
-            WriteRawBitsInternal((uint)(encodeEntry >> 8), encodeEntry & 0xFF);
+            WriteRawBitsInternal((uint) (encodeEntry >> 8), encodeEntry & 0xFF);
             WriteRawBitsInternal(value - offset, bits);
             FlushBits();
         }
 
         public void WritePackedIntDelta(int value, int baseline, int context)
         {
-            WritePackedUIntDelta((uint)value, (uint)baseline, context);
+            WritePackedUIntDelta((uint) value, (uint) baseline, context);
         }
 
         public void WritePackedUIntDelta(uint value, uint baseline, int context)
         {
-            int diff = (int)(baseline - value);
-            uint interleaved = (uint)((diff >> 31) ^ (diff << 1));      // interleave negative values between positive values: 0, -1, 1, -2, 2
+            int diff = (int) (baseline - value);
+            uint interleaved = (uint) ((diff >> 31) ^ (diff << 1)); // interleave negative values between positive values: 0, -1, 1, -2, 2
             WritePackedUInt(interleaved, context);
         }
 
@@ -87,10 +87,11 @@ namespace NetworkCompression
         {
             while (m_CurrentBitIndex > 0)
             {
-                m_Buffer[m_CurrentByteIndex++] = (byte)m_BitBuffer;
+                m_Buffer[m_CurrentByteIndex++] = (byte) m_BitBuffer;
                 m_CurrentBitIndex -= 8;
                 m_BitBuffer >>= 8;
             }
+
             m_CurrentBitIndex = 0;
             return m_CurrentByteIndex - m_BufferOffset;
         }
@@ -102,7 +103,7 @@ namespace NetworkCompression
             Debug.Assert(value < (1UL << numbits));
 #endif
 
-            m_BitBuffer |= ((ulong)value << m_CurrentBitIndex);
+            m_BitBuffer |= ((ulong) value << m_CurrentBitIndex);
             m_CurrentBitIndex += numbits;
         }
 
@@ -110,7 +111,7 @@ namespace NetworkCompression
         {
             while (m_CurrentBitIndex >= 8)
             {
-                m_Buffer[m_CurrentByteIndex++] = (byte)m_BitBuffer;
+                m_Buffer[m_CurrentByteIndex++] = (byte) m_BitBuffer;
                 m_CurrentBitIndex -= 8;
                 m_BitBuffer >>= 8;
             }

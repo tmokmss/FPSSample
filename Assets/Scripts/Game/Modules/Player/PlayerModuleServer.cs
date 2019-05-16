@@ -18,13 +18,13 @@ public class PlayerModuleServer
 
     public PlayerState CreatePlayer(GameWorld world, int playerId, string playerName, bool isReady)
     {
-        var prefab = (GameObject)m_resourceSystem.GetSingleAssetResource(m_settings.playerStatePrefab);
-        
-        
+        var prefab = (GameObject) m_resourceSystem.GetSingleAssetResource(m_settings.playerStatePrefab);
+
+
         var gameObjectEntity = m_world.Spawn<GameObjectEntity>(prefab);
         var entityManager = gameObjectEntity.EntityManager;
         var entity = gameObjectEntity.Entity;
-        
+
         var playerState = entityManager.GetComponentObject<PlayerState>(entity);
         playerState.playerId = playerId;
         playerState.playerName = playerName;
@@ -33,8 +33,8 @@ public class PlayerModuleServer
         // data replicated out from server
         var re = entityManager.GetComponentData<ReplicatedEntityData>(entity);
         re.predictingPlayerId = playerId;
-        entityManager.SetComponentData(entity,re);
-            
+        entityManager.SetComponentData(entity, re);
+
         return playerState;
     }
 

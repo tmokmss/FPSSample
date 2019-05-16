@@ -9,10 +9,13 @@ public class GameModeDeathmatch : IGameMode
 {
     [ConfigVar(Name = "game.dm.minplayers", DefaultValue = "2", Description = "Minimum players before match starts")]
     public static ConfigVar minPlayers;
+
     [ConfigVar(Name = "game.dm.prematchtime", DefaultValue = "20", Description = "Time before match starts")]
     public static ConfigVar preMatchTime;
+
     [ConfigVar(Name = "game.dm.postmatchtime", DefaultValue = "10", Description = "Time after match ends before new will begin")]
     public static ConfigVar postMatchTime;
+
     [ConfigVar(Name = "game.dm.roundlength", DefaultValue = "420", Description = "Deathmatch round length (seconds)")]
     public static ConfigVar roundLength;
 
@@ -41,6 +44,7 @@ public class GameModeDeathmatch : IGameMode
     }
 
     char[] _msgBuf = new char[256];
+
     public void Update()
     {
         var gameModeState = m_GameModeSystemServer.gameModeState;
@@ -64,6 +68,7 @@ public class GameModeDeathmatch : IGameMode
                         m_GameModeSystemServer.chatSystem.SendChatAnnouncement("Match started!");
                     }
                 }
+
                 break;
             case Phase.Active:
                 if (m_GameModeSystemServer.GetGameTimer() == 0)
@@ -92,6 +97,7 @@ public class GameModeDeathmatch : IGameMode
                             m_world.GetEntityManager()
                                 .SetComponentData(playerState.controlledEntity, healthState);
                         }
+
                         playerState.displayGameResult = true;
                         if (winTeam == -1)
                             playerState.gameResult = "TIE";
@@ -111,6 +117,7 @@ public class GameModeDeathmatch : IGameMode
                         l = StringFormatter.Write(ref _msgBuf, 0, "Match over. Its a tie!");
                     m_GameModeSystemServer.chatSystem.SendChatAnnouncement(new CharBufView(_msgBuf, l));
                 }
+
                 break;
             case Phase.Ended:
                 if (m_GameModeSystemServer.GetGameTimer() == 0)
@@ -120,12 +127,14 @@ public class GameModeDeathmatch : IGameMode
                         var playerState = players[i];
                         playerState.displayGameResult = false;
                     }
+
                     m_GameModeSystemServer.Restart();
                 }
+
                 break;
         }
 
-        for(int i = 0; i < players.Length; i++)
+        for (int i = 0; i < players.Length; i++)
         {
             var player = players[i];
             if (player.controlledEntity == Entity.Null)
@@ -133,12 +142,13 @@ public class GameModeDeathmatch : IGameMode
             var charPredictedState = m_world.GetEntityManager().GetComponentData<CharacterPredictedData>(player.controlledEntity);
             var position = charPredictedState.position;
             player.enableCharacterSwitch = false;
-            foreach(var b in m_GameModeSystemServer.teamBases)
+            foreach (var b in m_GameModeSystemServer.teamBases)
             {
                 if (b.teamIndex == player.teamIndex)
                 {
                     var inside = (b.boxCollider.transform.InverseTransformPoint(position) - b.boxCollider.center);
-                    if (Mathf.Abs(inside.x) < b.boxCollider.size.x * 0.5f && Mathf.Abs(inside.y) < b.boxCollider.size.y * 0.5f && Mathf.Abs(inside.z) < b.boxCollider.size.z * 0.5f)
+                    if (Mathf.Abs(inside.x) < b.boxCollider.size.x * 0.5f && Mathf.Abs(inside.y) < b.boxCollider.size.y * 0.5f &&
+                        Mathf.Abs(inside.z) < b.boxCollider.size.z * 0.5f)
                     {
                         player.enableCharacterSwitch = true;
                         break;
@@ -182,6 +192,7 @@ public class GameModeDeathmatch : IGameMode
         Active,
         Ended,
     }
+
     Phase m_Phase;
 
     GameWorld m_world;

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Timeline;
 using UnityEngine.Playables;
 
-[TrackColor(0.5f,0.8f,0.5f)]
+[TrackColor(0.5f, 0.8f, 0.5f)]
 [TrackClipType(typeof(SoundTimelineClip))]
 [TrackBindingType(typeof(Transform))]
 public class SoundTimelineTrack : TrackAsset

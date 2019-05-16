@@ -3,7 +3,7 @@ using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 
-public class PlayerModuleClient  
+public class PlayerModuleClient
 {
     public bool PlayerStateReady
     {
@@ -20,7 +20,7 @@ public class PlayerModuleClient
         firstTick = m_LocalPlayer.commandBuffer.FirstTick();
         lastTick = m_LocalPlayer.commandBuffer.LastTick();
     }
-    
+
     public PlayerModuleClient(GameWorld world)
     {
         m_world = world;
@@ -37,8 +37,8 @@ public class PlayerModuleClient
         m_world.GetECSWorld().DestroyManager(m_UpdatePlayerCameras);
         m_world.GetECSWorld().DestroyManager(m_ResolvePlayerReference);
         m_world.GetECSWorld().DestroyManager(m_UpdateServerEntityComponent);
-        
-        if(m_LocalPlayer != null)
+
+        if (m_LocalPlayer != null)
             m_world.RequestDespawn(m_LocalPlayer.gameObject);
     }
 
@@ -49,7 +49,7 @@ public class PlayerModuleClient
         m_LocalPlayer.playerId = playerId;
         m_LocalPlayer.networkClient = networkClient;
         m_LocalPlayer.command.lookPitch = 90;
-        
+
         m_ResolvePlayerReference.SetLocalPlayer(m_LocalPlayer);
         return m_LocalPlayer;
     }
@@ -61,7 +61,6 @@ public class PlayerModuleClient
 
     public static void SampleInput(LocalPlayer localPlayer, bool userInputEnabled, float deltaTime, int renderTick)
     {
-        
         // Only sample input when cursor is locked to avoid affecting multiple clients running on same machine (TODO: find better handling of selected window)
         if (userInputEnabled)
             Game.inputSystem.AccumulateInput(ref localPlayer.command, deltaTime);
@@ -83,8 +82,8 @@ public class PlayerModuleClient
             if (localPlayer.m_debugMoveDuration > localPlayer.m_debugMovePhaseDuration)
             {
                 localPlayer.m_debugMoveDuration = 0;
-                localPlayer.m_debugMovePhaseDuration = 4 + 2*Random.value;
-                localPlayer.m_debugMoveTurnSpeed = maxTurn *0.9f + Random.value * maxTurn * 0.1f;
+                localPlayer.m_debugMovePhaseDuration = 4 + 2 * Random.value;
+                localPlayer.m_debugMoveTurnSpeed = maxTurn * 0.9f + Random.value * maxTurn * 0.1f;
 
                 localPlayer.m_debugMoveMag = Random.value > 0.5f ? 1.0f : 0.0f;
             }
@@ -92,14 +91,14 @@ public class PlayerModuleClient
             localPlayer.command.moveMagnitude = localPlayer.m_debugMoveMag;
             localPlayer.command.lookYaw += localPlayer.m_debugMoveTurnSpeed * deltaTime;
             localPlayer.command.lookYaw = localPlayer.command.lookYaw % 360;
-            while (localPlayer.command.lookYaw < 0.0f) 
+            while (localPlayer.command.lookYaw < 0.0f)
                 localPlayer.command.lookYaw += 360.0f;
-            localPlayer.command.buttons.Set(UserCommand.Button.PrimaryFire,localPlayer.m_debugMoveDuration < fireDuration);
-            localPlayer.command.buttons.Set(UserCommand.Button.SecondaryFire,localPlayer.command.buttons.IsSet(UserCommand.Button.PrimaryFire));
-            localPlayer.command.buttons.Set(UserCommand.Button.Jump,localPlayer.m_debugMoveDuration < jumpDuration);
+            localPlayer.command.buttons.Set(UserCommand.Button.PrimaryFire, localPlayer.m_debugMoveDuration < fireDuration);
+            localPlayer.command.buttons.Set(UserCommand.Button.SecondaryFire, localPlayer.command.buttons.IsSet(UserCommand.Button.PrimaryFire));
+            localPlayer.command.buttons.Set(UserCommand.Button.Jump, localPlayer.m_debugMoveDuration < jumpDuration);
         }
-            
-        localPlayer.command.renderTick = renderTick; 
+
+        localPlayer.command.renderTick = renderTick;
     }
 
     public void ResetInput(bool userInputEnabled)
@@ -123,14 +122,14 @@ public class PlayerModuleClient
         if (commandComponent.resetCommandTick > commandComponent.lastResetCommandTick)
         {
             commandComponent.lastResetCommandTick = commandComponent.resetCommandTick;
-            m_world.GetEntityManager().SetComponentData(controlledEntity,commandComponent);
-            
+            m_world.GetEntityManager().SetComponentData(controlledEntity, commandComponent);
+
             m_LocalPlayer.command.lookYaw = commandComponent.resetCommandLookYaw;
             m_LocalPlayer.command.lookPitch = commandComponent.resetCommandLookPitch;
         }
     }
 
-    public void ResolveReferenceFromLocalPlayerToPlayer() 
+    public void ResolveReferenceFromLocalPlayerToPlayer()
     {
         if (m_LocalPlayer.playerState == null)
             m_ResolvePlayerReference.Update();
@@ -140,11 +139,12 @@ public class PlayerModuleClient
     {
         m_UpdateServerEntityComponent.Update();
     }
-    
+
     public void StoreCommand(int tick)
     {
         StoreCommand(m_LocalPlayer, tick);
     }
+
     public static void StoreCommand(LocalPlayer localPlayer, int tick)
     {
         if (localPlayer.playerState == null)
@@ -158,7 +158,7 @@ public class PlayerModuleClient
             localPlayer.commandBuffer.Clear();
             GameDebug.Log(string.Format("Trying to store tick:{0} but last buffer tick is:{1}. Clearing buffer", tick, lastBufferTick));
         }
-        
+
         if (tick == lastBufferTick)
             localPlayer.commandBuffer.Set(ref localPlayer.command, tick);
         else
@@ -171,13 +171,13 @@ public class PlayerModuleClient
         GameDebug.Assert(m_LocalPlayer.playerState != null, "No player state set");
         if (m_LocalPlayer.controlledEntity == Entity.Null)
             return;
-      
+
         var userCommand = m_world.GetEntityManager().GetComponentData<UserCommandComponentData>(m_LocalPlayer.controlledEntity);
 
         var command = UserCommand.defaultCommand;
         var found = m_LocalPlayer.commandBuffer.TryGetValue(tick, ref command);
-        GameDebug.Assert(found, "Failed to find command for tick:{0}",tick);
-        
+        GameDebug.Assert(found, "Failed to find command for tick:{0}", tick);
+
         // Normally we can expect commands to be present, but if client has done hardcatchup commands might not have been generated yet
         // so we just use the defaultCommand
         userCommand.command = command;
@@ -197,13 +197,14 @@ public class PlayerModuleClient
     {
         SendCommand(m_LocalPlayer, tick);
     }
+
     public static void SendCommand(LocalPlayer localPlayer, int tick)
     {
         if (localPlayer.playerState == null)
             return;
 
-        var command =  UserCommand.defaultCommand;
-        var commandValid = localPlayer.commandBuffer.TryGetValue(tick, ref command);        
+        var command = UserCommand.defaultCommand;
+        var commandValid = localPlayer.commandBuffer.TryGetValue(tick, ref command);
         if (commandValid)
         {
             var serializeContext = new SerializeContext
@@ -213,11 +214,8 @@ public class PlayerModuleClient
                 refSerializer = null,
                 tick = tick
             };
-            
-            localPlayer.networkClient.QueueCommand(tick, (ref NetworkWriter writer) =>
-            {
-                command.Serialize(ref serializeContext, ref writer);    
-            });
+
+            localPlayer.networkClient.QueueCommand(tick, (ref NetworkWriter writer) => { command.Serialize(ref serializeContext, ref writer); });
         }
     }
 
@@ -225,7 +223,7 @@ public class PlayerModuleClient
     {
         m_HandlePlayerCameraControlSpawn.Update();
     }
-    
+
     public void CameraUpdate()
     {
         m_UpdatePlayerCameras.Update();
@@ -233,15 +231,16 @@ public class PlayerModuleClient
 
     readonly GameWorld m_world;
 
-    LocalPlayer m_LocalPlayer;        
-    
+    LocalPlayer m_LocalPlayer;
+
     readonly HandlePlayerCameraControlSpawn m_HandlePlayerCameraControlSpawn;
     readonly UpdatePlayerCameras m_UpdatePlayerCameras;
     readonly ResolvePlayerReference m_ResolvePlayerReference;
     readonly UpdateServerEntityComponent m_UpdateServerEntityComponent;
-    
+
     [ConfigVar(Name = "debugmove", DefaultValue = "0", Description = "Should client perform debug movement")]
     static ConfigVar m_debugMove;
+
     float m_debugMoveDuration;
     float m_debugMovePhaseDuration;
     float m_debugMoveTurnSpeed;

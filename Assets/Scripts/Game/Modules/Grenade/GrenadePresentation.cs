@@ -27,19 +27,19 @@ public class GrenadePresentationEditor : Editor
         var grenadePresentation = target as GrenadePresentation;
 
         var presentation = grenadePresentation.GetComponent<PresentationEntity>();
-        
+
         var serializedPresentation = new SerializedObject(presentation);
-        
+
         var presentationOwner = serializedPresentation.FindProperty("presentationOwner");
         EditorGUILayout.PropertyField(presentationOwner);
 
         var platformFlags = serializedPresentation.FindProperty("platformFlags");
         var names = Enum.GetNames(typeof(PlatformFlag));
-        platformFlags.intValue = EditorGUILayout.MaskField("Platforms", platformFlags.intValue, names );
+        platformFlags.intValue = EditorGUILayout.MaskField("Platforms", platformFlags.intValue, names);
 
         var variation = serializedPresentation.FindProperty("variation");
         EditorGUILayout.PropertyField(variation);
-        
+
         serializedPresentation.ApplyModifiedProperties();
     }
 }

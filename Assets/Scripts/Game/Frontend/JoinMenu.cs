@@ -7,7 +7,8 @@ using UnityEngine.UI;
 
 public class JoinMenu : MonoBehaviour
 {
-    [ConfigVar(Name = "serverlist", Description = "Comma seperated list of commonly used servers", DefaultValue = "localhost", Flags = ConfigVar.Flags.Save)]
+    [ConfigVar(Name = "serverlist", Description = "Comma seperated list of commonly used servers", DefaultValue = "localhost",
+        Flags = ConfigVar.Flags.Save)]
     public static ConfigVar serverlist;
 
     public ScrollRect servers;
@@ -20,12 +21,13 @@ public class JoinMenu : MonoBehaviour
 
     public void Awake()
     {
-        serverListEntryTemplateHeight = ((RectTransform)serverListEntryTemplate.transform).rect.height + 10.0f;
+        serverListEntryTemplateHeight = ((RectTransform) serverListEntryTemplate.transform).rect.height + 10.0f;
         foreach (var s in serverlist.Value.Split(','))
         {
-            if(s != "")
+            if (s != "")
                 AddServer(s);
         }
+
         RepositionItems();
         SetSelectedServer(-1);
     }
@@ -51,7 +53,7 @@ public class JoinMenu : MonoBehaviour
 
     public void OnServerItemPointerClick(BaseEventData e)
     {
-        var ped = (PointerEventData)e;
+        var ped = (PointerEventData) e;
         for (int i = 0; i < m_Servers.Count; ++i)
         {
             if (m_Servers[i].listItem.gameObject == ped.pointerPress)
@@ -77,6 +79,7 @@ public class JoinMenu : MonoBehaviour
     }
 
     List<string> m_HostnameList = new List<string>();
+
     void SaveServerlist()
     {
         m_HostnameList.Clear();
@@ -163,8 +166,8 @@ public class JoinMenu : MonoBehaviour
             var sid = option.sqpQuery.m_ServerInfo.ServerInfoData;
             option.listItem.serverName.text = sid.ServerName ?? "";
             option.listItem.gameMode.text = sid.GameType ?? "";
-            option.listItem.numPlayers.Format("{0}/{1}", (int)sid.CurrentPlayers, (int)sid.MaxPlayers);
-            option.listItem.pingTime.Format("{0} ms", (int)option.sqpQuery.RTT);
+            option.listItem.numPlayers.Format("{0}/{1}", (int) sid.CurrentPlayers, (int) sid.MaxPlayers);
+            option.listItem.pingTime.Format("{0} ms", (int) option.sqpQuery.RTT);
             option.listItem.mapName.text = sid.Map ?? "";
         }
         else
@@ -188,6 +191,7 @@ public class JoinMenu : MonoBehaviour
         {
             SetListItemSelected(m_Servers[i], index == i);
         }
+
         if (index >= 0)
         {
             connectButton.interactable = true;
@@ -208,7 +212,7 @@ public class JoinMenu : MonoBehaviour
 
     void PositionItem(GameObject item, int index)
     {
-        var trans = (RectTransform)item.transform;
+        var trans = (RectTransform) item.transform;
         trans.localPosition = new Vector3(0.0f, -serverListEntryTemplateHeight * index, 0.0f);
     }
 

@@ -105,7 +105,7 @@ public class LevelManager
         }
 
         currentLevel = newLevel;
-        currentLevel.layers.Add(new LevelLayer { loadOperation = mainLoadOperation });
+        currentLevel.layers.Add(new LevelLayer {loadOperation = mainLoadOperation});
 
         if (!useLayers)
             return true;
@@ -122,7 +122,7 @@ public class LevelManager
             var layerLoadOperation = SceneManager.LoadSceneAsync(layerScenePath, LoadSceneMode.Additive);
             if (layerLoadOperation != null)
             {
-                currentLevel.layers.Add(new LevelLayer { loadOperation = layerLoadOperation });
+                currentLevel.layers.Add(new LevelLayer {loadOperation = layerLoadOperation});
             }
             else
             {
@@ -163,13 +163,13 @@ public class LevelManager
                     if (Game.GetGameLoop<ServerGameLoop>() != null)
                         StripCode(BuildType.Server, true);
                     else if (Game.GetGameLoop<ClientGameLoop>() != null)
-                        StripCode(BuildType.Client, true);  
+                        StripCode(BuildType.Client, true);
                     else
                         StripCode(BuildType.Default, true);
                 }
                 else
                     StripCode(BuildType.Default, true);
-                
+
                 GameDebug.Log("Scene " + currentLevel.name + " loaded");
             }
         }

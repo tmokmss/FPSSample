@@ -12,7 +12,7 @@ public class TranslateScale : MonoBehaviour, ISkeletonTypeComponent
 {
     // todo: (sunek) Consider making function distance based (rather than on single axis)?
     public List<TranslateScaleChain> chains = new List<TranslateScaleChain>();
-    
+
     // TODO: (sunek) Add support for variable axis
 //    public AimAxis aimAxis;
 //
@@ -25,12 +25,9 @@ public class TranslateScale : MonoBehaviour, ISkeletonTypeComponent
     public struct Driven
     {
         public Transform joint;
-        [HideInInspector]
-        public float3 bindpose;
-        [Range(0f, 1)]
-        public float strectchFactor;
-        [Range(0f, 1)]
-        public float scaleFactor;
+        [HideInInspector] public float3 bindpose;
+        [Range(0f, 1)] public float strectchFactor;
+        [Range(0f, 1)] public float scaleFactor;
 
         public bool IsValid()
         {
@@ -42,8 +39,7 @@ public class TranslateScale : MonoBehaviour, ISkeletonTypeComponent
     public struct TranslateScaleChain
     {
         public Transform driver;
-        [HideInInspector]
-        public float3 bindpose;
+        [HideInInspector] public float3 bindpose;
         public List<Driven> drivenJoints;
 
         public bool HasValidData()
@@ -71,11 +67,11 @@ public class TranslateScale : MonoBehaviour, ISkeletonTypeComponent
                 driven.bindpose = driven.joint.localPosition;
                 chain.drivenJoints[j] = driven;
             }
-            
+
             chains[i] = chain;
-        }       
+        }
     }
-    
+
     public void GotoBindpose()
     {
         for (var i = 0; i < chains.Count; i++)
@@ -85,10 +81,9 @@ public class TranslateScale : MonoBehaviour, ISkeletonTypeComponent
             {
                 chains[i].drivenJoints[j].joint.localPosition = chains[i].drivenJoints[j].bindpose;
             }
-            
         }
-    }    
-    
+    }
+
 #if UNITY_EDITOR
     void LateUpdate()
     {
@@ -101,9 +96,9 @@ public class TranslateScale : MonoBehaviour, ISkeletonTypeComponent
 
             if (!chain.HasValidData())
                 continue;
-            
+
             var stretchOffset = chain.driver.transform.localPosition.y - chain.bindpose.y;
-            var stretchFactor = chain.driver.transform.localPosition.y / chain.bindpose.y ;
+            var stretchFactor = chain.driver.transform.localPosition.y / chain.bindpose.y;
 
             for (var j = 0; j < chain.drivenJoints.Count; j++)
             {
@@ -115,7 +110,7 @@ public class TranslateScale : MonoBehaviour, ISkeletonTypeComponent
                     driven.joint.localScale = new float3(volumeScale, 1f, volumeScale);
                 }
             }
-        }       
+        }
     }
 #endif
 }

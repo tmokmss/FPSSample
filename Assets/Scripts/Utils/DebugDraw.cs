@@ -30,32 +30,31 @@ public class DebugDraw
     {
         Sphere(sphere.center, sphere.radius, color, duration);
     }
-    
+
     public static void Prim(ray ray, Color color, float duration = 0)
     {
-        Debug.DrawLine(ray.origin, ray.origin + ray.direction*1000, color, duration);
+        Debug.DrawLine(ray.origin, ray.origin + ray.direction * 1000, color, duration);
         Sphere(ray.origin, 0.03f, color, duration);
     }
 
 
-    
     public static void Capsule(Vector3 center, Vector3 dir, float radius, float height, Color color, float duration = 0)
     {
-        var cylinderHeight = height - radius*2;
-        var v = Vector3.Angle(dir,Vector3.up) > 0.001 ? Vector3.Cross(dir, Vector3.up) : Vector3.Cross(dir, Vector3.left);
-        
-        CircleInternal(center + dir*cylinderHeight*0.5f, dir, v, radius, color, duration);
-        CircleInternal(center - dir*cylinderHeight*0.5f, dir, v, radius, color, duration);
-        
+        var cylinderHeight = height - radius * 2;
+        var v = Vector3.Angle(dir, Vector3.up) > 0.001 ? Vector3.Cross(dir, Vector3.up) : Vector3.Cross(dir, Vector3.left);
+
+        CircleInternal(center + dir * cylinderHeight * 0.5f, dir, v, radius, color, duration);
+        CircleInternal(center - dir * cylinderHeight * 0.5f, dir, v, radius, color, duration);
+
         Cylinder(center, dir, radius, cylinderHeight * 0.5f, color, duration);
     }
 
     public static void Prim(capsule capsule, Color color, float duration = 0)
     {
         var v = capsule.p2 - capsule.p1;
-        Capsule(capsule.p1 + v*0.5f, math.normalize(v), capsule.radius, math.length(v) + 2*capsule.radius, color, duration);
+        Capsule(capsule.p1 + v * 0.5f, math.normalize(v), capsule.radius, math.length(v) + 2 * capsule.radius, color, duration);
     }
-    
+
     public static void Cylinder(Vector3 center, Vector3 normal, float radius, float halfHeight, Color color, float duration = 0)
     {
         Vector3 v1;
@@ -78,20 +77,20 @@ public class DebugDraw
     public static void Prim(box box, Color color, float duration = 0)
     {
         var size = box.size;
-        var axisX = mul(box.rotation,float3(1,0,0)) * size.x;   
-        var axisY = mul(box.rotation,float3(0,1,0)) * size.y;
-        var axisZ = mul(box.rotation,float3(0,0,1)) * size.z;
+        var axisX = mul(box.rotation, float3(1, 0, 0)) * size.x;
+        var axisY = mul(box.rotation, float3(0, 1, 0)) * size.y;
+        var axisZ = mul(box.rotation, float3(0, 0, 1)) * size.z;
 
-        var A = box.center + (axisX + axisY + axisZ)*0.5f;
+        var A = box.center + (axisX + axisY + axisZ) * 0.5f;
         var B = A - axisY;
         var C = B - axisZ;
         var D = C + axisY;
-        
+
         var E = A - axisX;
         var F = B - axisX;
         var G = C - axisX;
         var H = D - axisX;
-        
+
         Debug.DrawLine(A, B, color, duration);
         Debug.DrawLine(B, C, color, duration);
         Debug.DrawLine(C, D, color, duration);
@@ -101,13 +100,13 @@ public class DebugDraw
         Debug.DrawLine(F, G, color, duration);
         Debug.DrawLine(G, H, color, duration);
         Debug.DrawLine(H, E, color, duration);
-        
+
         Debug.DrawLine(A, E, color, duration);
         Debug.DrawLine(B, F, color, duration);
         Debug.DrawLine(C, G, color, duration);
         Debug.DrawLine(H, D, color, duration);
     }
-    
+
     static void CircleInternal(Vector3 center, Vector3 v1, Vector3 v2, float radius, Color color, float duration = 0)
     {
         const int segments = 20;
@@ -139,19 +138,19 @@ public class DebugDraw
     {
         var angleRot = Quaternion.AngleAxis(angle, Vector3.up);
         var dir = angleRot * Vector3.forward;
-        Arrow(pos, dir, color, length, tipSize, width);           
+        Arrow(pos, dir, color, length, tipSize, width);
     }
-        
+
     public static void Arrow(Vector3 pos, Vector2 direction, Color color, float length = 1f, float tipSize = 0.25f, float width = 0.5f)
     {
         var dir = new Vector3(direction.x, 0f, direction.y);
         Arrow(pos, dir, color, length, tipSize, width);
     }
-        
-    public static void Arrow(Vector3 pos, Vector3 direction, Color color, float length=1f, float tipSize=0.25f, float width=0.5f)
+
+    public static void Arrow(Vector3 pos, Vector3 direction, Color color, float length = 1f, float tipSize = 0.25f, float width = 0.5f)
     {
         direction.Normalize();
-            
+
         var sideLen = length - length * tipSize;
         var widthOffset = Vector3.Cross(direction, Vector3.up) * width;
 
@@ -162,7 +161,7 @@ public class DebugDraw
         var upCornerInLeft = pos + widthOffset * 0.3f + direction * sideLen;
         var upCornerOutRight = pos - widthOffset * 0.5f + direction * sideLen;
         var upCornerOutLeft = pos + widthOffset * 0.5f + direction * sideLen;
-        
+
         Debug.DrawLine(baseLeft, baseRight, color);
         Debug.DrawLine(baseRight, upCornerInRight, color);
         Debug.DrawLine(upCornerInRight, upCornerOutRight, color);

@@ -3,7 +3,7 @@ using Unity.Entities;
 using UnityEngine;
 
 [Serializable]
-public struct DamageHistoryData : IComponentData, IReplicatedComponent             
+public struct DamageHistoryData : IComponentData, IReplicatedComponent
 {
     [Serializable]
     public struct InflictedDamage
@@ -30,7 +30,7 @@ public struct DamageHistoryData : IComponentData, IReplicatedComponent
     {
         return new ReplicatedComponentSerializerFactory<DamageHistoryData>();
     }
-    
+
     public void Serialize(ref SerializeContext context, ref NetworkWriter writer)
     {
         inflictedDamage.Serialize(ref writer);
@@ -45,4 +45,3 @@ public struct DamageHistoryData : IComponentData, IReplicatedComponent
 public class DamageHistory : ComponentDataProxy<DamageHistoryData>
 {
 }
-

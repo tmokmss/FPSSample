@@ -23,11 +23,11 @@ public class FindWindow
 
         if (!PrefabUtility.IsAnyPrefabInstanceRoot(selected))
             return;
-        
+
         var selectedPrefabPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(selected);
         FindInstancesOfPrefab(selectedPrefabPath);
     }
-    
+
     static void FindInstancesOfPrefab(string prefabPath)
     {
         var matches = new List<GameObject>();
@@ -37,10 +37,10 @@ public class FindWindow
         {
             if (!PrefabUtility.IsPartOfPrefabInstance(gameObject))
                 continue;
-            
+
             if (!PrefabUtility.IsAnyPrefabInstanceRoot(gameObject))
                 continue;
-            
+
             var path = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(gameObject);
             if (!path.Equals(prefabPath))
                 continue;
@@ -50,8 +50,8 @@ public class FindWindow
 
         Selection.objects = matches.ToArray();
     }
-    
-    
+
+
     [MenuItem("GameObject/Find/Instances with same components", false, -101)]
     static void FindSameComponents()
     {
@@ -62,7 +62,7 @@ public class FindWindow
         var primaryComponentIndex = components.Length == 1 ? 0 : 1;
 
         var primaryComponent = components[primaryComponentIndex];
-        
+
 //        Debug.Log("Finding all with component:" + primaryComponent);
 
         var foundObjects = GameObject.FindObjectsOfType(primaryComponent.GetType());
@@ -91,11 +91,11 @@ public class FindWindow
 
             if (fail)
                 continue;
-            
+
             matches.Add(gameObject);
         }
 
- //       Debug.Log("Found;" + matches.Count);
+        //       Debug.Log("Found;" + matches.Count);
         Selection.objects = matches.ToArray();
     }
 }

@@ -12,6 +12,5 @@ namespace NetcodeTests
         public abstract void Serialize(ref NetworkWriter writer);
 
         public abstract void AssertReplicatedCorrectly(TestSerializable clientEntity, bool isPredicting);
-
     }
 }

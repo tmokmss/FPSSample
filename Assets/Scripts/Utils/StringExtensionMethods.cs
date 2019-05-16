@@ -33,12 +33,13 @@ public static class StringExtensionMethods
     public static int PrefixMatch(this string str, string prefix)
     {
         int l = 0, slen = str.Length, plen = prefix.Length;
-        while(l<slen && l<plen)
+        while (l < slen && l < plen)
         {
             if (str[l] != prefix[l])
                 break;
             l++;
         }
+
         return l;
     }
 }

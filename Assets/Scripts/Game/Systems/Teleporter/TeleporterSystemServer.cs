@@ -3,7 +3,6 @@
 [DisableAutoCreation]
 public class TeleporterSystemServer : ComponentSystem
 {
-
     public TeleporterSystemServer(GameWorld gameWorld)
     {
         m_GameWorld = gameWorld;
@@ -26,12 +25,10 @@ public class TeleporterSystemServer : ComponentSystem
 
             if (t.characterInside != null)
             {
-                
-
                 if (t.characterInside.owner != Entity.Null && EntityManager.HasComponent<Character>(t.characterInside.owner))
                 {
-                    var character = EntityManager.GetComponentObject<Character>(t.characterInside.owner);    
-                    
+                    var character = EntityManager.GetComponentObject<Character>(t.characterInside.owner);
+
                     var dstPos = t.targetTeleporter.GetSpawnPositionWorld();
                     var dstRot = t.targetTeleporter.GetSpawnRotationWorld();
 
@@ -39,10 +36,10 @@ public class TeleporterSystemServer : ComponentSystem
 
                     var presentation = presentationArray[i];
                     presentation.effectTick = m_GameWorld.worldTime.tick;
-                    EntityManager.SetComponentData(entities[i],presentation);
+                    EntityManager.SetComponentData(entities[i], presentation);
                 }
-                t.characterInside = null;
 
+                t.characterInside = null;
             }
         }
     }

@@ -8,8 +8,8 @@ public class SparseTickBuffer
     {
         m_ticks = new uint[size];
     }
-    
-    
+
+
     public int Register(uint tick)
     {
         uint lastSetTick = currentIndex != -1 ? m_ticks[currentIndex] : 0;
@@ -33,19 +33,20 @@ public class SparseTickBuffer
 
             m_ticks[currentIndex] = tick;
         }
-        
+
         return currentIndex;
     }
 
     public int GetIndex(uint tick)
     {
-        for (int i = 0; i < m_ticks.Length; i++)      
+        for (int i = 0; i < m_ticks.Length; i++)
         {
             if (m_ticks[i] == tick)
             {
                 return i;
             }
         }
+
         return -1;
     }
 
